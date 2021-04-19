@@ -1,0 +1,22 @@
+inline void rectangular_object_with_unknown_width_height_tait_bryan_wc(Eigen::Matrix<double, 2, 1> &delta, double px, double py, double pz, double om, double fi, double ka, double xsl, double ysl, double zsl, double xtg, double ytg, double ztg, double vxx, double vxy, double vxz, double vyx, double vyy, double vyz, double scale_x, double scale_y)
+{delta.coeffRef(0,0) = -vxx*(px + scale_x*xsl*cos(fi)*cos(ka) - scale_y*ysl*sin(ka)*cos(fi) - xtg + zsl*sin(fi)) - vxy*(py + scale_x*xsl*(sin(fi)*sin(om)*cos(ka) + sin(ka)*cos(om)) + scale_y*ysl*(-sin(fi)*sin(ka)*sin(om) + cos(ka)*cos(om)) - ytg - zsl*sin(om)*cos(fi)) - vxz*(pz + scale_x*xsl*(-sin(fi)*cos(ka)*cos(om) + sin(ka)*sin(om)) + scale_y*ysl*(sin(fi)*sin(ka)*cos(om) + sin(om)*cos(ka)) + zsl*cos(fi)*cos(om) - ztg);
+delta.coeffRef(1,0) = -vyx*(px + scale_x*xsl*cos(fi)*cos(ka) - scale_y*ysl*sin(ka)*cos(fi) - xtg + zsl*sin(fi)) - vyy*(py + scale_x*xsl*(sin(fi)*sin(om)*cos(ka) + sin(ka)*cos(om)) + scale_y*ysl*(-sin(fi)*sin(ka)*sin(om) + cos(ka)*cos(om)) - ytg - zsl*sin(om)*cos(fi)) - vyz*(pz + scale_x*xsl*(-sin(fi)*cos(ka)*cos(om) + sin(ka)*sin(om)) + scale_y*ysl*(sin(fi)*sin(ka)*cos(om) + sin(om)*cos(ka)) + zsl*cos(fi)*cos(om) - ztg);
+}
+inline void rectangular_object_with_unknown_width_height_tait_bryan_wc_jacobian(Eigen::Matrix<double, 2, 8> &j, double px, double py, double pz, double om, double fi, double ka, double xsl, double ysl, double zsl, double xtg, double ytg, double ztg, double vxx, double vxy, double vxz, double vyx, double vyy, double vyz, double scale_x, double scale_y)
+{j.coeffRef(0,0) = -vxx;
+j.coeffRef(0,1) = -vxy;
+j.coeffRef(0,2) = -vxz;
+j.coeffRef(0,3) = -vxy*(scale_x*xsl*(sin(fi)*cos(ka)*cos(om) - sin(ka)*sin(om)) + scale_y*ysl*(-sin(fi)*sin(ka)*cos(om) - sin(om)*cos(ka)) - zsl*cos(fi)*cos(om)) - vxz*(scale_x*xsl*(sin(fi)*sin(om)*cos(ka) + sin(ka)*cos(om)) + scale_y*ysl*(-sin(fi)*sin(ka)*sin(om) + cos(ka)*cos(om)) - zsl*sin(om)*cos(fi));
+j.coeffRef(0,4) = -vxx*(-scale_x*xsl*sin(fi)*cos(ka) + scale_y*ysl*sin(fi)*sin(ka) + zsl*cos(fi)) - vxy*(scale_x*xsl*sin(om)*cos(fi)*cos(ka) - scale_y*ysl*sin(ka)*sin(om)*cos(fi) + zsl*sin(fi)*sin(om)) - vxz*(-scale_x*xsl*cos(fi)*cos(ka)*cos(om) + scale_y*ysl*sin(ka)*cos(fi)*cos(om) - zsl*sin(fi)*cos(om));
+j.coeffRef(0,5) = -vxx*(-scale_x*xsl*sin(ka)*cos(fi) - scale_y*ysl*cos(fi)*cos(ka)) - vxy*(scale_x*xsl*(-sin(fi)*sin(ka)*sin(om) + cos(ka)*cos(om)) + scale_y*ysl*(-sin(fi)*sin(om)*cos(ka) - sin(ka)*cos(om))) - vxz*(scale_x*xsl*(sin(fi)*sin(ka)*cos(om) + sin(om)*cos(ka)) + scale_y*ysl*(sin(fi)*cos(ka)*cos(om) - sin(ka)*sin(om)));
+j.coeffRef(0,6) = -vxx*xsl*cos(fi)*cos(ka) - vxy*xsl*(sin(fi)*sin(om)*cos(ka) + sin(ka)*cos(om)) - vxz*xsl*(-sin(fi)*cos(ka)*cos(om) + sin(ka)*sin(om));
+j.coeffRef(0,7) = vxx*ysl*sin(ka)*cos(fi) - vxy*ysl*(-sin(fi)*sin(ka)*sin(om) + cos(ka)*cos(om)) - vxz*ysl*(sin(fi)*sin(ka)*cos(om) + sin(om)*cos(ka));
+j.coeffRef(1,0) = -vyx;
+j.coeffRef(1,1) = -vyy;
+j.coeffRef(1,2) = -vyz;
+j.coeffRef(1,3) = -vyy*(scale_x*xsl*(sin(fi)*cos(ka)*cos(om) - sin(ka)*sin(om)) + scale_y*ysl*(-sin(fi)*sin(ka)*cos(om) - sin(om)*cos(ka)) - zsl*cos(fi)*cos(om)) - vyz*(scale_x*xsl*(sin(fi)*sin(om)*cos(ka) + sin(ka)*cos(om)) + scale_y*ysl*(-sin(fi)*sin(ka)*sin(om) + cos(ka)*cos(om)) - zsl*sin(om)*cos(fi));
+j.coeffRef(1,4) = -vyx*(-scale_x*xsl*sin(fi)*cos(ka) + scale_y*ysl*sin(fi)*sin(ka) + zsl*cos(fi)) - vyy*(scale_x*xsl*sin(om)*cos(fi)*cos(ka) - scale_y*ysl*sin(ka)*sin(om)*cos(fi) + zsl*sin(fi)*sin(om)) - vyz*(-scale_x*xsl*cos(fi)*cos(ka)*cos(om) + scale_y*ysl*sin(ka)*cos(fi)*cos(om) - zsl*sin(fi)*cos(om));
+j.coeffRef(1,5) = -vyx*(-scale_x*xsl*sin(ka)*cos(fi) - scale_y*ysl*cos(fi)*cos(ka)) - vyy*(scale_x*xsl*(-sin(fi)*sin(ka)*sin(om) + cos(ka)*cos(om)) + scale_y*ysl*(-sin(fi)*sin(om)*cos(ka) - sin(ka)*cos(om))) - vyz*(scale_x*xsl*(sin(fi)*sin(ka)*cos(om) + sin(om)*cos(ka)) + scale_y*ysl*(sin(fi)*cos(ka)*cos(om) - sin(ka)*sin(om)));
+j.coeffRef(1,6) = -vyx*xsl*cos(fi)*cos(ka) - vyy*xsl*(sin(fi)*sin(om)*cos(ka) + sin(ka)*cos(om)) - vyz*xsl*(-sin(fi)*cos(ka)*cos(om) + sin(ka)*sin(om));
+j.coeffRef(1,7) = vyx*ysl*sin(ka)*cos(fi) - vyy*ysl*(-sin(fi)*sin(ka)*sin(om) + cos(ka)*cos(om)) - vyz*ysl*(sin(fi)*sin(ka)*cos(om) + sin(om)*cos(ka));
+}
