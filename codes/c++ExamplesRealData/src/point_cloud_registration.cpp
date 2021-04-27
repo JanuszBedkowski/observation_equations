@@ -29,6 +29,7 @@ struct ScanPose{
 std::vector<ScanPose> scan_poses;
 int current_scan_index = 0;
 
+float sradius = 1.0;
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -59,7 +60,7 @@ void split(std::string &str, char delim, std::vector<std::string> &out)
 	}
 }
 
-std::vector<std::pair<int,int>> nns(ScanPose &sp1, ScanPose &sp2);
+std::vector<std::pair<int,int>> nns(ScanPose &sp1, ScanPose &sp2, float radius);
 
 std::vector<std::pair<int,int>> pairs_temp;
 
@@ -308,7 +309,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}*/
 
 
-			pairs_temp = nns(scan_poses[0], scan_poses[1]);
+			pairs_temp = nns(scan_poses[0], scan_poses[1], sradius);
 			break;
 		}
 		case 't':{
@@ -319,7 +320,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			for(size_t i = 0 ; i < scan_poses.size() ; i++){
 				for(size_t j = i+1 ; j < scan_poses.size() ; j++){
 					//if(i == j)continue;
-					std::vector<std::pair<int,int>> nn = nns(scan_poses[i], scan_poses[j]);
+					std::vector<std::pair<int,int>> nn = nns(scan_poses[i], scan_poses[j], sradius);
 					std::cout << nn.size() << "," << scan_poses[i].pc.size() << "," << scan_poses[j].pc.size() << std::endl;
 
 					TaitBryanPose pose_1 = pose_tait_bryan_from_affine_matrix(scan_poses[i].m);
@@ -489,7 +490,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 				for(size_t j = 0 ; j < scan_poses.size() ; j++){
 					if(i == j)continue;
-					std::vector<std::pair<int,int>> nn = nns(scan_poses[i], scan_poses[j]);
+					std::vector<std::pair<int,int>> nn = nns(scan_poses[i], scan_poses[j], sradius);
 					std::cout << nn.size() << "," << scan_poses[i].pc.size() << "," << scan_poses[j].pc.size() << std::endl;
 
 					//TaitBryanPose pose_1 = pose_tait_bryan_from_affine_matrix(scan_poses[i].m);
@@ -641,6 +642,17 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}
 			break;
 		}
+		case '1':{
+			sradius -= 0.01;
+			std::cout << "sradius: " << sradius << std::endl;
+			if(sradius < 0)sradius = 0.01;
+			break;		
+		} 
+		case '2':{
+			sradius += 0.01;
+			std::cout << "sradius: " << sradius << std::endl;
+			break;		
+		} 
 	}
 	printHelp();
 	glutPostRedisplay();
@@ -697,6 +709,8 @@ void printHelp() {
 	std::cout << "p: print poses" << std::endl;
 	std::cout << "t: optimize (Tait-Bryan)" << std::endl;
 	std::cout << "l: optimize (Lie algebra)" << std::endl;
+	std::cout << "1: sradius -= 0.01" << std::endl;
+	std::cout << "2: sradius += 0.01" << std::endl;
 }
 
 void set_initial_guess(std::vector<ScanPose>& scan_poses){
@@ -807,7 +821,7 @@ void set_initial_guess(std::vector<ScanPose>& scan_poses){
 	scan_poses[12].m(1,3) = 82.8304;
 }
 
-std::vector<std::pair<int,int>> nns(ScanPose &sp1, ScanPose &sp2)
+std::vector<std::pair<int,int>> nns(ScanPose &sp1, ScanPose &sp2, float radius)
 {
 	pcl::PointCloud<pcl::PointXYZ> pc1;
 	pcl::PointCloud<pcl::PointXYZ> pc2;
@@ -833,7 +847,7 @@ std::vector<std::pair<int,int>> nns(ScanPose &sp1, ScanPose &sp2)
 		cloud->push_back(pc1[i]);
 	}
 	int K = 1;
-	float radius = 0.5;
+	
 	std::vector<int> pointIdxRadiusSearch;
 	std::vector<float> pointRadiusSquaredDistance;
 
