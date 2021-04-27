@@ -653,6 +653,24 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			std::cout << "sradius: " << sradius << std::endl;
 			break;		
 		} 
+		case '3':{
+			for(size_t i = 0; i < scan_poses.size(); i++){
+				pcl::PointCloud<pcl::PointXYZ> pc;
+				for(size_t j = 0; j < scan_poses[i].pc.size(); j++){
+					Eigen::Vector3d v(scan_poses[i].pc[j].x, scan_poses[i].pc[j].y, scan_poses[i].pc[j].z);
+					Eigen::Vector3d vt = scan_poses[i].m * v;
+					pcl::PointXYZ p;
+					p.x = vt.x();
+					p.y = vt.y();
+					p.z = vt.z();
+					pc.push_back(p);
+				}
+				pcl::io::savePCDFileBinary(std::to_string(i) + ".pcd", pc);
+				std::cout << "file: " << std::to_string(i) + ".pcd" << std::endl;
+ 			}
+			break;
+		}
+	
 	}
 	printHelp();
 	glutPostRedisplay();
@@ -705,12 +723,13 @@ void printHelp() {
 	std::cout << "-------help-------" << std::endl;
 	std::cout << "-: current_scan_index--" << std::endl;
 	std::cout << "=: current_scan_index++" << std::endl;
-	std::cout << "awsdzx: move current_scan" << std::endl;
+	std::cout << "awsdzx: move current_scan (green)" << std::endl;
 	std::cout << "p: print poses" << std::endl;
 	std::cout << "t: optimize (Tait-Bryan)" << std::endl;
 	std::cout << "l: optimize (Lie algebra)" << std::endl;
 	std::cout << "1: sradius -= 0.01" << std::endl;
 	std::cout << "2: sradius += 0.01" << std::endl;
+	std::cout << "3: save current point clouds" << std::endl;
 }
 
 void set_initial_guess(std::vector<ScanPose>& scan_poses){
