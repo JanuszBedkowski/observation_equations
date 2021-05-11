@@ -531,6 +531,7 @@ void printHelp() {
 	std::cout << "5: constraint_type squared" << std::endl;
 	std::cout << "6: weight_constraint /=10" << std::endl;
 	std::cout << "7: weight_constraint *=10" << std::endl;
+	std::cout << "r: random initial guess" << std::endl;
 }
 
 

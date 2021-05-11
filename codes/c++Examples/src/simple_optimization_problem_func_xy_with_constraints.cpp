@@ -1086,6 +1086,7 @@ void printHelp() {
 	std::cout << "]: pdate_scale += 0.01" << std::endl;
 	std::cout << "k: w_longitudal_motion *= 10" << std::endl;
 	std::cout << "l: w_longitudal_motion /= 10" << std::endl;
+	std::cout << "r: random initial guess" << std::endl;
 }
 
 
