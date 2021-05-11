@@ -743,6 +743,53 @@ int main(int argc, char *argv[]){
 	}
 	colinearity_observations_manual.clear();
 
+
+	///////////////for students///////////////////////
+	//30056 0
+	//30055 1
+	//30054 2
+	//30053 3
+	//20049 4
+	//20050 5
+	//20051 6
+	//20052 7
+
+	//8
+	//20049
+	obs.eta = 6272.0;
+	obs.ksi = 3725.3;
+	obs.index_camera = 4;
+	obs.index_tie_point = tie_points.size();
+	colinearity_observations_manual.push_back(obs);
+
+	//20050
+	obs.eta = 3238.0;
+	obs.ksi = 3916.5;
+	obs.index_camera = 5;
+	obs.index_tie_point = tie_points.size();
+	colinearity_observations_manual.push_back(obs);
+
+	for(size_t i = 0 ; i < colinearity_observations_manual.size(); i++){
+		colinearity_observations_manual[i].eta = colinearity_observations_manual[i].eta - 7680*0.5;
+		colinearity_observations_manual[i].ksi = -colinearity_observations_manual[i].ksi + 13824*0.5;
+	}
+
+	inters = bundle_of_rays_intersection(
+				cam_params,
+				colinearity_observations_manual,
+				cameras);
+	tp.is_control_point = false;
+	tp.coordinates = inters;
+	tie_points.push_back(tp);
+
+	for(size_t i = 0 ; i < colinearity_observations_manual.size(); i++){
+		colinearity_observations.push_back(colinearity_observations_manual[i]);
+	}
+	colinearity_observations_manual.clear();
+	///////////////for students///////////////////////
+
+
+
 	if (false == initGL(&argc, argv)) {
 		return 4;
 	}
