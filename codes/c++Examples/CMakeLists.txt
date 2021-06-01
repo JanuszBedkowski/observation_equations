@@ -324,6 +324,15 @@ target_link_libraries(view_nns
 	${OpenCV_LIBS}
 )
 
+add_executable(distance_point_to_plane
+	src/distance_point_to_plane.cpp
+)
+
+target_link_libraries(distance_point_to_plane
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+	${OpenCV_LIBS}
+)
 
 
 
