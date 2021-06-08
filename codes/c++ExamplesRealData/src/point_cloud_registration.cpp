@@ -26,10 +26,12 @@ struct ScanPose{
 	pcl::PointCloud<pcl::PointXYZ> pc;
 };
 
+pcl::PointCloud<pcl::PointXYZ> pc_ground_truth;
 std::vector<ScanPose> scan_poses;
 int current_scan_index = 0;
 
 float sradius = 1.0;
+bool show_ground_truth = true;
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -93,6 +95,11 @@ int main(int argc, char *argv[]){
 			sp.pc = pc;
 			scan_poses.push_back(sp);
 		}
+	}
+
+	if (pcl::io::loadPCDFile("../data/pcd/ground_truth.pcd", pc_ground_truth) == -1) {
+		std::cout << "PROBLEM WITH LODAING pcd: ../data/pcd/ground_truth.pcd" << std::endl;
+		return 1;
 	}
 
 	set_initial_guess(scan_poses);
@@ -197,6 +204,15 @@ void display() {
 
 	}
 	glEnd();
+
+	if(show_ground_truth){
+		glColor3f(0.7, 0.7, 0.7);
+		glBegin(GL_POINTS);
+		for(size_t i = 0; i < pc_ground_truth.size(); i++){
+			glVertex3f(pc_ground_truth[i].x, pc_ground_truth[i].y, pc_ground_truth[i].z);
+		}
+		glEnd();
+	}
 
 	glutSwapBuffers();
 }
@@ -670,7 +686,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
  			}
 			break;
 		}
-	
+		case 'g':{
+			show_ground_truth =! show_ground_truth;
+			break;
+		}
 	}
 	printHelp();
 	glutPostRedisplay();
@@ -730,114 +749,113 @@ void printHelp() {
 	std::cout << "1: sradius -= 0.01" << std::endl;
 	std::cout << "2: sradius += 0.01" << std::endl;
 	std::cout << "3: save current point clouds" << std::endl;
+	std::cout << "g: show_ground_truth =! show_ground_truth" << std::endl;
 }
 
 void set_initial_guess(std::vector<ScanPose>& scan_poses){
-	scan_poses[1].m(0,0) = 0.913089;
-	scan_poses[1].m(0,1) = -0.40776;
-	scan_poses[1].m(0,3) = 1.58603;
+	scan_poses[0].m(0,0) = 0.380925;
+	scan_poses[0].m(0,1) = 0.924606;
+	scan_poses[0].m(0,3) = -6.06303;
 
-	scan_poses[1].m(1,0) = 0.40776;
-	scan_poses[1].m(1,1) = 0.913089;
-	scan_poses[1].m(1,3) = 4.54142;
+	scan_poses[0].m(1,0) = -0.924606;
+	scan_poses[0].m(1,1) = 0.380925;
+	scan_poses[0].m(1,3) = -8.2396;
 
+	scan_poses[1].m(0,0) = 0.710913;
+	scan_poses[1].m(0,1) = 0.70328;
+	scan_poses[1].m(0,3) = -1.03452;
 
-	scan_poses[2].m(0,0) = 0.963771;
-	scan_poses[2].m(0,1) = -0.266731;
-	scan_poses[2].m(0,3) = 4.07304;
+	scan_poses[1].m(1,0) = -0.70328;
+	scan_poses[1].m(1,1) = 0.710913;
+	scan_poses[1].m(1,3) = -7.77656;
 
-	scan_poses[2].m(1,0) = 0.266731;
-	scan_poses[2].m(1,1) = 0.963771;
-	scan_poses[2].m(1,3) = 9.47684;
+	scan_poses[2].m(0,0) = 0.613745;
+	scan_poses[2].m(0,1) = 0.789504;
+	scan_poses[2].m(0,3) = 3.99851;
 
+	scan_poses[2].m(1,0) = -0.789504;
+	scan_poses[2].m(1,1) = 0.613745;
+	scan_poses[2].m(1,3) = -8.18709;
 
-	scan_poses[3].m(0,0) =  0.891568;
-	scan_poses[3].m(0,1) = -0.452886;
-	scan_poses[3].m(0,3) = 6.52658;
+	scan_poses[3].m(0,0) = 0.751805;
+	scan_poses[3].m(0,1) = 0.659385;
+	scan_poses[3].m(0,3) = 9.99224;
 
-	scan_poses[3].m(1,0) = 0.452886;
-	scan_poses[3].m(1,1) = 0.891568;
-	scan_poses[3].m(1,3) = 14.5315;
+	scan_poses[3].m(1,0) = -0.659385;
+	scan_poses[3].m(1,1) = 0.751805;
+	scan_poses[3].m(1,3) = -8.54882;
 
+	scan_poses[4].m(0,0) = -0.996673;
+	scan_poses[4].m(0,1) = 0.0815022;
+	scan_poses[4].m(0,3) = 12.6963;
 
-	scan_poses[4].m(0,0) = -0.3043;
-	scan_poses[4].m(0,1) = 0.952576;
-	scan_poses[4].m(0,3) = 7.65424;
+	scan_poses[4].m(1,0) = -0.0815022;
+	scan_poses[4].m(1,1) = -0.996673;
+	scan_poses[4].m(1,3) = -8.73861;
 
-	scan_poses[4].m(1,0) = -0.952576;
-	scan_poses[4].m(1,1) = -0.3043;
-	scan_poses[4].m(1,3) = 17.3372;
+	scan_poses[5].m(0,0) = 0.639602;
+	scan_poses[5].m(0,1) = 0.768705;
+	scan_poses[5].m(0,3) = 17.8592;
 
-	scan_poses[5].m(0,0) =  0.96017;
-	scan_poses[5].m(0,1) = -0.279415;
-	scan_poses[5].m(0,3) = 6.46303;
+	scan_poses[5].m(1,0) = -0.768705;
+	scan_poses[5].m(1,1) = 0.639602;
+	scan_poses[5].m(1,3) = -2.78423;
 
-	scan_poses[5].m(1,0) = 0.279415;
-	scan_poses[5].m(1,1) = 0.96017;
-	scan_poses[5].m(1,3) = 29.547;
+	scan_poses[6].m(0,0) = 0.745174;
+	scan_poses[6].m(0,1) = 0.66687;
+	scan_poses[6].m(0,3) = 22.9195;
 
+	scan_poses[6].m(1,0) = -0.66687;
+	scan_poses[6].m(1,1) = 0.745174;
+	scan_poses[6].m(1,3) = -1.98392;
 
-	scan_poses[6].m(0,0) = 0.913089;
-	scan_poses[6].m(0,1) = -0.40776;
-	scan_poses[6].m(0,3) = 7.81437;
+	scan_poses[7].m(0,0) = -0.0491839;
+	scan_poses[7].m(0,1) = 0.998789;
+	scan_poses[7].m(0,3) = 31.7827;
 
-	scan_poses[6].m(1,0) = 0.40776;
-	scan_poses[6].m(1,1) = 0.913089;
-	scan_poses[6].m(1,3) = 34.7969;
+	scan_poses[7].m(1,0) = -0.998789;
+	scan_poses[7].m(1,1) = -0.0491839;
+	scan_poses[7].m(1,3) = -2.2143;
 
+	scan_poses[8].m(0,0) = -0.128844;
+	scan_poses[8].m(0,1) = 0.991665;
+	scan_poses[8].m(0,3) = 39.0272;
 
-	scan_poses[7].m(0,0) = 0.896052;
-	scan_poses[7].m(0,1) = 0.443948;
-	scan_poses[7].m(0,3) = 11.9964;
+	scan_poses[8].m(1,0) = -0.991665;
+	scan_poses[8].m(1,1) = -0.128844;
+	scan_poses[8].m(1,3) = -2.29705;
 
-	scan_poses[7].m(1,0) = -0.443948;
-	scan_poses[7].m(1,1) = 0.896052;
-	scan_poses[7].m(1,3) = 42.9149;
+	scan_poses[9].m(0,0) = -0.34215;
+	scan_poses[9].m(0,1) = 0.939646;
+	scan_poses[9].m(0,3) = 48.1018;
 
+	scan_poses[9].m(1,0) = -0.939646;
+	scan_poses[9].m(1,1) = -0.34215;
+	scan_poses[9].m(1,3) = -1.94245;
 
-	scan_poses[8].m(0,0) =  0.857709;
-	scan_poses[8].m(0,1) = 0.514136;
-	scan_poses[8].m(0,3) = 14.3961;
+	scan_poses[10].m(0,0) = -0.158532;
+	scan_poses[10].m(0,1) = 0.987354;
+	scan_poses[10].m(0,3) = 54.2044;
 
-	scan_poses[8].m(1,0) = -0.514136;
-	scan_poses[8].m(1,1) = 0.857709;
-	scan_poses[8].m(1,3) = 49.5327;
+	scan_poses[10].m(1,0) = -0.987354;
+	scan_poses[10].m(1,1) = -0.158532;
+	scan_poses[10].m(1,3) = -7.96743;
 
+	scan_poses[11].m(0,0) = -0.197888;
+	scan_poses[11].m(0,1) = 0.980225;
+	scan_poses[11].m(0,3) = 65.5777;
 
-	scan_poses[9].m(0,0) = 0.738469;
-	scan_poses[9].m(0,1) = 0.674288;
-	scan_poses[9].m(0,3) = 17.9479;
+	scan_poses[11].m(1,0) = -0.980225;
+	scan_poses[11].m(1,1) = -0.197888;
+	scan_poses[11].m(1,3) = -8.39231;
 
-	scan_poses[9].m(1,0) = -0.674288;
-	scan_poses[9].m(1,1) = 0.738469;
-	scan_poses[9].m(1,3) = 57.9236;
+	scan_poses[12].m(0,0) = -0.360872;
+	scan_poses[12].m(0,1) = 0.932615;
+	scan_poses[12].m(0,3) = 78.1712;
 
-
-	scan_poses[10].m(0,0) = 0.852525;
-	scan_poses[10].m(0,1) = 0.522687;
-	scan_poses[10].m(0,3) = 25.6735;
-
-	scan_poses[10].m(1,0) = -0.522687;
-	scan_poses[10].m(1,1) = 0.852525;
-	scan_poses[10].m(1,3) = 60.8001;
-
-
-	scan_poses[11].m(0,0) = 0.825336;
-	scan_poses[11].m(0,1) = 0.564642;
-	scan_poses[11].m(0,3) = 30.8898;
-
-	scan_poses[11].m(1,0) = -0.564642;
-	scan_poses[11].m(1,1) = 0.825336;
-	scan_poses[11].m(1,3) = 71.3578;
-
-
-	scan_poses[12].m(0,0) = 0.710914;
-	scan_poses[12].m(0,1) = 0.703279;
-	scan_poses[12].m(0,3) = 35.62;
-
-	scan_poses[12].m(1,0) = -0.703279;
-	scan_poses[12].m(1,1) = 0.710914;
-	scan_poses[12].m(1,3) = 82.8304;
+	scan_poses[12].m(1,0) = -0.932615;
+	scan_poses[12].m(1,1) = -0.360872;
+	scan_poses[12].m(1,3) = -7.76261;
 }
 
 std::vector<std::pair<int,int>> nns(ScanPose &sp1, ScanPose &sp2, float radius)
