@@ -1,18 +1,20 @@
 #include <GL/freeglut.h>
-#include <vector>
 #include <Eigen/Eigen>
+#include <vector>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 
-#include "../include/structures.h"
-#include "../include/transformations.h"
+#include "structures.h"
+#include "transformations.h"
 #include "../../relative_pose_tait_bryan_wc_jacobian.h"
 #include "../../relative_pose_rodrigues_wc_jacobian.h"
 #include "../../relative_pose_quaternion_wc_jacobian.h"
 #include "../../quaternion_constraint_jacobian.h"
 #include "../../relative_pose_wc_jacobian.h"
 
-#include <fstream>
+
+
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
 int mouse_old_x, mouse_old_y;
@@ -32,19 +34,13 @@ void printHelp();
 std::vector<Eigen::Affine3d> m_poses;
 std::vector<std::tuple<int, int, Eigen::Affine3d>> edges_g2o;
 
-//std::vector<Eigen::Affine3d> m_poses_desired;
-
-//std::vector<std::pair<int, int>> odo_edges;
-//std::vector<std::pair<int, int>> loop_edges;
-
-
 int main(int argc, char *argv[]){
 
-    //std::ifstream g2o_file("/home/janusz/observation_equations/codes/benchmarks/data/sphere_bignoise_vertex3.g2o");
-	//std::ifstream g2o_file("/home/janusz/observation_equations/codes/benchmarks/data/sphere.g2o");
-	//std::ifstream g2o_file("/home/janusz/observation_equations/codes/benchmarks/data/cubicle.g2o");
 
-	std::ifstream g2o_file("../data/sphere-opt-g2o.g2o");
+    //std::ifstream g2o_file("../data/sphere_bignoise_vertex3.g2o");
+	std::ifstream g2o_file("../data/sphere.g2o");
+	//std::ifstream g2o_file("../data/cubicle.g2o");
+	//std::ifstream g2o_file("../data/sphere-optimized-g2o.g2o");
 
 	std::string line;
     while (std::getline(g2o_file, line)) {
@@ -58,10 +54,12 @@ int main(int argc, char *argv[]){
             line_stream >> p.px;
             line_stream >> p.py;
             line_stream >> p.pz;
-            line_stream >> p.q3;
-            line_stream >> p.q2;
             line_stream >> p.q1;
+            line_stream >> p.q2;
+            line_stream >> p.q3;
             line_stream >> p.q0;
+            normalize_quaternion(p);
+
             Eigen::Affine3d m = affine_matrix_from_pose_quaternion(p);
             m_poses.push_back(m);
         }
@@ -73,9 +71,9 @@ int main(int argc, char *argv[]){
             line_stream >> p.px;
             line_stream >> p.py;
             line_stream >> p.pz;
-            line_stream >> p.q3;
-            line_stream >> p.q2;
             line_stream >> p.q1;
+            line_stream >> p.q2;
+            line_stream >> p.q3;
             line_stream >> p.q0;
             Eigen::Affine3d m = affine_matrix_from_pose_quaternion(p);
 
@@ -86,6 +84,8 @@ int main(int argc, char *argv[]){
         }
     }
     g2o_file.close();
+
+    //exit(1);
 
 //	for(size_t i = 0 ; i < 100; i++){
 //		TaitBryanPose p;
@@ -362,12 +362,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.emplace_back(ir + 4 , 4, 1);
 			tripletListA.emplace_back(ir + 5 , 5, 1);
 
-			tripletListP.emplace_back(ir     , ir,     10000000000000);
-			tripletListP.emplace_back(ir + 1 , ir + 1, 10000000000000);
-			tripletListP.emplace_back(ir + 2 , ir + 2, 10000000000000);
-			tripletListP.emplace_back(ir + 3 , ir + 3, 10000000000000);
-			tripletListP.emplace_back(ir + 4 , ir + 4, 10000000000000);
-			tripletListP.emplace_back(ir + 5 , ir + 5, 10000000000000);
+			tripletListP.emplace_back(ir     , ir,     1);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 1);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 1);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 1);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 1);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 1);
 
 			tripletListB.emplace_back(ir     , 0, 0);
 			tripletListB.emplace_back(ir + 1 , 0, 0);
@@ -398,6 +398,18 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.clear();
 			tripletListP.clear();
 			tripletListB.clear();
+			/*//LM
+			{
+				for(size_t i = 0 ; i < m_poses.size() * 6; i++){
+					tripletListA.emplace_back(i, i, 0.01);
+				}
+				Eigen::SparseMatrix<double> matLM(m_poses.size() * 6, m_poses.size() * 6);
+				matLM.setFromTriplets(tripletListA.begin(), tripletListA.end());
+
+				AtPA = AtPA + matLM;
+			}*/
+
+
 
 			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
 			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
@@ -429,12 +441,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 				for(size_t i = 0; i < m_poses.size(); i++){
 					TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(m_poses[i]);
-					pose.px += h_x[counter++]*0.01;
-					pose.py += h_x[counter++]*0.01;
-					pose.pz += h_x[counter++]*0.01;
-					pose.om += h_x[counter++]*0.01;
-					pose.fi += h_x[counter++]*0.01;
-					pose.ka += h_x[counter++]*0.01;
+					pose.px += h_x[counter++];
+					pose.py += h_x[counter++];
+					pose.pz += h_x[counter++];
+					pose.om += h_x[counter++];
+					pose.fi += h_x[counter++];
+					pose.ka += h_x[counter++];
 					m_poses[i] = affine_matrix_from_pose_tait_bryan(pose);
 				}
 				std::cout << "optimizing with tait bryan finished" << std::endl;
