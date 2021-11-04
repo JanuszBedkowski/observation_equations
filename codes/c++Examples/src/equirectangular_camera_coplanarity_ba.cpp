@@ -8,9 +8,9 @@
 #include "../../equirectangular_camera_coplanarity_rodrigues_wc_jacobian.h"
 #include "../../equirectangular_camera_coplanarity_quaternion_wc_jacobian.h"
 #include "../../quaternion_constraint_jacobian.h"
-#include "../include/structures.h"
-#include "../include/transformations.h"
-#include "../include/cauchy.h"
+#include "structures.h"
+#include "transformations.h"
+#include "cauchy.h"
 
 struct KeyPoint{
 	double u;

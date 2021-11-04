@@ -3,13 +3,14 @@
 #include <Eigen/Eigen>
 #include <iostream>
 
+#include "structures.h"
+#include "transformations.h"
+#include "cauchy.h"
 #include "../../perspective_camera_tait_bryan_wc_jacobian.h"
 #include "../../perspective_camera_rodrigues_wc_jacobian.h"
 #include "../../perspective_camera_quaternion_wc_jacobian.h"
 #include "../../quaternion_constraint_jacobian.h"
-#include "../include/structures.h"
-#include "../include/transformations.h"
-#include "../include/cauchy.h"
+
 
 struct KeyPoint{
 	double u;

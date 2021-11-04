@@ -4,8 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../include/structures.h"
-#include "../include/transformations.h"
+#include "structures.h"
+#include "transformations.h"
 #include "../../sheaf_of_planes_observation_equation_jacobian.h"
 
 struct Plane{

@@ -4,9 +4,9 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
-#include "../include/structures.h"
-#include "../include/transformations.h"
-#include "../include/cauchy.h"
+#include "structures.h"
+#include "transformations.h"
+#include "cauchy.h"
 #include "../../perspective_camera_with_intrinsics_tait_bryan_cw_jacobian.h"
 #include "../../perspective_camera_with_intrinsics_rodrigues_cw_jacobian.h"
 #include "../../perspective_camera_with_intrinsics_quaternion_cw_jacobian.h"

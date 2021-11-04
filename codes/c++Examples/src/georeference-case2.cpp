@@ -4,10 +4,10 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../include/structures.h"
-#include "../include/transformations.h"
+#include "structures.h"
+#include "transformations.h"
+#include "cauchy.h"
 #include "../../relative_pose_tait_bryan_wc_jacobian.h"
-#include "../include/cauchy.h"
 #include "../../constraint_fixed_parameter_jacobian.h"
 
 const unsigned int window_width = 1920;

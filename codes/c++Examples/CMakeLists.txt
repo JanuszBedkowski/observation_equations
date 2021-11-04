@@ -28,6 +28,7 @@ endif()
 find_package( OpenCV REQUIRED )
 
 include_directories(
+	../common/include
 	${EIGEN3_INCLUDE_DIR} 
 	${EIGEN3_INCLUDE_DIRS} 
 	${Eigen3_DIR}

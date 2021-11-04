@@ -4,7 +4,6 @@
 #include <iostream>
 #include <iomanip>
 
-
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
 int mouse_old_x, mouse_old_y;

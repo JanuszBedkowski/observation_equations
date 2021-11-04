@@ -4,8 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../include/structures.h"
-#include "../include/transformations.h"
+#include "structures.h"
+#include "transformations.h"
 #include "../../ray_intersection_observation_equation_jacobian.h"
 
 const unsigned int window_width = 1920;

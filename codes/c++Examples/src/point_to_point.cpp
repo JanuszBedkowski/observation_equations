@@ -4,13 +4,14 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../include/structures.h"
-#include "../include/transformations.h"
+#include "structures.h"
+#include "transformations.h"
+#include "cauchy.h"
 #include "../../point_to_point_tait_bryan_wc_jacobian.h"
 #include "../../point_to_point_rodrigues_wc_jacobian.h"
 #include "../../point_to_point_quaternion_wc_jacobian.h"
 #include "../../quaternion_constraint_jacobian.h"
-#include "../include/cauchy.h"
+
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;

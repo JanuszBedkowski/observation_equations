@@ -4,13 +4,10 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../include/structures.h"
-#include "../include/transformations.h"
-//#include "../../point_to_plane_tait_bryan_wc_jacobian.h"
-//#include "../../point_to_plane_rodrigues_wc_jacobian.h"
-//#include "../../point_to_plane_quaternion_wc_jacobian.h"
+#include "structures.h"
+#include "transformations.h"
+#include "cauchy.h"
 #include "../../quaternion_constraint_jacobian.h"
-#include "../include/cauchy.h"
 #include "../../distance_point_to_plane_tait_bryan_wc_jacobian.h"
 #include "../../distance_point_to_plane_rodrigues_wc_jacobian.h"
 #include "../../distance_point_to_plane_quaternion_wc_jacobian.h"
