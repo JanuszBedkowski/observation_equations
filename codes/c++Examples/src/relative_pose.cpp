@@ -738,6 +738,14 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					pose.sz += h_x[counter++];
 
 					m_poses[i] = affine_matrix_from_pose_rodrigues(pose);
+
+					Eigen::Vector3d vx(m_poses[i](0,0), m_poses[i](1,0), m_poses[i](2,0));
+					Eigen::Vector3d vy(m_poses[i](0,1), m_poses[i](1,1), m_poses[i](2,1));
+					Eigen::Vector3d vz(m_poses[i](0,2), m_poses[i](1,2), m_poses[i](2,2));
+
+					std::cout << std::setprecision(15);
+					std::cout << "norm: "<< vx.norm() << " " << vy.norm() << " " << vz.norm() << " " <<
+							vx.dot(vy) << " " << vy.dot(vz) << " " << vx.dot(vz) << std::endl;
 				}
 				std::cout << "optimizing with rodrigues finished" << std::endl;
 			}else{

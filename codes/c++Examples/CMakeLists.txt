@@ -41,7 +41,7 @@ add_executable(perspective_camera_ba
 target_link_libraries(perspective_camera_ba
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(metric_camera_colinearity_ba
@@ -51,7 +51,7 @@ add_executable(metric_camera_colinearity_ba
 target_link_libraries(metric_camera_colinearity_ba
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(metric_camera_coplanarity_ba
@@ -61,7 +61,7 @@ add_executable(metric_camera_coplanarity_ba
 target_link_libraries(metric_camera_coplanarity_ba
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(equirectangular_camera_colinearity_ba
@@ -71,7 +71,7 @@ add_executable(equirectangular_camera_colinearity_ba
 target_link_libraries(equirectangular_camera_colinearity_ba
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(equirectangular_camera_coplanarity_ba
@@ -81,7 +81,7 @@ add_executable(equirectangular_camera_coplanarity_ba
 target_link_libraries(equirectangular_camera_coplanarity_ba
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(point_to_point
@@ -91,7 +91,7 @@ add_executable(point_to_point
 target_link_libraries(point_to_point
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(point_to_point_with_scale
@@ -101,7 +101,7 @@ add_executable(point_to_point_with_scale
 target_link_libraries(point_to_point_with_scale
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(perspective_camera_external_orientation_plucker_line
@@ -111,7 +111,7 @@ add_executable(perspective_camera_external_orientation_plucker_line
 target_link_libraries(perspective_camera_external_orientation_plucker_line
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(point_to_point_source_to_target
@@ -121,7 +121,7 @@ add_executable(point_to_point_source_to_target
 target_link_libraries(point_to_point_source_to_target
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(plucker_line_to_plucker_line
@@ -131,7 +131,7 @@ add_executable(plucker_line_to_plucker_line
 target_link_libraries(plucker_line_to_plucker_line
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(plane_to_plane
@@ -141,7 +141,7 @@ add_executable(plane_to_plane
 target_link_libraries(plane_to_plane
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(point_to_line
@@ -151,7 +151,7 @@ add_executable(point_to_line
 target_link_libraries(point_to_line
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(point_to_plane
@@ -161,7 +161,7 @@ add_executable(point_to_plane
 target_link_libraries(point_to_plane
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(point_to_projection_onto_line
@@ -171,7 +171,7 @@ add_executable(point_to_projection_onto_line
 target_link_libraries(point_to_projection_onto_line
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(point_to_projection_onto_plane
@@ -181,7 +181,7 @@ add_executable(point_to_projection_onto_plane
 target_link_libraries(point_to_projection_onto_plane
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(simple_optimization_problem_func_x_with_constraints
@@ -191,7 +191,7 @@ add_executable(simple_optimization_problem_func_x_with_constraints
 target_link_libraries(simple_optimization_problem_func_x_with_constraints
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(simple_optimization_problem_func_xy_with_constraints
@@ -201,7 +201,7 @@ add_executable(simple_optimization_problem_func_xy_with_constraints
 target_link_libraries(simple_optimization_problem_func_xy_with_constraints
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(relative_pose
@@ -211,7 +211,7 @@ add_executable(relative_pose
 target_link_libraries(relative_pose
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(smoothness
@@ -221,7 +221,7 @@ add_executable(smoothness
 target_link_libraries(smoothness
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(georeference-case1
@@ -231,7 +231,7 @@ add_executable(georeference-case1
 target_link_libraries(georeference-case1
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(georeference-case2
@@ -241,7 +241,7 @@ add_executable(georeference-case2
 target_link_libraries(georeference-case2
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(georeference-case4
@@ -251,7 +251,7 @@ add_executable(georeference-case4
 target_link_libraries(georeference-case4
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(surface_reconstruction_from_lidar_point_cloud
@@ -261,7 +261,7 @@ add_executable(surface_reconstruction_from_lidar_point_cloud
 target_link_libraries(surface_reconstruction_from_lidar_point_cloud
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(optimizing_scale_VO_with_lidar_data
@@ -271,7 +271,7 @@ add_executable(optimizing_scale_VO_with_lidar_data
 target_link_libraries(optimizing_scale_VO_with_lidar_data
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(perspective_camera_intrinsic_calibration
@@ -291,7 +291,7 @@ add_executable(bundle_of_rays_intersection
 target_link_libraries(bundle_of_rays_intersection
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(rectangular_object_with_unknown_width_height
@@ -301,7 +301,7 @@ add_executable(rectangular_object_with_unknown_width_height
 target_link_libraries(rectangular_object_with_unknown_width_height
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(sheaf_of_planes
@@ -311,7 +311,7 @@ add_executable(sheaf_of_planes
 target_link_libraries(sheaf_of_planes
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(view_nns
@@ -321,7 +321,7 @@ add_executable(view_nns
 target_link_libraries(view_nns
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 add_executable(distance_point_to_plane
@@ -331,7 +331,7 @@ add_executable(distance_point_to_plane
 target_link_libraries(distance_point_to_plane
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
 
 

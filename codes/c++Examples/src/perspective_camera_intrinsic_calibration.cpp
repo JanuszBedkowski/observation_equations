@@ -2,6 +2,7 @@
 #include <vector>
 #include <Eigen/Eigen>
 #include <iostream>
+#include <opencv2/opencv.hpp>
 
 #include "../include/structures.h"
 #include "../include/transformations.h"

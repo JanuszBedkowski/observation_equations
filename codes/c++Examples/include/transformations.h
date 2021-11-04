@@ -2,7 +2,11 @@
 #define _TRANSFORMATIONS_H_
 
 #include "structures.h"
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
+
+#ifndef MAX
+#define MAX(a,b) a>b?a:b
+#endif
 
 inline TaitBryanPose pose_tait_bryan_from_affine_matrix(Eigen::Affine3d m){
 	TaitBryanPose pose;
@@ -73,7 +77,7 @@ inline Eigen::Affine3d affine_matrix_from_pose_tait_bryan(TaitBryanPose pose)
 	return m;
 }
 
-//#define MAX(a,b) a>b?a:b
+
 inline RodriguesPose pose_rodrigues_from_affine_matrix(Eigen::Affine3d m)
 {
 //https://github.com/shimat/opencv_files_343/blob/master/include/x64/opencv2/core/affine.hpp
@@ -144,12 +148,16 @@ inline RodriguesPose pose_rodrigues_from_affine_matrix(Eigen::Affine3d m)
 }
 
 inline void orthogonalize_rotation(Eigen::Affine3d& m){
+#if 0
+	Eigen::Affine3d mtemp = m;
+
 	cv::Matx33d U, Vt;
 	cv::Vec3d W;
 	cv::Matx33d R (m(0,0), m(0,1), m(0,2),
 		 m(1,0), m(1,1), m(1,2),
 		 m(2,0), m(2,1), m(2,2));
 	cv::SVD::compute(R, W, U, Vt);
+
 	R = U*Vt;
 
 	m(0,0) = R(0,0);
@@ -163,6 +171,7 @@ inline void orthogonalize_rotation(Eigen::Affine3d& m){
 	m(2,0) = R(2,0);
 	m(2,1) = R(2,1);
 	m(2,2) = R(2,2);
+#endif
 }
 
 inline Eigen::Affine3d affine_matrix_from_pose_rodrigues(const RodriguesPose& pr){
@@ -254,7 +263,7 @@ inline Eigen::Affine3d affine_matrix_from_pose_rodrigues(const RodriguesPose& pr
 	m(1,3) = pr.py;
 	m(2,3) = pr.pz;
 
-	orthogonalize_rotation(m);
+	//orthogonalize_rotation(m);
 
 	return m;
 }
