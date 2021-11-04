@@ -148,6 +148,13 @@ inline RodriguesPose pose_rodrigues_from_affine_matrix(Eigen::Affine3d m)
 }
 
 inline void orthogonalize_rotation(Eigen::Affine3d& m){
+	Eigen::Matrix4d ret = m.matrix();
+	Eigen::JacobiSVD<Eigen::Matrix3d> svd(ret.block<3,3>(0,0), Eigen::ComputeFullU | Eigen::ComputeFullV);
+	double d = (svd.matrixU() * svd.matrixV().transpose()).determinant();
+	Eigen::Matrix3d diag = Eigen::Matrix3d::Identity() * d;
+	ret.block<3,3>(0,0) = svd.matrixU() * diag * svd.matrixV().transpose();
+	m = Eigen::Affine3d (ret);
+
 #if 0
 	Eigen::Affine3d mtemp = m;
 
