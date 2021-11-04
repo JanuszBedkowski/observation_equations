@@ -38,8 +38,8 @@ int main(int argc, char *argv[]){
 
 
     //std::ifstream g2o_file("../data/sphere_bignoise_vertex3.g2o");
-	std::ifstream g2o_file("../data/sphere.g2o");
-	//std::ifstream g2o_file("../data/cubicle.g2o");
+	//std::ifstream g2o_file("../data/sphere.g2o");
+	std::ifstream g2o_file("../data/cubicle.g2o");
 	//std::ifstream g2o_file("../data/sphere-optimized-g2o.g2o");
 
 	std::string line;
@@ -77,10 +77,7 @@ int main(int argc, char *argv[]){
             line_stream >> p.q0;
             Eigen::Affine3d m = affine_matrix_from_pose_quaternion(p);
 
-            //std::cout << p.px << " " << p.py << " " << p.pz << std::endl;
-
             edges_g2o.emplace_back(std::make_tuple(pose_id1,pose_id2, m));
-            //loop_edges.emplace_back(pose_id1,pose_id2);
         }
     }
     g2o_file.close();
@@ -190,22 +187,6 @@ void display() {
 	glVertex3f(0.0f, 0.0f, 1.0f);
 	glEnd();
 
-	//glColor3f(1,0,0);
-	//glBegin(GL_LINES);
-	//for(size_t i = 0; i < odo_edges.size(); i++){
-	//	glVertex3f(m_poses[odo_edges[i].first](0,3), m_poses[odo_edges[i].first](1,3), m_poses[odo_edges[i].first](2,3) );
-	//	glVertex3f(m_poses[odo_edges[i].second](0,3), m_poses[odo_edges[i].second](1,3), m_poses[odo_edges[i].second](2,3) );
-	//}
-	//glEnd();
-
-	//glColor3f(0,1,0);
-	//glBegin(GL_LINES);
-	//for(size_t i = 0; i < loop_edges.size(); i++){
-	//	glVertex3f(m_poses[loop_edges[i].first](0,3), m_poses[loop_edges[i].first](1,3), m_poses[loop_edges[i].first](2,3) );
-	//	glVertex3f(m_poses[loop_edges[i].second](0,3), m_poses[loop_edges[i].second](1,3), m_poses[loop_edges[i].second](2,3) );
-	//}
-	//glEnd();
-
     glBegin(GL_LINES);
     for(size_t i = 0; i < edges_g2o.size(); i++){
         const int pose_1 = std::get<0>(edges_g2o[i]);
@@ -215,9 +196,6 @@ void display() {
     }
     glEnd();
 
-
-
-
     glColor3f(1,0,1);
     glPointSize(5);
     glBegin(GL_POINTS);
@@ -225,8 +203,6 @@ void display() {
         glVertex3f(m_poses[i](0,3), m_poses[i](1,3), m_poses[i](2,3) );
     }
     glEnd();
-
-
 
 	glutSwapBuffers();
 }
@@ -409,8 +385,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				AtPA = AtPA + matLM;
 			}*/
 
-
-
 			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
 			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
 
@@ -429,7 +403,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}
 
 			std::cout << "h_x.size(): " << h_x.size() << std::endl;
-
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
 			//for(size_t i = 0 ; i < h_x.size(); i++){
@@ -1176,110 +1149,85 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'x':{
-#if 0
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
 			std::vector<Eigen::Triplet<double>> tripletListB;
 
-			for(size_t i = 0 ; i < odo_edges.size(); i++){
-				Eigen::Matrix<double, 12, 1> relative_pose_measurement_odo;
-				relative_pose_wc(relative_pose_measurement_odo,
-						m_poses_desired[odo_edges[i].first](0,3),
-						m_poses_desired[odo_edges[i].first](1,3),
-						m_poses_desired[odo_edges[i].first](2,3),
-						m_poses_desired[odo_edges[i].first](0,0),
-						m_poses_desired[odo_edges[i].first](0,1),
-						m_poses_desired[odo_edges[i].first](0,2),
-						m_poses_desired[odo_edges[i].first](1,0),
-						m_poses_desired[odo_edges[i].first](1,1),
-						m_poses_desired[odo_edges[i].first](1,2),
-						m_poses_desired[odo_edges[i].first](2,0),
-						m_poses_desired[odo_edges[i].first](2,1),
-						m_poses_desired[odo_edges[i].first](2,2),
-						m_poses_desired[odo_edges[i].second](0,3),
-						m_poses_desired[odo_edges[i].second](1,3),
-						m_poses_desired[odo_edges[i].second](2,3),
-						m_poses_desired[odo_edges[i].second](0,0),
-						m_poses_desired[odo_edges[i].second](0,1),
-						m_poses_desired[odo_edges[i].second](0,2),
-						m_poses_desired[odo_edges[i].second](1,0),
-						m_poses_desired[odo_edges[i].second](1,1),
-						m_poses_desired[odo_edges[i].second](1,2),
-						m_poses_desired[odo_edges[i].second](2,0),
-						m_poses_desired[odo_edges[i].second](2,1),
-						m_poses_desired[odo_edges[i].second](2,2));
+			for(size_t i = 0 ; i < edges_g2o.size(); i++){
+				const int first = std::get<0>(edges_g2o[i]);
+				const int second = std::get<1>(edges_g2o[i]);
+				const Eigen::Affine3d& rel = std::get<2>(edges_g2o[i]);
 
 				Eigen::Matrix<double, 12, 1> delta;
 				relative_pose_obs_eq_wc(
 						delta,
-						m_poses[odo_edges[i].first](0,3),
-						m_poses[odo_edges[i].first](1,3),
-						m_poses[odo_edges[i].first](2,3),
-						m_poses[odo_edges[i].first](0,0),
-						m_poses[odo_edges[i].first](0,1),
-						m_poses[odo_edges[i].first](0,2),
-						m_poses[odo_edges[i].first](1,0),
-						m_poses[odo_edges[i].first](1,1),
-						m_poses[odo_edges[i].first](1,2),
-						m_poses[odo_edges[i].first](2,0),
-						m_poses[odo_edges[i].first](2,1),
-						m_poses[odo_edges[i].first](2,2),
-						m_poses[odo_edges[i].second](0,3),
-						m_poses[odo_edges[i].second](1,3),
-						m_poses[odo_edges[i].second](2,3),
-						m_poses[odo_edges[i].second](0,0),
-						m_poses[odo_edges[i].second](0,1),
-						m_poses[odo_edges[i].second](0,2),
-						m_poses[odo_edges[i].second](1,0),
-						m_poses[odo_edges[i].second](1,1),
-						m_poses[odo_edges[i].second](1,2),
-						m_poses[odo_edges[i].second](2,0),
-						m_poses[odo_edges[i].second](2,1),
-						m_poses[odo_edges[i].second](2,2),
-						relative_pose_measurement_odo(0,0),
-						relative_pose_measurement_odo(1,0),
-						relative_pose_measurement_odo(2,0),
-						relative_pose_measurement_odo(3,0),
-						relative_pose_measurement_odo(4,0),
-						relative_pose_measurement_odo(5,0),
-						relative_pose_measurement_odo(6,0),
-						relative_pose_measurement_odo(7,0),
-						relative_pose_measurement_odo(8,0),
-						relative_pose_measurement_odo(9,0),
-						relative_pose_measurement_odo(10,0),
-						relative_pose_measurement_odo(11,0));
+						m_poses[first](0,3),
+						m_poses[first](1,3),
+						m_poses[first](2,3),
+						m_poses[first](0,0),
+						m_poses[first](0,1),
+						m_poses[first](0,2),
+						m_poses[first](1,0),
+						m_poses[first](1,1),
+						m_poses[first](1,2),
+						m_poses[first](2,0),
+						m_poses[first](2,1),
+						m_poses[first](2,2),
+						m_poses[second](0,3),
+						m_poses[second](1,3),
+						m_poses[second](2,3),
+						m_poses[second](0,0),
+						m_poses[second](0,1),
+						m_poses[second](0,2),
+						m_poses[second](1,0),
+						m_poses[second](1,1),
+						m_poses[second](1,2),
+						m_poses[second](2,0),
+						m_poses[second](2,1),
+						m_poses[second](2,2),
+						rel(0,3),
+						rel(1,3),
+						rel(2,3),
+						rel(0,0),
+						rel(0,1),
+						rel(0,2),
+						rel(1,0),
+						rel(1,1),
+						rel(1,2),
+						rel(2,0),
+						rel(2,1),
+						rel(2,2));
 
 				Eigen::Matrix<double, 12, 24, Eigen::RowMajor> jacobian;
 				relative_pose_obs_eq_wc_jacobian(jacobian,
-						m_poses[odo_edges[i].first](0,3),
-						m_poses[odo_edges[i].first](1,3),
-						m_poses[odo_edges[i].first](2,3),
-						m_poses[odo_edges[i].first](0,0),
-						m_poses[odo_edges[i].first](0,1),
-						m_poses[odo_edges[i].first](0,2),
-						m_poses[odo_edges[i].first](1,0),
-						m_poses[odo_edges[i].first](1,1),
-						m_poses[odo_edges[i].first](1,2),
-						m_poses[odo_edges[i].first](2,0),
-						m_poses[odo_edges[i].first](2,1),
-						m_poses[odo_edges[i].first](2,2),
-						m_poses[odo_edges[i].second](0,3),
-						m_poses[odo_edges[i].second](1,3),
-						m_poses[odo_edges[i].second](2,3),
-						m_poses[odo_edges[i].second](0,0),
-						m_poses[odo_edges[i].second](0,1),
-						m_poses[odo_edges[i].second](0,2),
-						m_poses[odo_edges[i].second](1,0),
-						m_poses[odo_edges[i].second](1,1),
-						m_poses[odo_edges[i].second](1,2),
-						m_poses[odo_edges[i].second](2,0),
-						m_poses[odo_edges[i].second](2,1),
-						m_poses[odo_edges[i].second](2,2));
+						m_poses[first](0,3),
+						m_poses[first](1,3),
+						m_poses[first](2,3),
+						m_poses[first](0,0),
+						m_poses[first](0,1),
+						m_poses[first](0,2),
+						m_poses[first](1,0),
+						m_poses[first](1,1),
+						m_poses[first](1,2),
+						m_poses[first](2,0),
+						m_poses[first](2,1),
+						m_poses[first](2,2),
+						m_poses[second](0,3),
+						m_poses[second](1,3),
+						m_poses[second](2,3),
+						m_poses[second](0,0),
+						m_poses[second](0,1),
+						m_poses[second](0,2),
+						m_poses[second](1,0),
+						m_poses[second](1,1),
+						m_poses[second](1,2),
+						m_poses[second](2,0),
+						m_poses[second](2,1),
+						m_poses[second](2,2));
 
 				int ir = tripletListB.size();
-
-				int ic_1 = odo_edges[i].first * 12;
-				int ic_2 = odo_edges[i].second * 12;
+				int ic_1 = first * 12;
+				int ic_2 = second * 12;
 
 				for(size_t row = 0 ; row < 12; row ++){
 					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
@@ -1334,161 +1282,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListP.emplace_back(ir + 9, ir + 9, 1);
 				tripletListP.emplace_back(ir + 10, ir + 10, 1);
 				tripletListP.emplace_back(ir + 11, ir + 11, 1);
-			}
 
-			for(size_t i = 0 ; i < loop_edges.size(); i++){
-				Eigen::Matrix<double, 12, 1> relative_pose_measurement_loop;
-				relative_pose_wc(relative_pose_measurement_loop,
-						m_poses_desired[loop_edges[i].first](0,3),
-						m_poses_desired[loop_edges[i].first](1,3),
-						m_poses_desired[loop_edges[i].first](2,3),
-						m_poses_desired[loop_edges[i].first](0,0),
-						m_poses_desired[loop_edges[i].first](0,1),
-						m_poses_desired[loop_edges[i].first](0,2),
-						m_poses_desired[loop_edges[i].first](1,0),
-						m_poses_desired[loop_edges[i].first](1,1),
-						m_poses_desired[loop_edges[i].first](1,2),
-						m_poses_desired[loop_edges[i].first](2,0),
-						m_poses_desired[loop_edges[i].first](2,1),
-						m_poses_desired[loop_edges[i].first](2,2),
-						m_poses_desired[loop_edges[i].second](0,3),
-						m_poses_desired[loop_edges[i].second](1,3),
-						m_poses_desired[loop_edges[i].second](2,3),
-						m_poses_desired[loop_edges[i].second](0,0),
-						m_poses_desired[loop_edges[i].second](0,1),
-						m_poses_desired[loop_edges[i].second](0,2),
-						m_poses_desired[loop_edges[i].second](1,0),
-						m_poses_desired[loop_edges[i].second](1,1),
-						m_poses_desired[loop_edges[i].second](1,2),
-						m_poses_desired[loop_edges[i].second](2,0),
-						m_poses_desired[loop_edges[i].second](2,1),
-						m_poses_desired[loop_edges[i].second](2,2));
-
-				Eigen::Matrix<double, 12, 1> delta;
-				relative_pose_obs_eq_wc(
-						delta,
-						m_poses[loop_edges[i].first](0,3),
-						m_poses[loop_edges[i].first](1,3),
-						m_poses[loop_edges[i].first](2,3),
-						m_poses[loop_edges[i].first](0,0),
-						m_poses[loop_edges[i].first](0,1),
-						m_poses[loop_edges[i].first](0,2),
-						m_poses[loop_edges[i].first](1,0),
-						m_poses[loop_edges[i].first](1,1),
-						m_poses[loop_edges[i].first](1,2),
-						m_poses[loop_edges[i].first](2,0),
-						m_poses[loop_edges[i].first](2,1),
-						m_poses[loop_edges[i].first](2,2),
-						m_poses[loop_edges[i].second](0,3),
-						m_poses[loop_edges[i].second](1,3),
-						m_poses[loop_edges[i].second](2,3),
-						m_poses[loop_edges[i].second](0,0),
-						m_poses[loop_edges[i].second](0,1),
-						m_poses[loop_edges[i].second](0,2),
-						m_poses[loop_edges[i].second](1,0),
-						m_poses[loop_edges[i].second](1,1),
-						m_poses[loop_edges[i].second](1,2),
-						m_poses[loop_edges[i].second](2,0),
-						m_poses[loop_edges[i].second](2,1),
-						m_poses[loop_edges[i].second](2,2),
-						relative_pose_measurement_loop(0,0),
-						relative_pose_measurement_loop(1,0),
-						relative_pose_measurement_loop(2,0),
-						relative_pose_measurement_loop(3,0),
-						relative_pose_measurement_loop(4,0),
-						relative_pose_measurement_loop(5,0),
-						relative_pose_measurement_loop(6,0),
-						relative_pose_measurement_loop(7,0),
-						relative_pose_measurement_loop(8,0),
-						relative_pose_measurement_loop(9,0),
-						relative_pose_measurement_loop(10,0),
-						relative_pose_measurement_loop(11,0));
-
-				Eigen::Matrix<double, 12, 24, Eigen::RowMajor> jacobian;
-				relative_pose_obs_eq_wc_jacobian(jacobian,
-						m_poses[loop_edges[i].first](0,3),
-						m_poses[loop_edges[i].first](1,3),
-						m_poses[loop_edges[i].first](2,3),
-						m_poses[loop_edges[i].first](0,0),
-						m_poses[loop_edges[i].first](0,1),
-						m_poses[loop_edges[i].first](0,2),
-						m_poses[loop_edges[i].first](1,0),
-						m_poses[loop_edges[i].first](1,1),
-						m_poses[loop_edges[i].first](1,2),
-						m_poses[loop_edges[i].first](2,0),
-						m_poses[loop_edges[i].first](2,1),
-						m_poses[loop_edges[i].first](2,2),
-						m_poses[loop_edges[i].second](0,3),
-						m_poses[loop_edges[i].second](1,3),
-						m_poses[loop_edges[i].second](2,3),
-						m_poses[loop_edges[i].second](0,0),
-						m_poses[loop_edges[i].second](0,1),
-						m_poses[loop_edges[i].second](0,2),
-						m_poses[loop_edges[i].second](1,0),
-						m_poses[loop_edges[i].second](1,1),
-						m_poses[loop_edges[i].second](1,2),
-						m_poses[loop_edges[i].second](2,0),
-						m_poses[loop_edges[i].second](2,1),
-						m_poses[loop_edges[i].second](2,2));
-
-				int ir = tripletListB.size();
-
-				int ic_1 = loop_edges[i].first * 12;
-				int ic_2 = loop_edges[i].second * 12;
-
-				for(size_t row = 0 ; row < 12; row ++){
-					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
-					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
-					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
-					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
-					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
-					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
-					tripletListA.emplace_back(ir + row, ic_1 + 6, -jacobian(row,6));
-					tripletListA.emplace_back(ir + row, ic_1 + 7, -jacobian(row,7));
-					tripletListA.emplace_back(ir + row, ic_1 + 8, -jacobian(row,8));
-					tripletListA.emplace_back(ir + row, ic_1 + 9, -jacobian(row,9));
-					tripletListA.emplace_back(ir + row, ic_1 + 10, -jacobian(row,10));
-					tripletListA.emplace_back(ir + row, ic_1 + 11, -jacobian(row,11));
-
-					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,12));
-					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,13));
-					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,14));
-					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,15));
-					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,16));
-					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,17));
-					tripletListA.emplace_back(ir + row, ic_2 + 6, -jacobian(row,18));
-					tripletListA.emplace_back(ir + row, ic_2 + 7, -jacobian(row,19));
-					tripletListA.emplace_back(ir + row, ic_2 + 8, -jacobian(row,20));
-					tripletListA.emplace_back(ir + row, ic_2 + 9, -jacobian(row,21));
-					tripletListA.emplace_back(ir + row, ic_2 + 10, -jacobian(row,22));
-					tripletListA.emplace_back(ir + row, ic_2 + 11, -jacobian(row,23));
-				}
-
-				tripletListB.emplace_back(ir,     0, delta(0,0));
-				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
-				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
-				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
-				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
-				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
-				tripletListB.emplace_back(ir + 6, 0, delta(6,0));
-				tripletListB.emplace_back(ir + 7, 0, delta(7,0));
-				tripletListB.emplace_back(ir + 8, 0, delta(8,0));
-				tripletListB.emplace_back(ir + 9, 0, delta(9,0));
-				tripletListB.emplace_back(ir + 10, 0, delta(10,0));
-				tripletListB.emplace_back(ir + 11, 0, delta(11,0));
-
-				tripletListP.emplace_back(ir ,    ir,     1);
-				tripletListP.emplace_back(ir + 1, ir + 1, 1);
-				tripletListP.emplace_back(ir + 2, ir + 2, 1);
-				tripletListP.emplace_back(ir + 3, ir + 3, 1);
-				tripletListP.emplace_back(ir + 4, ir + 4, 1);
-				tripletListP.emplace_back(ir + 5, ir + 5, 1);
-				tripletListP.emplace_back(ir + 6, ir + 6, 1);
-				tripletListP.emplace_back(ir + 7, ir + 7, 1);
-				tripletListP.emplace_back(ir + 8, ir + 8, 1);
-				tripletListP.emplace_back(ir + 9, ir + 9, 1);
-				tripletListP.emplace_back(ir + 10, ir + 10, 1);
-				tripletListP.emplace_back(ir + 11, ir + 11, 1);
 			}
 
 			int ir = tripletListB.size();
@@ -1602,7 +1396,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}else{
 				std::cout << "optimizing without rotation matrix parametrization FAILED" << std::endl;
 			}
-#endif
 			break;
 		}
 	}
