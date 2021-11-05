@@ -13,9 +13,9 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/kdtree/kdtree_flann.h>
 
-#include "../../c++Examples/include/structures.h"
-#include "../../c++Examples/include/transformations.h"
-#include "../../c++Examples/include/cauchy.h"
+#include "structures.h"
+#include "transformations.h"
+#include "cauchy.h"
 
 
 #include "../../point_to_point_tait_bryan_wc_jacobian.h"

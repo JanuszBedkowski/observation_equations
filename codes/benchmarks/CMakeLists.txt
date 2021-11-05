@@ -41,6 +41,14 @@ target_link_libraries(pose3d_graph_slam
 	${GLUT_glut_LIBRARY}
 )
 
+add_executable(pose2d_graph_slam
+	src/pose2d_graph_slam.cpp
+)
+
+target_link_libraries(pose2d_graph_slam
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
 
 
 

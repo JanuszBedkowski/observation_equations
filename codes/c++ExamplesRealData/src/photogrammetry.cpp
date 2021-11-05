@@ -5,12 +5,12 @@
 #include <iomanip>
 #include <fstream>
 
+#include "structures.h"
+#include "transformations.h"
+#include "cauchy.h"
 #include "../../metric_camera_colinearity_tait_bryan_wc_jacobian.h"
 #include "../../metric_camera_colinearity_rodrigues_wc_jacobian.h"
-#include "../../c++Examples/include/structures.h"
-#include "../../c++Examples/include/transformations.h"
 #include "../../ray_intersection_observation_equation_jacobian.h"
-#include "../../c++Examples/include/cauchy.h"
 #include "../../constraint_fixed_parameter_jacobian.h"
 
 const unsigned int window_width = 1920;

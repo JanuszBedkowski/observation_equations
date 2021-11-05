@@ -35,8 +35,11 @@ void motion(int x, int y);
 void reshape(int w, int h);
 void printHelp();
 
+
 std::vector<Eigen::Affine3d> m_poses;
 std::vector<std::tuple<int, int, Eigen::Affine3d>> edges_g2o;
+std::vector<std::vector<double>> edges_g2o_w;
+
 
 int main(int argc, char *argv[]){
 	if(argc != 2){
@@ -86,7 +89,41 @@ int main(int argc, char *argv[]){
             line_stream >> p.q0;
             Eigen::Affine3d m = affine_matrix_from_pose_quaternion(p);
 
+            /*bool EdgeSE3::write(std::ostream& os) const {
+                Vector7 meas=internal::toVectorQT(_measurement);
+                for (int i=0; i<7; i++) os  << meas[i] << " ";
+                for (int i=0; i<information().rows(); i++)
+                  for (int j=i; j<information().cols(); j++) {
+                    os <<  information()(i,j) << " ";
+                  }
+                return os.good();
+              }*/
+
+            //EDGE_SE3:QUAT 5707 5749 1.20412 0.2786 0 0 0 0.109986 0.993933
+
+            //100 0   0   0   0   0
+            //    100 0   0   0   0
+            //		  100 0   0   0
+            //			  100 0   0
+            //				  100 0
+            //                    100
+
+
             edges_g2o.emplace_back(std::make_tuple(pose_id1,pose_id2, m));
+
+            std::vector<double> w(21);
+            for(size_t i = 0 ; i < 21; i++){
+            	line_stream >> w[i];
+            }
+            std::vector<double> ww(6);
+            ww[0] = w[0];
+            ww[1] = w[6];
+            ww[2] = w[11];
+            ww[3] = w[15];
+            ww[4] = w[18];
+            ww[5] = w[20];
+            edges_g2o_w.push_back(ww);
+
         }
     }
     g2o_file.close();
@@ -151,7 +188,7 @@ bool initGL(int *argc, char **argv) {
 	glutInit(argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(window_width, window_height);
-	glutCreateWindow("relative_pose");
+	glutCreateWindow("pose3d_graph_slam");
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutMotionFunc(motion);
@@ -256,14 +293,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				TaitBryanPose from = poses[first];
 				TaitBryanPose to = poses[second];
 
-				//std::cout << from.px << " " << from.py << " " << from.pz << " " <<
-				//		to.px << " " << to.py << " " << to.pz << " " <<
-				//		pose_rel.px << " " << pose_rel.py << " " << pose_rel.pz << std::endl;
-
-
-				//Eigen::Matrix<double, 6, 1> relative_pose_measurement_odo;
-				//relative_pose_measurement_odo << pose.px, pose.py, pose.pz, pose.om, pose.fi, pose.ka;
-
 				Eigen::Matrix<double, 6, 1> delta;
 				relative_pose_obs_eq_tait_bryan_wc_case1(
 					delta,
@@ -328,24 +357,28 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
 				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
 
-				std::cout << "delta " << delta(0,0) << " " << delta(1,0) << " " << delta(2,0) << " " <<
-						delta(3,0) << " " << delta(4,0) << " " << delta(5,0) << std::endl;
-
-				if(abs(first - second) == 1){
-					tripletListP.emplace_back(ir ,    ir,     1000000000);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1000000000);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1000000000);
-					tripletListP.emplace_back(ir + 3, ir + 3, 1000000000);
-					tripletListP.emplace_back(ir + 4, ir + 4, 1000000000);
-					tripletListP.emplace_back(ir + 5, ir + 5, 1000000000);
-				}else{
-					tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1)*0.001);
-					tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1)*0.001);
-					tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1)*0.001);
-					tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta(3,0),1)*0.001);
-					tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1)*0.001);
-					tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1)*0.001);
-				}
+				/*tripletListP.emplace_back(ir ,    ir,     edges_g2o_w[i][0]);
+				tripletListP.emplace_back(ir + 1, ir + 1, edges_g2o_w[i][1]);
+				tripletListP.emplace_back(ir + 2, ir + 2, edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 3, ir + 3, edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 4, ir + 4, edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 5, ir + 5, edges_g2o_w[i][5]);
+				*/
+				/*if(abs(first - second) == 1){
+					tripletListP.emplace_back(ir ,    ir,     edges_g2o_w[i][0]);
+					tripletListP.emplace_back(ir + 1, ir + 1, edges_g2o_w[i][1]);
+					tripletListP.emplace_back(ir + 2, ir + 2, edges_g2o_w[i][2]);
+					tripletListP.emplace_back(ir + 3, ir + 3, edges_g2o_w[i][3]);
+					tripletListP.emplace_back(ir + 4, ir + 4, edges_g2o_w[i][4]);
+					tripletListP.emplace_back(ir + 5, ir + 5, edges_g2o_w[i][5]);
+				}else{*/
+					tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
+					tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
+					tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
+					tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta(3,0),1) * edges_g2o_w[i][3]);
+					tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
+					tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
+				//}
 			}
 
 			int ir = tripletListB.size();
@@ -423,33 +456,31 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			std::cout << "h_x.size(): " << h_x.size() << std::endl;
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			//for(size_t i = 0 ; i < h_x.size(); i++){
-			//	std::cout << h_x[i] << std::endl;
-			//}
+			for(size_t i = 0 ; i < h_x.size(); i++){
+				std::cout << h_x[i] << std::endl;
+			}
 
 			if(h_x.size() == 6 * m_poses.size()){
 				int counter = 0;
 
 				for(size_t i = 0; i < m_poses.size(); i++){
 					TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(m_poses[i]);
-					pose.px += h_x[counter++]*0.1;
-					pose.py += h_x[counter++]*0.1;
-					pose.pz += h_x[counter++]*0.1;
-					pose.om += h_x[counter++]*0.1;
-					pose.fi += h_x[counter++]*0.1;
-					pose.ka += h_x[counter++]*0.1;
+					pose.px += h_x[counter++];
+					pose.py += h_x[counter++];
+					pose.pz += h_x[counter++];
+					pose.om += h_x[counter++];
+					pose.fi += h_x[counter++];
+					pose.ka += h_x[counter++];
 					m_poses[i] = affine_matrix_from_pose_tait_bryan(pose);
 				}
 				std::cout << "optimizing with tait bryan finished" << std::endl;
 			}else{
 				std::cout << "optimizing with tait bryan FAILED" << std::endl;
 			}
-
 			break;
 		}
 
 		case 'r':{
-
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
 			std::vector<Eigen::Triplet<double>> tripletListB;
@@ -457,7 +488,15 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			std::vector<RodriguesPose> poses;
 
 			for(size_t i = 0 ; i < m_poses.size(); i++){
-				poses.push_back(pose_rodrigues_from_affine_matrix(m_poses[i]));
+				TaitBryanPose p = pose_tait_bryan_from_affine_matrix(m_poses[i]);
+					p.px += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.py += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.pz += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.om += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.fi += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.ka += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+				Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(p);
+				poses.push_back(pose_rodrigues_from_affine_matrix(m));
 			}
 
             for(size_t i = 0 ; i < edges_g2o.size(); i++){
@@ -465,22 +504,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
                 const int second = std::get<1>(edges_g2o[i]);
                 const Eigen::Affine3d& rel = std::get<2>(edges_g2o[i]);
 
-                //Eigen::Matrix<double, 6, 1> relative_pose_measurement_loop;
                 RodriguesPose ps = pose_rodrigues_from_affine_matrix(rel);
-                //relative_pose_measurement_loop << ps.px, ps.py, ps.pz, ps.sx, ps.sy,ps.sz;
-//                relative_pose_rodrigues_wc(relative_pose_measurement_loop,
-//                                           poses_desired[first].px,
-//                                           poses_desired[first].py,
-//                                           poses_desired[first].pz,
-//                                           poses_desired[first].sx,
-//                                           poses_desired[first].sy,
-//                                           poses_desired[first].sz,
-//                                           poses_desired[second].px,
-//                                           poses_desired[second].py,
-//                                           poses_desired[second].pz,
-//                                           poses_desired[second].sx,
-//                                           poses_desired[second].sy,
-//                                           poses_desired[second].sz);
 
                 Eigen::Matrix<double, 6, 1> delta;
                 relative_pose_obs_eq_rodrigues_wc(
@@ -547,12 +571,27 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
                 tripletListB.emplace_back(ir + 4, 0, delta(4,0));
                 tripletListB.emplace_back(ir + 5, 0, delta(5,0));
 
-                tripletListP.emplace_back(ir ,    ir,     1);
-                tripletListP.emplace_back(ir + 1, ir + 1, 1);
-                tripletListP.emplace_back(ir + 2, ir + 2, 1);
-                tripletListP.emplace_back(ir + 3, ir + 3, 1);
-                tripletListP.emplace_back(ir + 4, ir + 4, 1);
-                tripletListP.emplace_back(ir + 5, ir + 5, 1);
+                /*if(abs(first - second) == 1){
+					tripletListP.emplace_back(ir ,    ir,     1000);
+					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
+					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
+					tripletListP.emplace_back(ir + 3, ir + 3, 1000);
+					tripletListP.emplace_back(ir + 4, ir + 4, 1000);
+					tripletListP.emplace_back(ir + 5, ir + 5, 1000);
+                }else{
+                	tripletListP.emplace_back(ir ,    ir,     1);
+					tripletListP.emplace_back(ir + 1, ir + 1, 1);
+					tripletListP.emplace_back(ir + 2, ir + 2, 1);
+					tripletListP.emplace_back(ir + 3, ir + 3, 0.001);
+					tripletListP.emplace_back(ir + 4, ir + 4, 0.001);
+					tripletListP.emplace_back(ir + 5, ir + 5, 0.001);
+                }*/
+                tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
+				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
+				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta(3,0),1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
             }
 
 			int ir = tripletListB.size();
@@ -563,12 +602,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.emplace_back(ir + 4 , 4, 1);
 			tripletListA.emplace_back(ir + 5 , 5, 1);
 
-			tripletListP.emplace_back(ir     , ir,     10000000000000);
-			tripletListP.emplace_back(ir + 1 , ir + 1, 10000000000000);
-			tripletListP.emplace_back(ir + 2 , ir + 2, 10000000000000);
-			tripletListP.emplace_back(ir + 3 , ir + 3, 10000000000000);
-			tripletListP.emplace_back(ir + 4 , ir + 4, 10000000000000);
-			tripletListP.emplace_back(ir + 5 , ir + 5, 10000000000000);
+			tripletListP.emplace_back(ir     , ir,     1000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 1000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 1000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 1000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 1000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 1000000);
 
 			tripletListB.emplace_back(ir     , 0, 0);
 			tripletListB.emplace_back(ir + 1 , 0, 0);
@@ -744,13 +783,23 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
 				tripletListB.emplace_back(ir + 6, 0, delta(6,0));
 
-				tripletListP.emplace_back(ir ,    ir,     1);
-				tripletListP.emplace_back(ir + 1, ir + 1, 1);
-				tripletListP.emplace_back(ir + 2, ir + 2, 1);
-				tripletListP.emplace_back(ir + 3, ir + 3, 1);
-				tripletListP.emplace_back(ir + 4, ir + 4, 1);
-				tripletListP.emplace_back(ir + 5, ir + 5, 1);
-				tripletListP.emplace_back(ir + 6, ir + 6, 1);
+				if(abs(first - second) == 1){
+					tripletListP.emplace_back(ir ,    ir,     1000);
+					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
+					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
+					tripletListP.emplace_back(ir + 3, ir + 3, 1000);
+					tripletListP.emplace_back(ir + 4, ir + 4, 1000);
+					tripletListP.emplace_back(ir + 5, ir + 5, 1000);
+					tripletListP.emplace_back(ir + 6, ir + 6, 1000);
+				}else{
+					tripletListP.emplace_back(ir ,    ir,     1);
+					tripletListP.emplace_back(ir + 1, ir + 1, 1);
+					tripletListP.emplace_back(ir + 2, ir + 2, 1);
+					tripletListP.emplace_back(ir + 3, ir + 3, 0.001);
+					tripletListP.emplace_back(ir + 4, ir + 4, 0.001);
+					tripletListP.emplace_back(ir + 5, ir + 5, 0.001);
+					tripletListP.emplace_back(ir + 6, ir + 6, 0.001);
+				}
 			}
 
 			int ir = tripletListB.size();
@@ -762,13 +811,13 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.emplace_back(ir + 5 , 5, 1);
 			tripletListA.emplace_back(ir + 6 , 6, 1);
 
-			tripletListP.emplace_back(ir     , ir,     10000000000000);
-			tripletListP.emplace_back(ir + 1 , ir + 1, 10000000000000);
-			tripletListP.emplace_back(ir + 2 , ir + 2, 10000000000000);
-			tripletListP.emplace_back(ir + 3 , ir + 3, 10000000000000);
-			tripletListP.emplace_back(ir + 4 , ir + 4, 10000000000000);
-			tripletListP.emplace_back(ir + 5 , ir + 5, 10000000000000);
-			tripletListP.emplace_back(ir + 6 , ir + 6, 10000000000000);
+			tripletListP.emplace_back(ir     , ir,     1000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 1000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 1000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 1000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 1000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 1000000);
+			tripletListP.emplace_back(ir + 6 , ir + 6, 1000000);
 
 			tripletListB.emplace_back(ir     , 0, 0);
 			tripletListB.emplace_back(ir + 1 , 0, 0);
@@ -1008,15 +1057,15 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					tripletListP.emplace_back(ir ,    ir,     1);
 					tripletListP.emplace_back(ir + 1, ir + 1, 1);
 					tripletListP.emplace_back(ir + 2, ir + 2, 1);
-					tripletListP.emplace_back(ir + 3, ir + 3, 1);
-					tripletListP.emplace_back(ir + 4, ir + 4, 1);
-					tripletListP.emplace_back(ir + 5, ir + 5, 1);
-					tripletListP.emplace_back(ir + 6, ir + 6, 1);
-					tripletListP.emplace_back(ir + 7, ir + 7, 1);
-					tripletListP.emplace_back(ir + 8, ir + 8, 1);
-					tripletListP.emplace_back(ir + 9, ir + 9, 1);
-					tripletListP.emplace_back(ir + 10, ir + 10, 1);
-					tripletListP.emplace_back(ir + 11, ir + 11, 1);
+					tripletListP.emplace_back(ir + 3, ir + 3, 0.001);
+					tripletListP.emplace_back(ir + 4, ir + 4, 0.001);
+					tripletListP.emplace_back(ir + 5, ir + 5, 0.001);
+					tripletListP.emplace_back(ir + 6, ir + 6, 0.001);
+					tripletListP.emplace_back(ir + 7, ir + 7, 0.001);
+					tripletListP.emplace_back(ir + 8, ir + 8, 0.001);
+					tripletListP.emplace_back(ir + 9, ir + 9, 0.001);
+					tripletListP.emplace_back(ir + 10, ir + 10, 0.001);
+					tripletListP.emplace_back(ir + 11, ir + 11, 0.001);
 				}
 
 			}
@@ -1035,18 +1084,18 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.emplace_back(ir + 10 , 10, 1);
 			tripletListA.emplace_back(ir + 11 , 11, 1);
 
-			tripletListP.emplace_back(ir     , ir,     10000000000000);
-			tripletListP.emplace_back(ir + 1 , ir + 1, 10000000000000);
-			tripletListP.emplace_back(ir + 2 , ir + 2, 10000000000000);
-			tripletListP.emplace_back(ir + 3 , ir + 3, 10000000000000);
-			tripletListP.emplace_back(ir + 4 , ir + 4, 10000000000000);
-			tripletListP.emplace_back(ir + 5 , ir + 5, 10000000000000);
-			tripletListP.emplace_back(ir + 6 , ir + 6, 10000000000000);
-			tripletListP.emplace_back(ir + 7 , ir + 7, 10000000000000);
-			tripletListP.emplace_back(ir + 8 , ir + 8, 10000000000000);
-			tripletListP.emplace_back(ir + 9 , ir + 9, 10000000000000);
-			tripletListP.emplace_back(ir + 10 , ir + 10, 10000000000000);
-			tripletListP.emplace_back(ir + 11 , ir + 11, 10000000000000);
+			tripletListP.emplace_back(ir     , ir,     1000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 1000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 1000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 1000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 1000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 1000000);
+			tripletListP.emplace_back(ir + 6 , ir + 6, 1000000);
+			tripletListP.emplace_back(ir + 7 , ir + 7, 1000000);
+			tripletListP.emplace_back(ir + 8 , ir + 8, 1000000);
+			tripletListP.emplace_back(ir + 9 , ir + 9, 1000000);
+			tripletListP.emplace_back(ir + 10 , ir + 10, 1000000);
+			tripletListP.emplace_back(ir + 11 , ir + 11, 1000000);
 
 
 			tripletListB.emplace_back(ir     , 0, 0);
@@ -1209,21 +1258,27 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListB.emplace_back(ir + 4, 0, delta.coeffs()(4));
 				tripletListB.emplace_back(ir + 5, 0, delta.coeffs()(5));
 
-				if(abs(first - second) == 1){
+				/*if(abs(first - second) == 1){
+					tripletListP.emplace_back(ir ,    ir,     1000);
+					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
+					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
+					tripletListP.emplace_back(ir + 3, ir + 3, 1000);
+					tripletListP.emplace_back(ir + 4, ir + 4, 1000);
+					tripletListP.emplace_back(ir + 5, ir + 5, 1000);
+				}else{
 					tripletListP.emplace_back(ir ,    ir,     1);
 					tripletListP.emplace_back(ir + 1, ir + 1, 1);
 					tripletListP.emplace_back(ir + 2, ir + 2, 1);
-					tripletListP.emplace_back(ir + 3, ir + 3, 1);
-					tripletListP.emplace_back(ir + 4, ir + 4, 1);
-					tripletListP.emplace_back(ir + 5, ir + 5, 1);
-				}else{
-					tripletListP.emplace_back(ir ,    ir,     cauchy(delta.coeffs()(0),1));
-					tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta.coeffs()(1),1));
-					tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta.coeffs()(2),1));
-					tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta.coeffs()(3),1));
-					tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta.coeffs()(4),1));
-					tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta.coeffs()(5),1));
-				}
+					tripletListP.emplace_back(ir + 3, ir + 3, 0.001);
+					tripletListP.emplace_back(ir + 4, ir + 4, 0.001);
+					tripletListP.emplace_back(ir + 5, ir + 5, 0.001);
+				}*/
+				tripletListP.emplace_back(ir ,    ir,     cauchy(delta.coeffs()(0),1) * edges_g2o_w[i][0]);
+				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta.coeffs()(1),1) * edges_g2o_w[i][1]);
+				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta.coeffs()(2),1) * edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta.coeffs()(3),1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta.coeffs()(4),1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta.coeffs()(5),1) * edges_g2o_w[i][5]);
 			}
 
 			int ir = tripletListB.size();
@@ -1234,12 +1289,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.emplace_back(ir + 4 , 4, 1);
 			tripletListA.emplace_back(ir + 5 , 5, 1);
 
-			tripletListP.emplace_back(ir     , ir,     10000000000000);
-			tripletListP.emplace_back(ir + 1 , ir + 1, 10000000000000);
-			tripletListP.emplace_back(ir + 2 , ir + 2, 10000000000000);
-			tripletListP.emplace_back(ir + 3 , ir + 3, 10000000000000);
-			tripletListP.emplace_back(ir + 4 , ir + 4, 10000000000000);
-			tripletListP.emplace_back(ir + 5 , ir + 5, 10000000000000);
+			tripletListP.emplace_back(ir     , ir,     1000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 1000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 1000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 1000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 1000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 1000000);
 
 			tripletListB.emplace_back(ir     , 0, 0);
 			tripletListB.emplace_back(ir + 1 , 0, 0);
@@ -1271,9 +1326,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListP.clear();
 			tripletListB.clear();
 
-			//std::cout << "AtPA.size: " << AtPA.size() << std::endl;
-			//std::cout << "AtPB.size: " << AtPB.size() << std::endl;
-
 			std::cout << "start solving AtPA=AtPB" << std::endl;
 			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
 
@@ -1288,12 +1340,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				}
 			}
 
-
-
-			//for(size_t i = 0 ; i < h_x.size(); i++){
-			//	std::cout << h_x[i] << std::endl;
-			//}
-
 			if(X.size() * 6 == h_x.size()){
 
 				int counter = 0;
@@ -1307,10 +1353,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					dx.coeffs()(4) = h_x[counter++];
 					dx.coeffs()(5) = h_x[counter++];
 
-					//dx = dX.segment<6>(dx_row);
-					//std::cout << "before: " << X[i] << std::endl;
 					X[i] = X[i] +  dx;
-					//std::cout << "after: " << X[i] << std::endl;
 				}
 
 				for (int i = 0 ; i < m_poses.size(); i++){
