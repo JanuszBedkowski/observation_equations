@@ -14,7 +14,10 @@
 #include "../../quaternion_constraint_jacobian.h"
 #include "../../relative_pose_wc_jacobian.h"
 
+#include "manif/SE3.h"
 
+using manif::SE3d;
+using manif::SE3Tangentd;
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -329,19 +332,19 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 						delta(3,0) << " " << delta(4,0) << " " << delta(5,0) << std::endl;
 
 				if(abs(first - second) == 1){
-					tripletListP.emplace_back(ir ,    ir,     1000);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
-					tripletListP.emplace_back(ir + 3, ir + 3, 1000);
-					tripletListP.emplace_back(ir + 4, ir + 4, 1000);
-					tripletListP.emplace_back(ir + 5, ir + 5, 1000);
+					tripletListP.emplace_back(ir ,    ir,     1000000000);
+					tripletListP.emplace_back(ir + 1, ir + 1, 1000000000);
+					tripletListP.emplace_back(ir + 2, ir + 2, 1000000000);
+					tripletListP.emplace_back(ir + 3, ir + 3, 1000000000);
+					tripletListP.emplace_back(ir + 4, ir + 4, 1000000000);
+					tripletListP.emplace_back(ir + 5, ir + 5, 1000000000);
 				}else{
-					tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1));
-					tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1));
-					tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1));
-					tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta(3,0),1));
-					tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1));
-					tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1));
+					tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1)*0.001);
+					tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1)*0.001);
+					tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1)*0.001);
+					tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta(3,0),1)*0.001);
+					tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1)*0.001);
+					tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1)*0.001);
 				}
 			}
 
@@ -429,12 +432,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 				for(size_t i = 0; i < m_poses.size(); i++){
 					TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(m_poses[i]);
-					pose.px += h_x[counter++];
-					pose.py += h_x[counter++];
-					pose.pz += h_x[counter++];
-					pose.om += h_x[counter++];
-					pose.fi += h_x[counter++];
-					pose.ka += h_x[counter++];
+					pose.px += h_x[counter++]*0.1;
+					pose.py += h_x[counter++]*0.1;
+					pose.pz += h_x[counter++]*0.1;
+					pose.om += h_x[counter++]*0.1;
+					pose.fi += h_x[counter++]*0.1;
+					pose.ka += h_x[counter++]*0.1;
 					m_poses[i] = affine_matrix_from_pose_tait_bryan(pose);
 				}
 				std::cout << "optimizing with tait bryan finished" << std::endl;
@@ -665,8 +668,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				const Eigen::Affine3d& rel = std::get<2>(edges_g2o[i]);
 				QuaternionPose pose_rel = pose_quaternion_from_affine_matrix(rel);
 
-				QuaternionPose from = poses[first];
-				QuaternionPose to = poses[second];
+				//QuaternionPose from = poses[first];
+				//QuaternionPose to = poses[second];
 
 				Eigen::Matrix<double, 7, 1> delta;
 				relative_pose_obs_eq_quaternion_wc(
@@ -1143,6 +1146,198 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}
 			break;
 		}
+		case 'y':{
+			std::vector<Eigen::Triplet<double>> tripletListA;
+			std::vector<Eigen::Triplet<double>> tripletListP;
+			std::vector<Eigen::Triplet<double>> tripletListB;
+
+			std::vector<SE3d> X;
+
+			for(size_t i = 0 ; i < m_poses.size(); i++){
+				Eigen::Vector3d t(m_poses[i](0,3), m_poses[i](1,3), m_poses[i](2,3));
+				Eigen::Quaterniond q(m_poses[i].rotation());
+				X.push_back(SE3d(t,q));
+			}
+
+			for(size_t i = 0 ; i < edges_g2o.size(); i++){
+				const int first = std::get<0>(edges_g2o[i]);
+				const int second = std::get<1>(edges_g2o[i]);
+				const Eigen::Affine3d& rel = std::get<2>(edges_g2o[i]);
+				Eigen::Vector3d t(rel(0,3), rel(1,3), rel(2,3));
+				Eigen::Quaterniond q(rel.rotation());
+				SE3d U = SE3d(t,q);
+
+				SE3Tangentd     d;
+				SE3Tangentd     u;
+				Eigen::Matrix<double, 6, 6>         J_d_xi, J_d_xj;
+
+				SE3d         Xi,
+							 Xj;
+
+				Xi = X[first];
+				Xj = X[second];
+
+				d  = Xj.rminus(Xi, J_d_xj, J_d_xi);
+				u = U.log();
+
+				int ir = tripletListB.size();
+				int ic_1 = first * 6;
+				int ic_2 = second * 6;
+
+				for(size_t row = 0 ; row < 6; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -J_d_xi(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -J_d_xi(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -J_d_xi(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -J_d_xi(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -J_d_xi(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -J_d_xi(row,5));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -J_d_xj(row,0));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -J_d_xj(row,1));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -J_d_xj(row,2));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -J_d_xj(row,3));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -J_d_xj(row,4));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -J_d_xj(row,5));
+				}
+
+				SE3Tangentd delta = d - u;
+
+				tripletListB.emplace_back(ir,     0, delta.coeffs()(0));
+				tripletListB.emplace_back(ir + 1, 0, delta.coeffs()(1));
+				tripletListB.emplace_back(ir + 2, 0, delta.coeffs()(2));
+				tripletListB.emplace_back(ir + 3, 0, delta.coeffs()(3));
+				tripletListB.emplace_back(ir + 4, 0, delta.coeffs()(4));
+				tripletListB.emplace_back(ir + 5, 0, delta.coeffs()(5));
+
+				if(abs(first - second) == 1){
+					tripletListP.emplace_back(ir ,    ir,     1);
+					tripletListP.emplace_back(ir + 1, ir + 1, 1);
+					tripletListP.emplace_back(ir + 2, ir + 2, 1);
+					tripletListP.emplace_back(ir + 3, ir + 3, 1);
+					tripletListP.emplace_back(ir + 4, ir + 4, 1);
+					tripletListP.emplace_back(ir + 5, ir + 5, 1);
+				}else{
+					tripletListP.emplace_back(ir ,    ir,     cauchy(delta.coeffs()(0),1));
+					tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta.coeffs()(1),1));
+					tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta.coeffs()(2),1));
+					tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta.coeffs()(3),1));
+					tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta.coeffs()(4),1));
+					tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta.coeffs()(5),1));
+				}
+			}
+
+			int ir = tripletListB.size();
+			tripletListA.emplace_back(ir     , 0, 1);
+			tripletListA.emplace_back(ir + 1 , 1, 1);
+			tripletListA.emplace_back(ir + 2 , 2, 1);
+			tripletListA.emplace_back(ir + 3 , 3, 1);
+			tripletListA.emplace_back(ir + 4 , 4, 1);
+			tripletListA.emplace_back(ir + 5 , 5, 1);
+
+			tripletListP.emplace_back(ir     , ir,     10000000000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 10000000000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 10000000000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 10000000000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 10000000000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 10000000000000);
+
+			tripletListB.emplace_back(ir     , 0, 0);
+			tripletListB.emplace_back(ir + 1 , 0, 0);
+			tripletListB.emplace_back(ir + 2 , 0, 0);
+			tripletListB.emplace_back(ir + 3 , 0, 0);
+			tripletListB.emplace_back(ir + 4 , 0, 0);
+			tripletListB.emplace_back(ir + 5 , 0, 0);
+
+
+			Eigen::SparseMatrix<double> matA(tripletListB.size(), m_poses.size() * 6);
+			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+
+			Eigen::SparseMatrix<double> AtPA(m_poses.size() * 6 , m_poses.size() * 6);
+			Eigen::SparseMatrix<double> AtPB(m_poses.size() * 6 , 1);
+
+			{
+			Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+			AtPA = (AtP) * matA;
+			AtPB = (AtP) * matB;
+			}
+
+			tripletListA.clear();
+			tripletListP.clear();
+			tripletListB.clear();
+
+			//std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+			//std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+			std::cout << "start solving AtPA=AtPB" << std::endl;
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+			std::cout << "x = solver.solve(AtPB)" << std::endl;
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+			std::vector<double> h_x;
+
+			for (int k=0; k<x.outerSize(); ++k){
+				for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+					h_x.push_back(it.value());
+				}
+			}
+
+
+
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
+
+			if(X.size() * 6 == h_x.size()){
+
+				int counter = 0;
+				for(size_t i = 0 ; i < X.size(); i++){
+					//int dx_row          = i * 6;
+					SE3Tangentd     dx;
+					dx.coeffs()(0) = h_x[counter++];
+					dx.coeffs()(1) = h_x[counter++];
+					dx.coeffs()(2) = h_x[counter++];
+					dx.coeffs()(3) = h_x[counter++];
+					dx.coeffs()(4) = h_x[counter++];
+					dx.coeffs()(5) = h_x[counter++];
+
+					//dx = dX.segment<6>(dx_row);
+					//std::cout << "before: " << X[i] << std::endl;
+					X[i] = X[i] +  dx;
+					//std::cout << "after: " << X[i] << std::endl;
+				}
+
+				for (int i = 0 ; i < m_poses.size(); i++){
+					m_poses[i](0,0) = X[i].rotation()(0,0);
+					m_poses[i](1,0) = X[i].rotation()(1,0);
+					m_poses[i](2,0) = X[i].rotation()(2,0);
+
+					m_poses[i](0,1) = X[i].rotation()(0,1);
+					m_poses[i](1,1) = X[i].rotation()(1,1);
+					m_poses[i](2,1) = X[i].rotation()(2,1);
+
+					m_poses[i](0,2) = X[i].rotation()(0,2);
+					m_poses[i](1,2) = X[i].rotation()(1,2);
+					m_poses[i](2,2) = X[i].rotation()(2,2);
+
+					m_poses[i](0,3) = X[i].translation()(0);
+					m_poses[i](1,3) = X[i].translation()(1);
+					m_poses[i](2,3) = X[i].translation()(2);
+				}
+				std::cout << "h_x.size(): " << h_x.size() << std::endl;
+				std::cout << "AtPA=AtPB SOLVED" << std::endl;
+			}else{
+				std::cout << "h_x.size(): " << h_x.size() << std::endl;
+				std::cout << "AtPA=AtPB FAILED" << std::endl;
+			}
+			break;
+		}
 	}
 	printHelp();
 	glutPostRedisplay();
@@ -1198,4 +1393,5 @@ void printHelp() {
 	std::cout << "r: optimize (Rodriguez)" << std::endl;
 	std::cout << "q: optimize (Quaternion)" << std::endl;
 	std::cout << "x: optimize (Without rotation matrix parametrization)" << std::endl;
+	std::cout << "y: optimize (Lie Algebra: manif lib)" << std::endl;
 }
