@@ -350,12 +350,36 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,11));
 				}
 
+				float om_diff = delta(3,0);
+				if(fabs(om_diff) > M_PI){
+					om_diff -= 2.0*M_PI;
+				}
+				if(fabs(om_diff)< -M_PI){
+					om_diff += 2.0*M_PI;
+				}
+
+				float fi_diff = delta(4,0);
+				if(fabs(fi_diff) > M_PI){
+					fi_diff -= 2.0*M_PI;
+				}
+				if(fabs(fi_diff)< -M_PI){
+					fi_diff += 2.0*M_PI;
+				}
+
+				float ka_diff = delta(5,0);
+				if(fabs(ka_diff) > M_PI){
+					ka_diff -= 2.0*M_PI;
+				}
+				if(fabs(ka_diff)< -M_PI){
+					ka_diff += 2.0*M_PI;
+				}
+
 				tripletListB.emplace_back(ir,     0, delta(0,0));
 				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
 				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
-				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
-				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
-				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
+				tripletListB.emplace_back(ir + 3, 0, om_diff);
+				tripletListB.emplace_back(ir + 4, 0, fi_diff);
+				tripletListB.emplace_back(ir + 5, 0, ka_diff);
 
 				/*tripletListP.emplace_back(ir ,    ir,     edges_g2o_w[i][0]);
 				tripletListP.emplace_back(ir + 1, ir + 1, edges_g2o_w[i][1]);
@@ -375,9 +399,13 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
 					tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
 					tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
-					tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta(3,0),1) * edges_g2o_w[i][3]);
-					tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
-					tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
+					tripletListP.emplace_back(ir + 3, ir + 3, cauchy(om_diff,1) * edges_g2o_w[i][3]);
+					tripletListP.emplace_back(ir + 4, ir + 4, cauchy(fi_diff,1) * edges_g2o_w[i][4]);
+					tripletListP.emplace_back(ir + 5, ir + 5, cauchy(ka_diff,1) * edges_g2o_w[i][5]);
+
+				//if(fabs(delta(3,0)) > M_PI)std::cout << "x: "<< delta(3,0) << std::endl;
+				//if(fabs(delta(4,0)) > M_PI)std::cout << "x: "<< delta(4,0) << std::endl;
+				//if(fabs(delta(5,0)) > M_PI)std::cout << "x: "<< delta(5,0) << std::endl;
 				//}
 			}
 
@@ -456,9 +484,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			std::cout << "h_x.size(): " << h_x.size() << std::endl;
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			for(size_t i = 0 ; i < h_x.size(); i++){
-				std::cout << h_x[i] << std::endl;
-			}
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
 
 			if(h_x.size() == 6 * m_poses.size()){
 				int counter = 0;
@@ -783,7 +811,14 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
 				tripletListB.emplace_back(ir + 6, 0, delta(6,0));
 
-				if(abs(first - second) == 1){
+				tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
+				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
+				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta(3,0),1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
+				tripletListP.emplace_back(ir + 6, ir + 6, cauchy(delta(6,0),1) * edges_g2o_w[i][5]);
+				/*if(abs(first - second) == 1){
 					tripletListP.emplace_back(ir ,    ir,     1000);
 					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
 					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
@@ -799,7 +834,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					tripletListP.emplace_back(ir + 4, ir + 4, 0.001);
 					tripletListP.emplace_back(ir + 5, ir + 5, 0.001);
 					tripletListP.emplace_back(ir + 6, ir + 6, 0.001);
-				}
+				}*/
 			}
 
 			int ir = tripletListB.size();
@@ -1040,7 +1075,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListB.emplace_back(ir + 10, 0, delta(10,0));
 				tripletListB.emplace_back(ir + 11, 0, delta(11,0));
 
-				if(abs(first - second) == 1){
+				/*if(abs(first - second) == 1){
 					tripletListP.emplace_back(ir ,    ir,     1000);
 					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
 					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
@@ -1066,8 +1101,19 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					tripletListP.emplace_back(ir + 9, ir + 9, 0.001);
 					tripletListP.emplace_back(ir + 10, ir + 10, 0.001);
 					tripletListP.emplace_back(ir + 11, ir + 11, 0.001);
-				}
-
+				}*/
+				tripletListP.emplace_back(ir     , ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
+				tripletListP.emplace_back(ir + 1 , ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
+				tripletListP.emplace_back(ir + 2 , ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 3 , ir + 3, cauchy(delta(3,0),1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 4 , ir + 4, cauchy(delta(3,0),1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 5 , ir + 5, cauchy(delta(3,0),1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 6 , ir + 6, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 7 , ir + 7, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 8 , ir + 8, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 9 , ir + 9, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
+				tripletListP.emplace_back(ir + 10 , ir + 10, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
+				tripletListP.emplace_back(ir + 11 , ir + 11, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
 			}
 
 			int ir = tripletListB.size();
@@ -1096,7 +1142,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListP.emplace_back(ir + 9 , ir + 9, 1000000);
 			tripletListP.emplace_back(ir + 10 , ir + 10, 1000000);
 			tripletListP.emplace_back(ir + 11 , ir + 11, 1000000);
-
 
 			tripletListB.emplace_back(ir     , 0, 0);
 			tripletListB.emplace_back(ir + 1 , 0, 0);
