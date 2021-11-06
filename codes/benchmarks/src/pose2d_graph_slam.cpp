@@ -296,9 +296,17 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListA.emplace_back(ir + 2, ic_2 + 1, -jacobian(5,7));
 				tripletListA.emplace_back(ir + 2, ic_2 + 2, -jacobian(5,11));
 
+				float angle_diff = delta(5,0);
+				if(fabs(angle_diff) > M_PI){
+					angle_diff -= 2.0*M_PI;
+				}
+				if(fabs(angle_diff)< -M_PI){
+					angle_diff += 2.0*M_PI;
+				}
+
 				tripletListB.emplace_back(ir,     0, delta(0,0));
 				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
-				tripletListB.emplace_back(ir + 2, 0, delta(5,0));
+				tripletListB.emplace_back(ir + 2, 0, angle_diff);
 
 				/*if(abs(first-second)==1){
 					tripletListP.emplace_back(ir ,    ir,     1000);
@@ -311,13 +319,11 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				}*/
 				tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
 				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
-				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(5,0),1) * edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(angle_diff,1) * edges_g2o_w[i][2]);
 
 				//tripletListP.emplace_back(ir ,    ir,     edges_g2o_w[i][0]);
 				//tripletListP.emplace_back(ir + 1, ir + 1, edges_g2o_w[i][1]);
 				//tripletListP.emplace_back(ir + 2, ir + 2, edges_g2o_w[i][2]);
-
-				//std::cout << delta(5,0) << " ";
 			}
 
 			int ir = tripletListB.size();
