@@ -8,11 +8,14 @@
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
-#include "../../relative_pose_tait_bryan_wc_jacobian.h"
-#include "../../relative_pose_rodrigues_wc_jacobian.h"
-#include "../../relative_pose_quaternion_wc_jacobian.h"
-#include "../../quaternion_constraint_jacobian.h"
-#include "../../relative_pose_wc_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_tait_bryan_wc_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_rodrigues_wc_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_quaternion_wc_jacobian.h"
+#include "../../python-scripts/constraints/quaternion_constraint_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_wc_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_2_tait_bryan_wc_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_2_rodrigues_wc_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_2_quaternion_wc_jacobian.h"
 
 #include "manif/SE3.h"
 
@@ -48,11 +51,6 @@ int main(int argc, char *argv[]){
 	}
 
 	std::ifstream g2o_file(argv[1]);
-    //std::ifstream g2o_file("../data/sphere_bignoise_vertex3.g2o");
-	//std::ifstream g2o_file("../data/sphere.g2o");
-	//std::ifstream g2o_file("../data/cubicle.g2o");
-	//std::ifstream g2o_file("../data/sphere-optimized-g2o.g2o");
-	//std::ifstream g2o_file("../data/rim.g2o");
 
 	std::string line;
     while (std::getline(g2o_file, line)) {
@@ -89,26 +87,6 @@ int main(int argc, char *argv[]){
             line_stream >> p.q0;
             Eigen::Affine3d m = affine_matrix_from_pose_quaternion(p);
 
-            /*bool EdgeSE3::write(std::ostream& os) const {
-                Vector7 meas=internal::toVectorQT(_measurement);
-                for (int i=0; i<7; i++) os  << meas[i] << " ";
-                for (int i=0; i<information().rows(); i++)
-                  for (int j=i; j<information().cols(); j++) {
-                    os <<  information()(i,j) << " ";
-                  }
-                return os.good();
-              }*/
-
-            //EDGE_SE3:QUAT 5707 5749 1.20412 0.2786 0 0 0 0.109986 0.993933
-
-            //100 0   0   0   0   0
-            //    100 0   0   0   0
-            //		  100 0   0   0
-            //			  100 0   0
-            //				  100 0
-            //                    100
-
-
             edges_g2o.emplace_back(std::make_tuple(pose_id1,pose_id2, m));
 
             std::vector<double> w(21);
@@ -123,52 +101,11 @@ int main(int argc, char *argv[]){
             ww[4] = w[18];
             ww[5] = w[20];
             edges_g2o_w.push_back(ww);
-
         }
     }
     g2o_file.close();
 
-    //exit(1);
-
-//	for(size_t i = 0 ; i < 100; i++){
-//		TaitBryanPose p;
-//		p.px = i;
-//		p.py = -1;
-//		p.pz = 0.0;
-//		p.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-//		p.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-//		p.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-//
-//		Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(p);
-//		m_poses.push_back(m);
-//	}
-//	for(size_t i = 0 ; i < 100; i++){
-//		TaitBryanPose p;
-//		p.px = i;
-//		p.py = 1;
-//		p.pz = 0.0;
-//		p.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-//		p.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-//		p.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-//
-//		Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(p);
-//		m_poses.push_back(m);
-//	}
-	//m_poses_desired = m_poses;
-
-	//for(size_t i = 1; i < 100; i++){
-	//	odo_edges.emplace_back(i-1,i);
-	//}
-//
-//	for(size_t i = 101; i < 200; i++){
-//		odo_edges.emplace_back(i-1,i);
-//	}
-//
-//	for(size_t i = 0; i < 100; i+=10){
-//		loop_edges.emplace_back(i,i+100);
-//	}
-
-	if (false == initGL(&argc, argv)) {
+    if (false == initGL(&argc, argv)) {
 		return 4;
 	}
 
@@ -381,32 +318,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListB.emplace_back(ir + 4, 0, fi_diff);
 				tripletListB.emplace_back(ir + 5, 0, ka_diff);
 
-				/*tripletListP.emplace_back(ir ,    ir,     edges_g2o_w[i][0]);
-				tripletListP.emplace_back(ir + 1, ir + 1, edges_g2o_w[i][1]);
-				tripletListP.emplace_back(ir + 2, ir + 2, edges_g2o_w[i][2]);
-				tripletListP.emplace_back(ir + 3, ir + 3, edges_g2o_w[i][3]);
-				tripletListP.emplace_back(ir + 4, ir + 4, edges_g2o_w[i][4]);
-				tripletListP.emplace_back(ir + 5, ir + 5, edges_g2o_w[i][5]);
-				*/
-				/*if(abs(first - second) == 1){
-					tripletListP.emplace_back(ir ,    ir,     edges_g2o_w[i][0]);
-					tripletListP.emplace_back(ir + 1, ir + 1, edges_g2o_w[i][1]);
-					tripletListP.emplace_back(ir + 2, ir + 2, edges_g2o_w[i][2]);
-					tripletListP.emplace_back(ir + 3, ir + 3, edges_g2o_w[i][3]);
-					tripletListP.emplace_back(ir + 4, ir + 4, edges_g2o_w[i][4]);
-					tripletListP.emplace_back(ir + 5, ir + 5, edges_g2o_w[i][5]);
-				}else{*/
-					tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
-					tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
-					tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
-					tripletListP.emplace_back(ir + 3, ir + 3, cauchy(om_diff,1) * edges_g2o_w[i][3]);
-					tripletListP.emplace_back(ir + 4, ir + 4, cauchy(fi_diff,1) * edges_g2o_w[i][4]);
-					tripletListP.emplace_back(ir + 5, ir + 5, cauchy(ka_diff,1) * edges_g2o_w[i][5]);
-
-				//if(fabs(delta(3,0)) > M_PI)std::cout << "x: "<< delta(3,0) << std::endl;
-				//if(fabs(delta(4,0)) > M_PI)std::cout << "x: "<< delta(4,0) << std::endl;
-				//if(fabs(delta(5,0)) > M_PI)std::cout << "x: "<< delta(5,0) << std::endl;
-				//}
+				tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
+				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
+				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 3, ir + 3, cauchy(om_diff,1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 4, ir + 4, cauchy(fi_diff,1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 5, ir + 5, cauchy(ka_diff,1) * edges_g2o_w[i][5]);
 			}
 
 			int ir = tripletListB.size();
@@ -453,16 +370,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.clear();
 			tripletListP.clear();
 			tripletListB.clear();
-			//LM
-			/*{
-				for(size_t i = 0 ; i < m_poses.size() * 6; i++){
-					tripletListA.emplace_back(i, i, 10);
-				}
-				Eigen::SparseMatrix<double> matLM(m_poses.size() * 6, m_poses.size() * 6);
-				matLM.setFromTriplets(tripletListA.begin(), tripletListA.end());
-
-				AtPA = AtPA + matLM;
-			}*/
 
 			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
 			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
@@ -483,10 +390,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			std::cout << "h_x.size(): " << h_x.size() << std::endl;
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
-
-			//for(size_t i = 0 ; i < h_x.size(); i++){
-			//	std::cout << h_x[i] << std::endl;
-			//}
 
 			if(h_x.size() == 6 * m_poses.size()){
 				int counter = 0;
@@ -599,21 +502,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
                 tripletListB.emplace_back(ir + 4, 0, delta(4,0));
                 tripletListB.emplace_back(ir + 5, 0, delta(5,0));
 
-                /*if(abs(first - second) == 1){
-					tripletListP.emplace_back(ir ,    ir,     1000);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
-					tripletListP.emplace_back(ir + 3, ir + 3, 1000);
-					tripletListP.emplace_back(ir + 4, ir + 4, 1000);
-					tripletListP.emplace_back(ir + 5, ir + 5, 1000);
-                }else{
-                	tripletListP.emplace_back(ir ,    ir,     1);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1);
-					tripletListP.emplace_back(ir + 3, ir + 3, 0.001);
-					tripletListP.emplace_back(ir + 4, ir + 4, 0.001);
-					tripletListP.emplace_back(ir + 5, ir + 5, 0.001);
-                }*/
                 tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
 				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
 				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
@@ -735,9 +623,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				const Eigen::Affine3d& rel = std::get<2>(edges_g2o[i]);
 				QuaternionPose pose_rel = pose_quaternion_from_affine_matrix(rel);
 
-				//QuaternionPose from = poses[first];
-				//QuaternionPose to = poses[second];
-
 				Eigen::Matrix<double, 7, 1> delta;
 				relative_pose_obs_eq_quaternion_wc(
 					delta,
@@ -818,23 +703,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
 				tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
 				tripletListP.emplace_back(ir + 6, ir + 6, cauchy(delta(6,0),1) * edges_g2o_w[i][5]);
-				/*if(abs(first - second) == 1){
-					tripletListP.emplace_back(ir ,    ir,     1000);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
-					tripletListP.emplace_back(ir + 3, ir + 3, 1000);
-					tripletListP.emplace_back(ir + 4, ir + 4, 1000);
-					tripletListP.emplace_back(ir + 5, ir + 5, 1000);
-					tripletListP.emplace_back(ir + 6, ir + 6, 1000);
-				}else{
-					tripletListP.emplace_back(ir ,    ir,     1);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1);
-					tripletListP.emplace_back(ir + 3, ir + 3, 0.001);
-					tripletListP.emplace_back(ir + 4, ir + 4, 0.001);
-					tripletListP.emplace_back(ir + 5, ir + 5, 0.001);
-					tripletListP.emplace_back(ir + 6, ir + 6, 0.001);
-				}*/
 			}
 
 			int ir = tripletListB.size();
@@ -1075,33 +943,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListB.emplace_back(ir + 10, 0, delta(10,0));
 				tripletListB.emplace_back(ir + 11, 0, delta(11,0));
 
-				/*if(abs(first - second) == 1){
-					tripletListP.emplace_back(ir ,    ir,     1000);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
-					tripletListP.emplace_back(ir + 3, ir + 3, 1000);
-					tripletListP.emplace_back(ir + 4, ir + 4, 1000);
-					tripletListP.emplace_back(ir + 5, ir + 5, 1000);
-					tripletListP.emplace_back(ir + 6, ir + 6, 1000);
-					tripletListP.emplace_back(ir + 7, ir + 7, 1000);
-					tripletListP.emplace_back(ir + 8, ir + 8, 1000);
-					tripletListP.emplace_back(ir + 9, ir + 9, 1000);
-					tripletListP.emplace_back(ir + 10, ir + 10, 1000);
-					tripletListP.emplace_back(ir + 11, ir + 11, 1000);
-				}else{
-					tripletListP.emplace_back(ir ,    ir,     1);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1);
-					tripletListP.emplace_back(ir + 3, ir + 3, 0.001);
-					tripletListP.emplace_back(ir + 4, ir + 4, 0.001);
-					tripletListP.emplace_back(ir + 5, ir + 5, 0.001);
-					tripletListP.emplace_back(ir + 6, ir + 6, 0.001);
-					tripletListP.emplace_back(ir + 7, ir + 7, 0.001);
-					tripletListP.emplace_back(ir + 8, ir + 8, 0.001);
-					tripletListP.emplace_back(ir + 9, ir + 9, 0.001);
-					tripletListP.emplace_back(ir + 10, ir + 10, 0.001);
-					tripletListP.emplace_back(ir + 11, ir + 11, 0.001);
-				}*/
 				tripletListP.emplace_back(ir     , ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
 				tripletListP.emplace_back(ir + 1 , ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
 				tripletListP.emplace_back(ir + 2 , ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
@@ -1178,18 +1019,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.clear();
 			tripletListP.clear();
 			tripletListB.clear();
-
-			//LM
-			/*{
-				for(size_t i = 0 ; i < m_poses.size() * 12; i++){
-					tripletListA.emplace_back(i, i, 10);
-				}
-				Eigen::SparseMatrix<double> matLM(m_poses.size() * 12, m_poses.size() * 12);
-				matLM.setFromTriplets(tripletListA.begin(), tripletListA.end());
-
-				AtPA = AtPA + matLM;
-			}*/
-
 
 			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
 			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
@@ -1303,21 +1132,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				tripletListB.emplace_back(ir + 4, 0, delta.coeffs()(4));
 				tripletListB.emplace_back(ir + 5, 0, delta.coeffs()(5));
 
-				/*if(abs(first - second) == 1){
-					tripletListP.emplace_back(ir ,    ir,     1000);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1000);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1000);
-					tripletListP.emplace_back(ir + 3, ir + 3, 1000);
-					tripletListP.emplace_back(ir + 4, ir + 4, 1000);
-					tripletListP.emplace_back(ir + 5, ir + 5, 1000);
-				}else{
-					tripletListP.emplace_back(ir ,    ir,     1);
-					tripletListP.emplace_back(ir + 1, ir + 1, 1);
-					tripletListP.emplace_back(ir + 2, ir + 2, 1);
-					tripletListP.emplace_back(ir + 3, ir + 3, 0.001);
-					tripletListP.emplace_back(ir + 4, ir + 4, 0.001);
-					tripletListP.emplace_back(ir + 5, ir + 5, 0.001);
-				}*/
 				tripletListP.emplace_back(ir ,    ir,     cauchy(delta.coeffs()(0),1) * edges_g2o_w[i][0]);
 				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta.coeffs()(1),1) * edges_g2o_w[i][1]);
 				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta.coeffs()(2),1) * edges_g2o_w[i][2]);
@@ -1426,6 +1240,635 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}
 			break;
 		}
+		case 'w':{
+			std::vector<Eigen::Triplet<double>> tripletListA;
+			std::vector<Eigen::Triplet<double>> tripletListP;
+			std::vector<Eigen::Triplet<double>> tripletListB;
+
+			std::vector<TaitBryanPose> poses;
+
+			for(size_t i = 0 ; i < m_poses.size(); i++){
+				poses.push_back(pose_tait_bryan_from_affine_matrix(m_poses[i]));
+			}
+
+			for(size_t i = 0 ; i < edges_g2o.size(); i++){
+				const int first = std::get<0>(edges_g2o[i]);
+				const int second = std::get<1>(edges_g2o[i]);
+				const Eigen::Affine3d& rel = std::get<2>(edges_g2o[i]);
+				TaitBryanPose pose_rel = pose_tait_bryan_from_affine_matrix(rel);
+
+				TaitBryanPose from = poses[first];
+				TaitBryanPose to = poses[second];
+
+				Eigen::Matrix<double, 6, 1> delta;
+				relative_pose_2_obs_eq_tait_bryan_wc_case1(
+					delta,
+					poses[first].px,
+					poses[first].py,
+					poses[first].pz,
+					poses[first].om,
+					poses[first].fi,
+					poses[first].ka,
+					poses[second].px,
+					poses[second].py,
+					poses[second].pz,
+					poses[second].om,
+					poses[second].fi,
+					poses[second].ka,
+					pose_rel.px,
+					pose_rel.py,
+					pose_rel.pz,
+					pose_rel.om,
+					pose_rel.fi,
+					pose_rel.ka);
+
+				Eigen::Matrix<double, 6, 12, Eigen::RowMajor> jacobian;
+				relative_pose_2_obs_eq_tait_bryan_wc_case1_jacobian(jacobian,
+					poses[first].px,
+					poses[first].py,
+					poses[first].pz,
+					poses[first].om,
+					poses[first].fi,
+					poses[first].ka,
+					poses[second].px,
+					poses[second].py,
+					poses[second].pz,
+					poses[second].om,
+					poses[second].fi,
+					poses[second].ka,
+					pose_rel.px,
+					pose_rel.py,
+					pose_rel.pz,
+					pose_rel.om,
+					pose_rel.fi,
+					pose_rel.ka);
+				int ir = tripletListB.size();
+
+				int ic_1 = first * 6;
+				int ic_2 = second * 6;
+
+				for(size_t row = 0 ; row < 6; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,6));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,7));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,8));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,9));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,10));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,11));
+				}
+
+				float om_diff = delta(3,0);
+				if(fabs(om_diff) > M_PI){
+					om_diff -= 2.0*M_PI;
+				}
+				if(fabs(om_diff)< -M_PI){
+					om_diff += 2.0*M_PI;
+				}
+
+				float fi_diff = delta(4,0);
+				if(fabs(fi_diff) > M_PI){
+					fi_diff -= 2.0*M_PI;
+				}
+				if(fabs(fi_diff)< -M_PI){
+					fi_diff += 2.0*M_PI;
+				}
+
+				float ka_diff = delta(5,0);
+				if(fabs(ka_diff) > M_PI){
+					ka_diff -= 2.0*M_PI;
+				}
+				if(fabs(ka_diff)< -M_PI){
+					ka_diff += 2.0*M_PI;
+				}
+
+				tripletListB.emplace_back(ir,     0, delta(0,0));
+				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
+				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
+				tripletListB.emplace_back(ir + 3, 0, om_diff);
+				tripletListB.emplace_back(ir + 4, 0, fi_diff);
+				tripletListB.emplace_back(ir + 5, 0, ka_diff);
+
+				tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
+				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
+				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 3, ir + 3, cauchy(om_diff,1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 4, ir + 4, cauchy(fi_diff,1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 5, ir + 5, cauchy(ka_diff,1) * edges_g2o_w[i][5]);
+			}
+
+			int ir = tripletListB.size();
+			tripletListA.emplace_back(ir     , 0, 1);
+			tripletListA.emplace_back(ir + 1 , 1, 1);
+			tripletListA.emplace_back(ir + 2 , 2, 1);
+			tripletListA.emplace_back(ir + 3 , 3, 1);
+			tripletListA.emplace_back(ir + 4 , 4, 1);
+			tripletListA.emplace_back(ir + 5 , 5, 1);
+
+			tripletListP.emplace_back(ir     , ir,     1000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 1000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 1000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 1000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 1000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 1000000);
+
+			tripletListB.emplace_back(ir     , 0, 0);
+			tripletListB.emplace_back(ir + 1 , 0, 0);
+			tripletListB.emplace_back(ir + 2 , 0, 0);
+			tripletListB.emplace_back(ir + 3 , 0, 0);
+			tripletListB.emplace_back(ir + 4 , 0, 0);
+			tripletListB.emplace_back(ir + 5 , 0, 0);
+
+
+			Eigen::SparseMatrix<double> matA(tripletListB.size(), m_poses.size() * 6);
+			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+
+			Eigen::SparseMatrix<double> AtPA(m_poses.size() * 6 , m_poses.size() * 6);
+			Eigen::SparseMatrix<double> AtPB(m_poses.size() * 6 , 1);
+
+			{
+			Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+			AtPA = (AtP) * matA;
+			AtPB = (AtP) * matB;
+			}
+
+			tripletListA.clear();
+			tripletListP.clear();
+			tripletListB.clear();
+
+			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+			std::cout << "start solving AtPA=AtPB" << std::endl;
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+			std::cout << "x = solver.solve(AtPB)" << std::endl;
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+			std::vector<double> h_x;
+
+			for (int k=0; k<x.outerSize(); ++k){
+				for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+					h_x.push_back(it.value());
+				}
+			}
+
+			std::cout << "h_x.size(): " << h_x.size() << std::endl;
+			std::cout << "AtPA=AtPB SOLVED" << std::endl;
+
+			if(h_x.size() == 6 * m_poses.size()){
+				int counter = 0;
+
+				for(size_t i = 0; i < m_poses.size(); i++){
+					TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(m_poses[i]);
+					pose.px += h_x[counter++];
+					pose.py += h_x[counter++];
+					pose.pz += h_x[counter++];
+					pose.om += h_x[counter++];
+					pose.fi += h_x[counter++];
+					pose.ka += h_x[counter++];
+					m_poses[i] = affine_matrix_from_pose_tait_bryan(pose);
+				}
+				std::cout << "optimizing with tait bryan finished" << std::endl;
+			}else{
+				std::cout << "optimizing with tait bryan FAILED" << std::endl;
+			}
+			break;
+		}
+		case 'e':{
+			std::vector<Eigen::Triplet<double>> tripletListA;
+			std::vector<Eigen::Triplet<double>> tripletListP;
+			std::vector<Eigen::Triplet<double>> tripletListB;
+
+			std::vector<RodriguesPose> poses;
+
+			for(size_t i = 0 ; i < m_poses.size(); i++){
+				TaitBryanPose p = pose_tait_bryan_from_affine_matrix(m_poses[i]);
+					p.px += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.py += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.pz += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.om += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.fi += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+					p.ka += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.00001;
+				Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(p);
+				poses.push_back(pose_rodrigues_from_affine_matrix(m));
+			}
+
+			for(size_t i = 0 ; i < edges_g2o.size(); i++){
+				const int first = std::get<0>(edges_g2o[i]);
+				const int second = std::get<1>(edges_g2o[i]);
+				const Eigen::Affine3d& rel = std::get<2>(edges_g2o[i]);
+
+				RodriguesPose ps = pose_rodrigues_from_affine_matrix(rel);
+
+				Eigen::Matrix<double, 6, 1> delta;
+				relative_pose_2_obs_eq_rodrigues_wc(
+						delta,
+						poses[first].px,
+						poses[first].py,
+						poses[first].pz,
+						poses[first].sx,
+						poses[first].sy,
+						poses[first].sz,
+						poses[second].px,
+						poses[second].py,
+						poses[second].pz,
+						poses[second].sx,
+						poses[second].sy,
+						poses[second].sz,
+						ps.px,
+						ps.py,
+						ps.pz,
+						ps.sx,
+						ps.sy,
+						ps.sz);
+
+				Eigen::Matrix<double, 6, 12, Eigen::RowMajor> jacobian;
+				relative_pose_2_obs_eq_rodrigues_wc_jacobian(jacobian,
+						poses[first].px,
+						poses[first].py,
+						poses[first].pz,
+						poses[first].sx,
+						poses[first].sy,
+						poses[first].sz,
+						poses[second].px,
+						poses[second].py,
+						poses[second].pz,
+						poses[second].sx,
+						poses[second].sy,
+						poses[second].sz,
+						ps.px,
+						ps.py,
+						ps.pz,
+						ps.sx,
+						ps.sy,
+						ps.sz);
+
+				int ir = tripletListB.size();
+
+				int ic_1 = first * 6;
+				int ic_2 = second * 6;
+
+				for(size_t row = 0 ; row < 6; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,6));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,7));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,8));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,9));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,10));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,11));
+				}
+
+				tripletListB.emplace_back(ir,     0, delta(0,0));
+				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
+				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
+				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
+				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
+				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
+
+				tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
+				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
+				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta(3,0),1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
+			}
+
+			int ir = tripletListB.size();
+			tripletListA.emplace_back(ir     , 0, 1);
+			tripletListA.emplace_back(ir + 1 , 1, 1);
+			tripletListA.emplace_back(ir + 2 , 2, 1);
+			tripletListA.emplace_back(ir + 3 , 3, 1);
+			tripletListA.emplace_back(ir + 4 , 4, 1);
+			tripletListA.emplace_back(ir + 5 , 5, 1);
+
+			tripletListP.emplace_back(ir     , ir,     1000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 1000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 1000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 1000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 1000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 1000000);
+
+			tripletListB.emplace_back(ir     , 0, 0);
+			tripletListB.emplace_back(ir + 1 , 0, 0);
+			tripletListB.emplace_back(ir + 2 , 0, 0);
+			tripletListB.emplace_back(ir + 3 , 0, 0);
+			tripletListB.emplace_back(ir + 4 , 0, 0);
+			tripletListB.emplace_back(ir + 5 , 0, 0);
+
+
+			Eigen::SparseMatrix<double> matA(tripletListB.size(), m_poses.size() * 6);
+			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+
+			Eigen::SparseMatrix<double> AtPA(m_poses.size() * 6 , m_poses.size() * 6);
+			Eigen::SparseMatrix<double> AtPB(m_poses.size() * 6 , 1);
+
+			{
+			Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+			AtPA = (AtP) * matA;
+			AtPB = (AtP) * matB;
+			}
+
+			tripletListA.clear();
+			tripletListP.clear();
+			tripletListB.clear();
+
+			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+			std::cout << "start solving AtPA=AtPB" << std::endl;
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+			std::cout << "x = solver.solve(AtPB)" << std::endl;
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+			std::vector<double> h_x;
+
+			for (int k=0; k<x.outerSize(); ++k){
+				for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+					h_x.push_back(it.value());
+				}
+			}
+
+			for(size_t i = 0 ; i < h_x.size(); i++){
+				std::cout << h_x[i] << std::endl;
+			}
+			std::cout << "h_x.size(): " << h_x.size() << std::endl;
+			std::cout << "AtPA=AtPB SOLVED" << std::endl;
+
+			if(h_x.size() == 6 * m_poses.size()){
+				int counter = 0;
+
+				for(size_t i = 0; i < m_poses.size(); i++){
+					RodriguesPose pose = pose_rodrigues_from_affine_matrix(m_poses[i]);
+					pose.px += h_x[counter++];
+					pose.py += h_x[counter++];
+					pose.pz += h_x[counter++];
+					pose.sx += h_x[counter++];
+					pose.sy += h_x[counter++];
+					pose.sz += h_x[counter++];
+
+					m_poses[i] = affine_matrix_from_pose_rodrigues(pose);
+
+					Eigen::Vector3d vx(m_poses[i](0,0), m_poses[i](1,0), m_poses[i](2,0));
+					Eigen::Vector3d vy(m_poses[i](0,1), m_poses[i](1,1), m_poses[i](2,1));
+					Eigen::Vector3d vz(m_poses[i](0,2), m_poses[i](1,2), m_poses[i](2,2));
+
+					//std::cout << std::setprecision(15);
+					//std::cout << "norm: "<< vx.norm() << " " << vy.norm() << " " << vz.norm() << " " <<
+					//		vx.dot(vy) << " " << vy.dot(vz) << " " << vx.dot(vz) << std::endl;
+				}
+				std::cout << "optimizing with rodrigues finished" << std::endl;
+			}else{
+				std::cout << "optimizing with rodrigues FAILED" << std::endl;
+			}
+			break;
+		}
+		case 'a':{
+			std::vector<Eigen::Triplet<double>> tripletListA;
+			std::vector<Eigen::Triplet<double>> tripletListP;
+			std::vector<Eigen::Triplet<double>> tripletListB;
+
+			std::vector<QuaternionPose> poses;
+
+			for(size_t i = 0 ; i < m_poses.size(); i++){
+				poses.push_back(pose_quaternion_from_affine_matrix(m_poses[i]));
+			}
+
+			for(size_t i = 0 ; i < edges_g2o.size(); i++){
+				const int first = std::get<0>(edges_g2o[i]);
+				const int second = std::get<1>(edges_g2o[i]);
+				const Eigen::Affine3d& rel = std::get<2>(edges_g2o[i]);
+				QuaternionPose pose_rel = pose_quaternion_from_affine_matrix(rel);
+
+				Eigen::Matrix<double, 7, 1> delta;
+				relative_pose_2_obs_eq_quaternion_wc(
+					delta,
+					poses[first].px,
+					poses[first].py,
+					poses[first].pz,
+					poses[first].q0,
+					poses[first].q1,
+					poses[first].q2,
+					poses[first].q3,
+					poses[second].px,
+					poses[second].py,
+					poses[second].pz,
+					poses[second].q0,
+					poses[second].q1,
+					poses[second].q2,
+					poses[second].q3,
+					pose_rel.px,
+					pose_rel.py,
+					pose_rel.pz,
+					pose_rel.q0,
+					pose_rel.q1,
+					pose_rel.q2,
+					pose_rel.q3);
+
+				Eigen::Matrix<double, 7, 14, Eigen::RowMajor> jacobian;
+				relative_pose_2_obs_eq_quaternion_wc_jacobian(jacobian,
+					poses[first].px,
+					poses[first].py,
+					poses[first].pz,
+					poses[first].q0,
+					poses[first].q1,
+					poses[first].q2,
+					poses[first].q3,
+					poses[second].px,
+					poses[second].py,
+					poses[second].pz,
+					poses[second].q0,
+					poses[second].q1,
+					poses[second].q2,
+					poses[second].q3,
+					pose_rel.px,
+					pose_rel.py,
+					pose_rel.pz,
+					pose_rel.q0,
+					pose_rel.q1,
+					pose_rel.q2,
+					pose_rel.q3);
+
+				int ir = tripletListB.size();
+
+				int ic_1 = first * 7;
+				int ic_2 = second * 7;
+
+				for(size_t row = 0 ; row < 7; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
+					tripletListA.emplace_back(ir + row, ic_1 + 6, -jacobian(row,6));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,7));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,8));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,9));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,10));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,11));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,12));
+					tripletListA.emplace_back(ir + row, ic_2 + 6, -jacobian(row,13));
+				}
+
+				tripletListB.emplace_back(ir,     0, delta(0,0));
+				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
+				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
+				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
+				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
+				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
+				tripletListB.emplace_back(ir + 6, 0, delta(6,0));
+
+				tripletListP.emplace_back(ir ,    ir,     cauchy(delta(0,0),1) * edges_g2o_w[i][0]);
+				tripletListP.emplace_back(ir + 1, ir + 1, cauchy(delta(1,0),1) * edges_g2o_w[i][1]);
+				tripletListP.emplace_back(ir + 2, ir + 2, cauchy(delta(2,0),1) * edges_g2o_w[i][2]);
+				tripletListP.emplace_back(ir + 3, ir + 3, cauchy(delta(3,0),1) * edges_g2o_w[i][3]);
+				tripletListP.emplace_back(ir + 4, ir + 4, cauchy(delta(4,0),1) * edges_g2o_w[i][4]);
+				tripletListP.emplace_back(ir + 5, ir + 5, cauchy(delta(5,0),1) * edges_g2o_w[i][5]);
+				tripletListP.emplace_back(ir + 6, ir + 6, cauchy(delta(6,0),1) * edges_g2o_w[i][5]);
+			}
+
+			int ir = tripletListB.size();
+			tripletListA.emplace_back(ir     , 0, 1);
+			tripletListA.emplace_back(ir + 1 , 1, 1);
+			tripletListA.emplace_back(ir + 2 , 2, 1);
+			tripletListA.emplace_back(ir + 3 , 3, 1);
+			tripletListA.emplace_back(ir + 4 , 4, 1);
+			tripletListA.emplace_back(ir + 5 , 5, 1);
+			tripletListA.emplace_back(ir + 6 , 6, 1);
+
+			tripletListP.emplace_back(ir     , ir,     1000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 1000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 1000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 1000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 1000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 1000000);
+			tripletListP.emplace_back(ir + 6 , ir + 6, 1000000);
+
+			tripletListB.emplace_back(ir     , 0, 0);
+			tripletListB.emplace_back(ir + 1 , 0, 0);
+			tripletListB.emplace_back(ir + 2 , 0, 0);
+			tripletListB.emplace_back(ir + 3 , 0, 0);
+			tripletListB.emplace_back(ir + 4 , 0, 0);
+			tripletListB.emplace_back(ir + 5 , 0, 0);
+			tripletListB.emplace_back(ir + 6 , 0, 0);
+
+			for(size_t i = 0 ; i < m_poses.size(); i++){
+				int ic = i * 7;
+				ir = tripletListB.size();
+				QuaternionPose pose = pose_quaternion_from_affine_matrix(m_poses[i]);
+
+				double delta;
+				quaternion_constraint(delta, pose.q0, pose.q1, pose.q2, pose.q3);
+
+				Eigen::Matrix<double, 1, 4> jacobian;
+				quaternion_constraint_jacobian(jacobian, pose.q0, pose.q1, pose.q2, pose.q3);
+
+				tripletListA.emplace_back(ir, ic + 3 , -jacobian(0,0));
+				tripletListA.emplace_back(ir, ic + 4 , -jacobian(0,1));
+				tripletListA.emplace_back(ir, ic + 5 , -jacobian(0,2));
+				tripletListA.emplace_back(ir, ic + 6 , -jacobian(0,3));
+
+				tripletListP.emplace_back(ir, ir, 1000000.0);
+
+				tripletListB.emplace_back(ir, 0, delta);
+			}
+
+
+			Eigen::SparseMatrix<double> matA(tripletListB.size(), m_poses.size() * 7);
+			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+
+			Eigen::SparseMatrix<double> AtPA(m_poses.size() * 7 , m_poses.size() * 7);
+			Eigen::SparseMatrix<double> AtPB(m_poses.size() * 7 , 1);
+
+			{
+			Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+			AtPA = (AtP) * matA;
+			AtPB = (AtP) * matB;
+			}
+
+			tripletListA.clear();
+			tripletListP.clear();
+			tripletListB.clear();
+
+			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+			std::cout << "start solving AtPA=AtPB" << std::endl;
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+			std::cout << "x = solver.solve(AtPB)" << std::endl;
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+			std::vector<double> h_x;
+
+			for (int k=0; k<x.outerSize(); ++k){
+				for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+					h_x.push_back(it.value());
+				}
+			}
+
+			for(size_t i = 0 ; i < h_x.size(); i++){
+				std::cout << h_x[i] << std::endl;
+			}
+
+			std::cout << "h_x.size(): " << h_x.size() << std::endl;
+
+			std::cout << "AtPA=AtPB SOLVED" << std::endl;
+
+
+
+			if(h_x.size() == 7 * m_poses.size()){
+				int counter = 0;
+
+				for(size_t i = 0; i < m_poses.size(); i++){
+					QuaternionPose pose = pose_quaternion_from_affine_matrix(m_poses[i]);
+					pose.px += h_x[counter++];
+					pose.py += h_x[counter++];
+					pose.pz += h_x[counter++];
+					pose.q0 += h_x[counter++];
+					pose.q1 += h_x[counter++];
+					pose.q2 += h_x[counter++];
+					pose.q3 += h_x[counter++];
+					m_poses[i] = affine_matrix_from_pose_quaternion(pose);
+				}
+				std::cout << "optimizing with quaternions finished" << std::endl;
+			}else{
+				std::cout << "optimizing with quaternions FAILED" << std::endl;
+			}
+			break;
+		}
 	}
 	printHelp();
 	glutPostRedisplay();
@@ -1482,4 +1925,7 @@ void printHelp() {
 	std::cout << "q: optimize (Quaternion)" << std::endl;
 	std::cout << "x: optimize (Without rotation matrix parametrization)" << std::endl;
 	std::cout << "y: optimize (Lie Algebra: manif lib)" << std::endl;
+	std::cout << "w: optimize (Tait-Bryan 2)" << std::endl;
+	std::cout << "e: optimize (Rodriguez 2)" << std::endl;
+	std::cout << "a: optimize (Quaternion 2)" << std::endl;
 }

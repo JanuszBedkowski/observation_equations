@@ -7,11 +7,11 @@
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
-#include "../../perspective_camera_with_intrinsics_tait_bryan_cw_jacobian.h"
-#include "../../perspective_camera_with_intrinsics_rodrigues_cw_jacobian.h"
-#include "../../perspective_camera_with_intrinsics_quaternion_cw_jacobian.h"
-#include "../../quaternion_constraint_jacobian.h"
-#include "../../perspective_camera_tait_bryan_wc_jacobian.h"
+#include "perspective_camera_with_intrinsics_tait_bryan_cw_jacobian.h"
+#include "perspective_camera_with_intrinsics_rodrigues_cw_jacobian.h"
+#include "perspective_camera_with_intrinsics_quaternion_cw_jacobian.h"
+#include "quaternion_constraint_jacobian.h"
+#include "perspective_camera_tait_bryan_wc_jacobian.h"
 
 double k1 = 0.1686;
 double k2 = -0.515827;

@@ -3,11 +3,11 @@
 #include <Eigen/Eigen>
 #include <iostream>
 
-#include "../../equirectangular_camera_colinearity_tait_bryan_wc_jacobian.h"
-#include "../../equirectangular_camera_coplanarity_tait_bryan_wc_jacobian.h"
-#include "../../equirectangular_camera_coplanarity_rodrigues_wc_jacobian.h"
-#include "../../equirectangular_camera_coplanarity_quaternion_wc_jacobian.h"
-#include "../../quaternion_constraint_jacobian.h"
+#include "equirectangular_camera_colinearity_tait_bryan_wc_jacobian.h"
+#include "equirectangular_camera_coplanarity_tait_bryan_wc_jacobian.h"
+#include "equirectangular_camera_coplanarity_rodrigues_wc_jacobian.h"
+#include "equirectangular_camera_coplanarity_quaternion_wc_jacobian.h"
+#include "quaternion_constraint_jacobian.h"
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"

@@ -6,11 +6,14 @@
 
 #include "structures.h"
 #include "transformations.h"
-#include "../../relative_pose_tait_bryan_wc_jacobian.h"
-#include "../../relative_pose_rodrigues_wc_jacobian.h"
-#include "../../relative_pose_quaternion_wc_jacobian.h"
-#include "../../quaternion_constraint_jacobian.h"
-#include "../../relative_pose_wc_jacobian.h"
+#include "relative_pose_tait_bryan_wc_jacobian.h"
+#include "relative_pose_rodrigues_wc_jacobian.h"
+#include "relative_pose_quaternion_wc_jacobian.h"
+#include "quaternion_constraint_jacobian.h"
+#include "relative_pose_wc_jacobian.h"
+#include "relative_pose_2_tait_bryan_wc_jacobian.h"
+#include "relative_pose_2_rodrigues_wc_jacobian.h"
+#include "relative_pose_2_quaternion_wc_jacobian.h"
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -1512,6 +1515,930 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}
 			break;
 		}
+		case 'a':{
+			std::vector<Eigen::Triplet<double>> tripletListA;
+			std::vector<Eigen::Triplet<double>> tripletListP;
+			std::vector<Eigen::Triplet<double>> tripletListB;
+
+			std::vector<TaitBryanPose> poses;
+			std::vector<TaitBryanPose> poses_desired;
+
+			for(size_t i = 0 ; i < m_poses.size(); i++){
+				poses.push_back(pose_tait_bryan_from_affine_matrix(m_poses[i]));
+			}
+			for(size_t i = 0 ; i < m_poses_desired.size(); i++){
+				poses_desired.push_back(pose_tait_bryan_from_affine_matrix(m_poses_desired[i]));
+			}
+
+			for(size_t i = 0 ; i < odo_edges.size(); i++){
+				Eigen::Matrix<double, 6, 1> relative_pose_measurement_odo;
+				relative_pose_tait_bryan_wc_case1(relative_pose_measurement_odo,
+						poses_desired[odo_edges[i].first].px,
+						poses_desired[odo_edges[i].first].py,
+						poses_desired[odo_edges[i].first].pz,
+						poses_desired[odo_edges[i].first].om,
+						poses_desired[odo_edges[i].first].fi,
+						poses_desired[odo_edges[i].first].ka,
+						poses_desired[odo_edges[i].second].px,
+						poses_desired[odo_edges[i].second].py,
+						poses_desired[odo_edges[i].second].pz,
+						poses_desired[odo_edges[i].second].om,
+						poses_desired[odo_edges[i].second].fi,
+						poses_desired[odo_edges[i].second].ka);
+
+				Eigen::Matrix<double, 6, 1> delta;
+				relative_pose_2_obs_eq_tait_bryan_wc_case1(
+						delta,
+						poses[odo_edges[i].first].px,
+						poses[odo_edges[i].first].py,
+						poses[odo_edges[i].first].pz,
+						poses[odo_edges[i].first].om,
+						poses[odo_edges[i].first].fi,
+						poses[odo_edges[i].first].ka,
+						poses[odo_edges[i].second].px,
+						poses[odo_edges[i].second].py,
+						poses[odo_edges[i].second].pz,
+						poses[odo_edges[i].second].om,
+						poses[odo_edges[i].second].fi,
+						poses[odo_edges[i].second].ka,
+						relative_pose_measurement_odo(0,0),
+						relative_pose_measurement_odo(1,0),
+						relative_pose_measurement_odo(2,0),
+						relative_pose_measurement_odo(3,0),
+						relative_pose_measurement_odo(4,0),
+						relative_pose_measurement_odo(5,0));
+
+				Eigen::Matrix<double, 6, 12, Eigen::RowMajor> jacobian;
+				relative_pose_2_obs_eq_tait_bryan_wc_case1_jacobian(jacobian,
+						poses[odo_edges[i].first].px,
+						poses[odo_edges[i].first].py,
+						poses[odo_edges[i].first].pz,
+						poses[odo_edges[i].first].om,
+						poses[odo_edges[i].first].fi,
+						poses[odo_edges[i].first].ka,
+						poses[odo_edges[i].second].px,
+						poses[odo_edges[i].second].py,
+						poses[odo_edges[i].second].pz,
+						poses[odo_edges[i].second].om,
+						poses[odo_edges[i].second].fi,
+						poses[odo_edges[i].second].ka,
+						relative_pose_measurement_odo(0,0),
+						relative_pose_measurement_odo(1,0),
+						relative_pose_measurement_odo(2,0),
+						relative_pose_measurement_odo(3,0),
+						relative_pose_measurement_odo(4,0),
+						relative_pose_measurement_odo(5,0));
+
+				int ir = tripletListB.size();
+
+				int ic_1 = odo_edges[i].first * 6;
+				int ic_2 = odo_edges[i].second * 6;
+
+				for(size_t row = 0 ; row < 6; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,6));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,7));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,8));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,9));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,10));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,11));
+				}
+
+				tripletListB.emplace_back(ir,     0, delta(0,0));
+				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
+				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
+				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
+				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
+				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
+
+				tripletListP.emplace_back(ir ,    ir,     1);
+				tripletListP.emplace_back(ir + 1, ir + 1, 1);
+				tripletListP.emplace_back(ir + 2, ir + 2, 1);
+				tripletListP.emplace_back(ir + 3, ir + 3, 1);
+				tripletListP.emplace_back(ir + 4, ir + 4, 1);
+				tripletListP.emplace_back(ir + 5, ir + 5, 1);
+			}
+
+			for(size_t i = 0 ; i < loop_edges.size(); i++){
+				Eigen::Matrix<double, 6, 1> relative_pose_measurement_loop;
+				relative_pose_tait_bryan_wc_case1(relative_pose_measurement_loop,
+						poses_desired[loop_edges[i].first].px,
+						poses_desired[loop_edges[i].first].py,
+						poses_desired[loop_edges[i].first].pz,
+						poses_desired[loop_edges[i].first].om,
+						poses_desired[loop_edges[i].first].fi,
+						poses_desired[loop_edges[i].first].ka,
+						poses_desired[loop_edges[i].second].px,
+						poses_desired[loop_edges[i].second].py,
+						poses_desired[loop_edges[i].second].pz,
+						poses_desired[loop_edges[i].second].om,
+						poses_desired[loop_edges[i].second].fi,
+						poses_desired[loop_edges[i].second].ka);
+
+				Eigen::Matrix<double, 6, 1> delta;
+				relative_pose_obs_eq_tait_bryan_wc_case1(
+						delta,
+						poses[loop_edges[i].first].px,
+						poses[loop_edges[i].first].py,
+						poses[loop_edges[i].first].pz,
+						poses[loop_edges[i].first].om,
+						poses[loop_edges[i].first].fi,
+						poses[loop_edges[i].first].ka,
+						poses[loop_edges[i].second].px,
+						poses[loop_edges[i].second].py,
+						poses[loop_edges[i].second].pz,
+						poses[loop_edges[i].second].om,
+						poses[loop_edges[i].second].fi,
+						poses[loop_edges[i].second].ka,
+						relative_pose_measurement_loop(0,0),
+						relative_pose_measurement_loop(1,0),
+						relative_pose_measurement_loop(2,0),
+						relative_pose_measurement_loop(3,0),
+						relative_pose_measurement_loop(4,0),
+						relative_pose_measurement_loop(5,0));
+
+				Eigen::Matrix<double, 6, 12, Eigen::RowMajor> jacobian;
+				relative_pose_obs_eq_tait_bryan_wc_case1_jacobian(jacobian,
+						poses[loop_edges[i].first].px,
+						poses[loop_edges[i].first].py,
+						poses[loop_edges[i].first].pz,
+						poses[loop_edges[i].first].om,
+						poses[loop_edges[i].first].fi,
+						poses[loop_edges[i].first].ka,
+						poses[loop_edges[i].second].px,
+						poses[loop_edges[i].second].py,
+						poses[loop_edges[i].second].pz,
+						poses[loop_edges[i].second].om,
+						poses[loop_edges[i].second].fi,
+						poses[loop_edges[i].second].ka);
+
+				int ir = tripletListB.size();
+
+				int ic_1 = loop_edges[i].first * 6;
+				int ic_2 = loop_edges[i].second * 6;
+
+				for(size_t row = 0 ; row < 6; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,6));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,7));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,8));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,9));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,10));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,11));
+				}
+
+				tripletListB.emplace_back(ir,     0, delta(0,0));
+				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
+				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
+				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
+				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
+				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
+
+				tripletListP.emplace_back(ir ,    ir,     1);
+				tripletListP.emplace_back(ir + 1, ir + 1, 1);
+				tripletListP.emplace_back(ir + 2, ir + 2, 1);
+				tripletListP.emplace_back(ir + 3, ir + 3, 1);
+				tripletListP.emplace_back(ir + 4, ir + 4, 1);
+				tripletListP.emplace_back(ir + 5, ir + 5, 1);
+			}
+
+			int ir = tripletListB.size();
+			tripletListA.emplace_back(ir     , 0, 1);
+			tripletListA.emplace_back(ir + 1 , 1, 1);
+			tripletListA.emplace_back(ir + 2 , 2, 1);
+			tripletListA.emplace_back(ir + 3 , 3, 1);
+			tripletListA.emplace_back(ir + 4 , 4, 1);
+			tripletListA.emplace_back(ir + 5 , 5, 1);
+
+			tripletListP.emplace_back(ir     , ir,     10000000000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 10000000000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 10000000000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 10000000000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 10000000000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 10000000000000);
+
+			tripletListB.emplace_back(ir     , 0, 0);
+			tripletListB.emplace_back(ir + 1 , 0, 0);
+			tripletListB.emplace_back(ir + 2 , 0, 0);
+			tripletListB.emplace_back(ir + 3 , 0, 0);
+			tripletListB.emplace_back(ir + 4 , 0, 0);
+			tripletListB.emplace_back(ir + 5 , 0, 0);
+
+
+			Eigen::SparseMatrix<double> matA(tripletListB.size(), m_poses.size() * 6);
+			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+
+			Eigen::SparseMatrix<double> AtPA(m_poses.size() * 6 , m_poses.size() * 6);
+			Eigen::SparseMatrix<double> AtPB(m_poses.size() * 6 , 1);
+
+			{
+			Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+			AtPA = (AtP) * matA;
+			AtPB = (AtP) * matB;
+			}
+
+			tripletListA.clear();
+			tripletListP.clear();
+			tripletListB.clear();
+
+			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+			std::cout << "start solving AtPA=AtPB" << std::endl;
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+			std::cout << "x = solver.solve(AtPB)" << std::endl;
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+			std::vector<double> h_x;
+
+			for (int k=0; k<x.outerSize(); ++k){
+				for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+					h_x.push_back(it.value());
+				}
+			}
+
+			std::cout << "h_x.size(): " << h_x.size() << std::endl;
+
+			std::cout << "AtPA=AtPB SOLVED" << std::endl;
+
+			for(size_t i = 0 ; i < h_x.size(); i++){
+				std::cout << h_x[i] << std::endl;
+			}
+
+			if(h_x.size() == 6 * m_poses.size()){
+				int counter = 0;
+
+				for(size_t i = 0; i < m_poses.size(); i++){
+					TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(m_poses[i]);
+					pose.px += h_x[counter++];
+					pose.py += h_x[counter++];
+					pose.pz += h_x[counter++];
+					pose.om += h_x[counter++];
+					pose.fi += h_x[counter++];
+					pose.ka += h_x[counter++];
+					m_poses[i] = affine_matrix_from_pose_tait_bryan(pose);
+				}
+				std::cout << "optimizing with tait bryan finished" << std::endl;
+			}else{
+				std::cout << "optimizing with tait bryan FAILED" << std::endl;
+			}
+
+			break;
+		}
+		case 's':{
+			std::vector<Eigen::Triplet<double>> tripletListA;
+			std::vector<Eigen::Triplet<double>> tripletListP;
+			std::vector<Eigen::Triplet<double>> tripletListB;
+
+			std::vector<RodriguesPose> poses;
+			std::vector<RodriguesPose> poses_desired;
+
+			for(size_t i = 0 ; i < m_poses.size(); i++){
+				poses.push_back(pose_rodrigues_from_affine_matrix(m_poses[i]));
+			}
+			for(size_t i = 0 ; i < m_poses_desired.size(); i++){
+				poses_desired.push_back(pose_rodrigues_from_affine_matrix(m_poses_desired[i]));
+			}
+
+			for(size_t i = 0 ; i < odo_edges.size(); i++){
+				Eigen::Matrix<double, 6, 1> relative_pose_measurement_odo;
+				relative_pose_rodrigues_wc(relative_pose_measurement_odo,
+						poses_desired[odo_edges[i].first].px,
+						poses_desired[odo_edges[i].first].py,
+						poses_desired[odo_edges[i].first].pz,
+						poses_desired[odo_edges[i].first].sx,
+						poses_desired[odo_edges[i].first].sy,
+						poses_desired[odo_edges[i].first].sz,
+						poses_desired[odo_edges[i].second].px,
+						poses_desired[odo_edges[i].second].py,
+						poses_desired[odo_edges[i].second].pz,
+						poses_desired[odo_edges[i].second].sx,
+						poses_desired[odo_edges[i].second].sy,
+						poses_desired[odo_edges[i].second].sz);
+
+				Eigen::Matrix<double, 6, 1> delta;
+				relative_pose_2_obs_eq_rodrigues_wc(
+						delta,
+						poses[odo_edges[i].first].px,
+						poses[odo_edges[i].first].py,
+						poses[odo_edges[i].first].pz,
+						poses[odo_edges[i].first].sx,
+						poses[odo_edges[i].first].sy,
+						poses[odo_edges[i].first].sz,
+						poses[odo_edges[i].second].px,
+						poses[odo_edges[i].second].py,
+						poses[odo_edges[i].second].pz,
+						poses[odo_edges[i].second].sx,
+						poses[odo_edges[i].second].sy,
+						poses[odo_edges[i].second].sz,
+						relative_pose_measurement_odo(0,0),
+						relative_pose_measurement_odo(1,0),
+						relative_pose_measurement_odo(2,0),
+						relative_pose_measurement_odo(3,0),
+						relative_pose_measurement_odo(4,0),
+						relative_pose_measurement_odo(5,0));
+
+				Eigen::Matrix<double, 6, 12, Eigen::RowMajor> jacobian;
+				relative_pose_2_obs_eq_rodrigues_wc_jacobian(jacobian,
+						poses[odo_edges[i].first].px,
+						poses[odo_edges[i].first].py,
+						poses[odo_edges[i].first].pz,
+						poses[odo_edges[i].first].sx,
+						poses[odo_edges[i].first].sy,
+						poses[odo_edges[i].first].sz,
+						poses[odo_edges[i].second].px,
+						poses[odo_edges[i].second].py,
+						poses[odo_edges[i].second].pz,
+						poses[odo_edges[i].second].sx,
+						poses[odo_edges[i].second].sy,
+						poses[odo_edges[i].second].sz,
+						relative_pose_measurement_odo(0,0),
+						relative_pose_measurement_odo(1,0),
+						relative_pose_measurement_odo(2,0),
+						relative_pose_measurement_odo(3,0),
+						relative_pose_measurement_odo(4,0),
+						relative_pose_measurement_odo(5,0));
+
+				int ir = tripletListB.size();
+
+				int ic_1 = odo_edges[i].first * 6;
+				int ic_2 = odo_edges[i].second * 6;
+
+				for(size_t row = 0 ; row < 6; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,6));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,7));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,8));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,9));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,10));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,11));
+				}
+
+				tripletListB.emplace_back(ir,     0, delta(0,0));
+				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
+				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
+				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
+				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
+				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
+
+				tripletListP.emplace_back(ir ,    ir,     1);
+				tripletListP.emplace_back(ir + 1, ir + 1, 1);
+				tripletListP.emplace_back(ir + 2, ir + 2, 1);
+				tripletListP.emplace_back(ir + 3, ir + 3, 1);
+				tripletListP.emplace_back(ir + 4, ir + 4, 1);
+				tripletListP.emplace_back(ir + 5, ir + 5, 1);
+			}
+
+			for(size_t i = 0 ; i < loop_edges.size(); i++){
+				Eigen::Matrix<double, 6, 1> relative_pose_measurement_loop;
+				relative_pose_rodrigues_wc(relative_pose_measurement_loop,
+						poses_desired[loop_edges[i].first].px,
+						poses_desired[loop_edges[i].first].py,
+						poses_desired[loop_edges[i].first].pz,
+						poses_desired[loop_edges[i].first].sx,
+						poses_desired[loop_edges[i].first].sy,
+						poses_desired[loop_edges[i].first].sz,
+						poses_desired[loop_edges[i].second].px,
+						poses_desired[loop_edges[i].second].py,
+						poses_desired[loop_edges[i].second].pz,
+						poses_desired[loop_edges[i].second].sx,
+						poses_desired[loop_edges[i].second].sy,
+						poses_desired[loop_edges[i].second].sz);
+
+				Eigen::Matrix<double, 6, 1> delta;
+				relative_pose_obs_eq_rodrigues_wc(
+						delta,
+						poses[loop_edges[i].first].px,
+						poses[loop_edges[i].first].py,
+						poses[loop_edges[i].first].pz,
+						poses[loop_edges[i].first].sx,
+						poses[loop_edges[i].first].sy,
+						poses[loop_edges[i].first].sz,
+						poses[loop_edges[i].second].px,
+						poses[loop_edges[i].second].py,
+						poses[loop_edges[i].second].pz,
+						poses[loop_edges[i].second].sx,
+						poses[loop_edges[i].second].sy,
+						poses[loop_edges[i].second].sz,
+						relative_pose_measurement_loop(0,0),
+						relative_pose_measurement_loop(1,0),
+						relative_pose_measurement_loop(2,0),
+						relative_pose_measurement_loop(3,0),
+						relative_pose_measurement_loop(4,0),
+						relative_pose_measurement_loop(5,0));
+
+				Eigen::Matrix<double, 6, 12, Eigen::RowMajor> jacobian;
+				relative_pose_obs_eq_rodrigues_wc_jacobian(jacobian,
+						poses[loop_edges[i].first].px,
+						poses[loop_edges[i].first].py,
+						poses[loop_edges[i].first].pz,
+						poses[loop_edges[i].first].sx,
+						poses[loop_edges[i].first].sy,
+						poses[loop_edges[i].first].sz,
+						poses[loop_edges[i].second].px,
+						poses[loop_edges[i].second].py,
+						poses[loop_edges[i].second].pz,
+						poses[loop_edges[i].second].sx,
+						poses[loop_edges[i].second].sy,
+						poses[loop_edges[i].second].sz);
+
+				int ir = tripletListB.size();
+
+				int ic_1 = loop_edges[i].first * 6;
+				int ic_2 = loop_edges[i].second * 6;
+
+				for(size_t row = 0 ; row < 6; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,6));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,7));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,8));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,9));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,10));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,11));
+				}
+
+				tripletListB.emplace_back(ir,     0, delta(0,0));
+				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
+				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
+				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
+				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
+				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
+
+				tripletListP.emplace_back(ir ,    ir,     1);
+				tripletListP.emplace_back(ir + 1, ir + 1, 1);
+				tripletListP.emplace_back(ir + 2, ir + 2, 1);
+				tripletListP.emplace_back(ir + 3, ir + 3, 1);
+				tripletListP.emplace_back(ir + 4, ir + 4, 1);
+				tripletListP.emplace_back(ir + 5, ir + 5, 1);
+			}
+
+			int ir = tripletListB.size();
+			tripletListA.emplace_back(ir     , 0, 1);
+			tripletListA.emplace_back(ir + 1 , 1, 1);
+			tripletListA.emplace_back(ir + 2 , 2, 1);
+			tripletListA.emplace_back(ir + 3 , 3, 1);
+			tripletListA.emplace_back(ir + 4 , 4, 1);
+			tripletListA.emplace_back(ir + 5 , 5, 1);
+
+			tripletListP.emplace_back(ir     , ir,     10000000000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 10000000000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 10000000000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 10000000000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 10000000000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 10000000000000);
+
+			tripletListB.emplace_back(ir     , 0, 0);
+			tripletListB.emplace_back(ir + 1 , 0, 0);
+			tripletListB.emplace_back(ir + 2 , 0, 0);
+			tripletListB.emplace_back(ir + 3 , 0, 0);
+			tripletListB.emplace_back(ir + 4 , 0, 0);
+			tripletListB.emplace_back(ir + 5 , 0, 0);
+
+
+			Eigen::SparseMatrix<double> matA(tripletListB.size(), m_poses.size() * 6);
+			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+
+			Eigen::SparseMatrix<double> AtPA(m_poses.size() * 6 , m_poses.size() * 6);
+			Eigen::SparseMatrix<double> AtPB(m_poses.size() * 6 , 1);
+
+			{
+			Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+			AtPA = (AtP) * matA;
+			AtPB = (AtP) * matB;
+			}
+
+			tripletListA.clear();
+			tripletListP.clear();
+			tripletListB.clear();
+
+			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+			std::cout << "start solving AtPA=AtPB" << std::endl;
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+			std::cout << "x = solver.solve(AtPB)" << std::endl;
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+			std::vector<double> h_x;
+
+			for (int k=0; k<x.outerSize(); ++k){
+				for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+					h_x.push_back(it.value());
+				}
+			}
+
+			std::cout << "h_x.size(): " << h_x.size() << std::endl;
+
+			std::cout << "AtPA=AtPB SOLVED" << std::endl;
+
+			for(size_t i = 0 ; i < h_x.size(); i++){
+				std::cout << h_x[i] << std::endl;
+			}
+
+			if(h_x.size() == 6 * m_poses.size()){
+				int counter = 0;
+
+				for(size_t i = 0; i < m_poses.size(); i++){
+					RodriguesPose pose = pose_rodrigues_from_affine_matrix(m_poses[i]);
+					pose.px += h_x[counter++];
+					pose.py += h_x[counter++];
+					pose.pz += h_x[counter++];
+					pose.sx += h_x[counter++];
+					pose.sy += h_x[counter++];
+					pose.sz += h_x[counter++];
+
+					m_poses[i] = affine_matrix_from_pose_rodrigues(pose);
+
+					Eigen::Vector3d vx(m_poses[i](0,0), m_poses[i](1,0), m_poses[i](2,0));
+					Eigen::Vector3d vy(m_poses[i](0,1), m_poses[i](1,1), m_poses[i](2,1));
+					Eigen::Vector3d vz(m_poses[i](0,2), m_poses[i](1,2), m_poses[i](2,2));
+
+					std::cout << std::setprecision(15);
+					std::cout << "norm: "<< vx.norm() << " " << vy.norm() << " " << vz.norm() << " " <<
+							vx.dot(vy) << " " << vy.dot(vz) << " " << vx.dot(vz) << std::endl;
+				}
+				std::cout << "optimizing with rodrigues finished" << std::endl;
+			}else{
+				std::cout << "optimizing with rodrigues FAILED" << std::endl;
+			}
+
+			break;
+		}
+		case 'd':{
+			std::vector<Eigen::Triplet<double>> tripletListA;
+			std::vector<Eigen::Triplet<double>> tripletListP;
+			std::vector<Eigen::Triplet<double>> tripletListB;
+
+			std::vector<QuaternionPose> poses;
+			std::vector<QuaternionPose> poses_desired;
+
+			for(size_t i = 0 ; i < m_poses.size(); i++){
+				poses.push_back(pose_quaternion_from_affine_matrix(m_poses[i]));
+			}
+			for(size_t i = 0 ; i < m_poses_desired.size(); i++){
+				poses_desired.push_back(pose_quaternion_from_affine_matrix(m_poses_desired[i]));
+			}
+
+			for(size_t i = 0 ; i < odo_edges.size(); i++){
+				Eigen::Matrix<double, 7, 1> relative_pose_measurement_odo;
+				relative_pose_quaternion_wc(relative_pose_measurement_odo,
+						poses_desired[odo_edges[i].first].px,
+						poses_desired[odo_edges[i].first].py,
+						poses_desired[odo_edges[i].first].pz,
+						poses_desired[odo_edges[i].first].q0,
+						poses_desired[odo_edges[i].first].q1,
+						poses_desired[odo_edges[i].first].q2,
+						poses_desired[odo_edges[i].first].q3,
+						poses_desired[odo_edges[i].second].px,
+						poses_desired[odo_edges[i].second].py,
+						poses_desired[odo_edges[i].second].pz,
+						poses_desired[odo_edges[i].second].q0,
+						poses_desired[odo_edges[i].second].q1,
+						poses_desired[odo_edges[i].second].q2,
+						poses_desired[odo_edges[i].second].q3);
+
+				Eigen::Matrix<double, 7, 1> delta;
+				relative_pose_2_obs_eq_quaternion_wc(
+						delta,
+						poses[odo_edges[i].first].px,
+						poses[odo_edges[i].first].py,
+						poses[odo_edges[i].first].pz,
+						poses[odo_edges[i].first].q0,
+						poses[odo_edges[i].first].q1,
+						poses[odo_edges[i].first].q2,
+						poses[odo_edges[i].first].q3,
+						poses[odo_edges[i].second].px,
+						poses[odo_edges[i].second].py,
+						poses[odo_edges[i].second].pz,
+						poses[odo_edges[i].second].q0,
+						poses[odo_edges[i].second].q1,
+						poses[odo_edges[i].second].q2,
+						poses[odo_edges[i].second].q3,
+						relative_pose_measurement_odo(0,0),
+						relative_pose_measurement_odo(1,0),
+						relative_pose_measurement_odo(2,0),
+						relative_pose_measurement_odo(3,0),
+						relative_pose_measurement_odo(4,0),
+						relative_pose_measurement_odo(5,0),
+						relative_pose_measurement_odo(6,0));
+
+				Eigen::Matrix<double, 7, 14, Eigen::RowMajor> jacobian;
+				relative_pose_2_obs_eq_quaternion_wc_jacobian(jacobian,
+						poses[odo_edges[i].first].px,
+						poses[odo_edges[i].first].py,
+						poses[odo_edges[i].first].pz,
+						poses[odo_edges[i].first].q0,
+						poses[odo_edges[i].first].q1,
+						poses[odo_edges[i].first].q2,
+						poses[odo_edges[i].first].q3,
+						poses[odo_edges[i].second].px,
+						poses[odo_edges[i].second].py,
+						poses[odo_edges[i].second].pz,
+						poses[odo_edges[i].second].q0,
+						poses[odo_edges[i].second].q1,
+						poses[odo_edges[i].second].q2,
+						poses[odo_edges[i].second].q3,
+						relative_pose_measurement_odo(0,0),
+						relative_pose_measurement_odo(1,0),
+						relative_pose_measurement_odo(2,0),
+						relative_pose_measurement_odo(3,0),
+						relative_pose_measurement_odo(4,0),
+						relative_pose_measurement_odo(5,0),
+						relative_pose_measurement_odo(6,0));
+
+				int ir = tripletListB.size();
+
+				int ic_1 = odo_edges[i].first * 7;
+				int ic_2 = odo_edges[i].second * 7;
+
+				for(size_t row = 0 ; row < 7; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
+					tripletListA.emplace_back(ir + row, ic_1 + 6, -jacobian(row,6));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,7));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,8));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,9));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,10));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,11));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,12));
+					tripletListA.emplace_back(ir + row, ic_2 + 6, -jacobian(row,13));
+				}
+
+				tripletListB.emplace_back(ir,     0, delta(0,0));
+				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
+				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
+				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
+				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
+				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
+				tripletListB.emplace_back(ir + 6, 0, delta(6,0));
+
+				tripletListP.emplace_back(ir ,    ir,     1);
+				tripletListP.emplace_back(ir + 1, ir + 1, 1);
+				tripletListP.emplace_back(ir + 2, ir + 2, 1);
+				tripletListP.emplace_back(ir + 3, ir + 3, 1);
+				tripletListP.emplace_back(ir + 4, ir + 4, 1);
+				tripletListP.emplace_back(ir + 5, ir + 5, 1);
+				tripletListP.emplace_back(ir + 6, ir + 6, 1);
+			}
+
+			for(size_t i = 0 ; i < loop_edges.size(); i++){
+				Eigen::Matrix<double, 7, 1> relative_pose_measurement_loop;
+				relative_pose_quaternion_wc(relative_pose_measurement_loop,
+						poses_desired[loop_edges[i].first].px,
+						poses_desired[loop_edges[i].first].py,
+						poses_desired[loop_edges[i].first].pz,
+						poses_desired[loop_edges[i].first].q0,
+						poses_desired[loop_edges[i].first].q1,
+						poses_desired[loop_edges[i].first].q2,
+						poses_desired[loop_edges[i].first].q3,
+						poses_desired[loop_edges[i].second].px,
+						poses_desired[loop_edges[i].second].py,
+						poses_desired[loop_edges[i].second].pz,
+						poses_desired[loop_edges[i].second].q0,
+						poses_desired[loop_edges[i].second].q1,
+						poses_desired[loop_edges[i].second].q2,
+						poses_desired[loop_edges[i].second].q3);
+
+				Eigen::Matrix<double, 7, 1> delta;
+				relative_pose_obs_eq_quaternion_wc(
+						delta,
+						poses[loop_edges[i].first].px,
+						poses[loop_edges[i].first].py,
+						poses[loop_edges[i].first].pz,
+						poses[loop_edges[i].first].q0,
+						poses[loop_edges[i].first].q1,
+						poses[loop_edges[i].first].q2,
+						poses[loop_edges[i].first].q3,
+						poses[loop_edges[i].second].px,
+						poses[loop_edges[i].second].py,
+						poses[loop_edges[i].second].pz,
+						poses[loop_edges[i].second].q0,
+						poses[loop_edges[i].second].q1,
+						poses[loop_edges[i].second].q2,
+						poses[loop_edges[i].second].q3,
+						relative_pose_measurement_loop(0,0),
+						relative_pose_measurement_loop(1,0),
+						relative_pose_measurement_loop(2,0),
+						relative_pose_measurement_loop(3,0),
+						relative_pose_measurement_loop(4,0),
+						relative_pose_measurement_loop(5,0),
+						relative_pose_measurement_loop(6,0));
+
+				Eigen::Matrix<double, 7, 14, Eigen::RowMajor> jacobian;
+				relative_pose_obs_eq_quaternion_wc_jacobian(jacobian,
+						poses[loop_edges[i].first].px,
+						poses[loop_edges[i].first].py,
+						poses[loop_edges[i].first].pz,
+						poses[loop_edges[i].first].q0,
+						poses[loop_edges[i].first].q1,
+						poses[loop_edges[i].first].q2,
+						poses[loop_edges[i].first].q3,
+						poses[loop_edges[i].second].px,
+						poses[loop_edges[i].second].py,
+						poses[loop_edges[i].second].pz,
+						poses[loop_edges[i].second].q0,
+						poses[loop_edges[i].second].q1,
+						poses[loop_edges[i].second].q2,
+						poses[loop_edges[i].second].q3);
+
+				int ir = tripletListB.size();
+
+				int ic_1 = loop_edges[i].first * 7;
+				int ic_2 = loop_edges[i].second * 7;
+
+				for(size_t row = 0 ; row < 7; row ++){
+					tripletListA.emplace_back(ir + row, ic_1    , -jacobian(row,0));
+					tripletListA.emplace_back(ir + row, ic_1 + 1, -jacobian(row,1));
+					tripletListA.emplace_back(ir + row, ic_1 + 2, -jacobian(row,2));
+					tripletListA.emplace_back(ir + row, ic_1 + 3, -jacobian(row,3));
+					tripletListA.emplace_back(ir + row, ic_1 + 4, -jacobian(row,4));
+					tripletListA.emplace_back(ir + row, ic_1 + 5, -jacobian(row,5));
+					tripletListA.emplace_back(ir + row, ic_1 + 6, -jacobian(row,6));
+
+					tripletListA.emplace_back(ir + row, ic_2    , -jacobian(row,7));
+					tripletListA.emplace_back(ir + row, ic_2 + 1, -jacobian(row,8));
+					tripletListA.emplace_back(ir + row, ic_2 + 2, -jacobian(row,9));
+					tripletListA.emplace_back(ir + row, ic_2 + 3, -jacobian(row,10));
+					tripletListA.emplace_back(ir + row, ic_2 + 4, -jacobian(row,11));
+					tripletListA.emplace_back(ir + row, ic_2 + 5, -jacobian(row,12));
+					tripletListA.emplace_back(ir + row, ic_2 + 6, -jacobian(row,13));
+				}
+
+				tripletListB.emplace_back(ir,     0, delta(0,0));
+				tripletListB.emplace_back(ir + 1, 0, delta(1,0));
+				tripletListB.emplace_back(ir + 2, 0, delta(2,0));
+				tripletListB.emplace_back(ir + 3, 0, delta(3,0));
+				tripletListB.emplace_back(ir + 4, 0, delta(4,0));
+				tripletListB.emplace_back(ir + 5, 0, delta(5,0));
+				tripletListB.emplace_back(ir + 6, 0, delta(6,0));
+
+				tripletListP.emplace_back(ir ,    ir,     1);
+				tripletListP.emplace_back(ir + 1, ir + 1, 1);
+				tripletListP.emplace_back(ir + 2, ir + 2, 1);
+				tripletListP.emplace_back(ir + 3, ir + 3, 1);
+				tripletListP.emplace_back(ir + 4, ir + 4, 1);
+				tripletListP.emplace_back(ir + 5, ir + 5, 1);
+				tripletListP.emplace_back(ir + 6, ir + 6, 1);
+			}
+
+			int ir = tripletListB.size();
+			tripletListA.emplace_back(ir     , 0, 1);
+			tripletListA.emplace_back(ir + 1 , 1, 1);
+			tripletListA.emplace_back(ir + 2 , 2, 1);
+			tripletListA.emplace_back(ir + 3 , 3, 1);
+			tripletListA.emplace_back(ir + 4 , 4, 1);
+			tripletListA.emplace_back(ir + 5 , 5, 1);
+			tripletListA.emplace_back(ir + 6 , 6, 1);
+
+			tripletListP.emplace_back(ir     , ir,     10000000000000);
+			tripletListP.emplace_back(ir + 1 , ir + 1, 10000000000000);
+			tripletListP.emplace_back(ir + 2 , ir + 2, 10000000000000);
+			tripletListP.emplace_back(ir + 3 , ir + 3, 10000000000000);
+			tripletListP.emplace_back(ir + 4 , ir + 4, 10000000000000);
+			tripletListP.emplace_back(ir + 5 , ir + 5, 10000000000000);
+			tripletListP.emplace_back(ir + 6 , ir + 6, 10000000000000);
+
+			tripletListB.emplace_back(ir     , 0, 0);
+			tripletListB.emplace_back(ir + 1 , 0, 0);
+			tripletListB.emplace_back(ir + 2 , 0, 0);
+			tripletListB.emplace_back(ir + 3 , 0, 0);
+			tripletListB.emplace_back(ir + 4 , 0, 0);
+			tripletListB.emplace_back(ir + 5 , 0, 0);
+			tripletListB.emplace_back(ir + 6 , 0, 0);
+
+			for(size_t i = 0 ; i < m_poses.size(); i++){
+				int ic = i * 7;
+				ir = tripletListB.size();
+				QuaternionPose pose = pose_quaternion_from_affine_matrix(m_poses[i]);
+
+				double delta;
+				quaternion_constraint(delta, pose.q0, pose.q1, pose.q2, pose.q3);
+
+				Eigen::Matrix<double, 1, 4> jacobian;
+				quaternion_constraint_jacobian(jacobian, pose.q0, pose.q1, pose.q2, pose.q3);
+
+				tripletListA.emplace_back(ir, ic + 3 , -jacobian(0,0));
+				tripletListA.emplace_back(ir, ic + 4 , -jacobian(0,1));
+				tripletListA.emplace_back(ir, ic + 5 , -jacobian(0,2));
+				tripletListA.emplace_back(ir, ic + 6 , -jacobian(0,3));
+
+				tripletListP.emplace_back(ir, ir, 1000000.0);
+
+				tripletListB.emplace_back(ir, 0, delta);
+			}
+
+
+			Eigen::SparseMatrix<double> matA(tripletListB.size(), m_poses.size() * 7);
+			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+
+			Eigen::SparseMatrix<double> AtPA(m_poses.size() * 7 , m_poses.size() * 7);
+			Eigen::SparseMatrix<double> AtPB(m_poses.size() * 7 , 1);
+
+			{
+			Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+			AtPA = (AtP) * matA;
+			AtPB = (AtP) * matB;
+			}
+
+			tripletListA.clear();
+			tripletListP.clear();
+			tripletListB.clear();
+
+			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+			std::cout << "start solving AtPA=AtPB" << std::endl;
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+			std::cout << "x = solver.solve(AtPB)" << std::endl;
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+			std::vector<double> h_x;
+
+			for (int k=0; k<x.outerSize(); ++k){
+				for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+					h_x.push_back(it.value());
+				}
+			}
+
+			std::cout << "h_x.size(): " << h_x.size() << std::endl;
+
+			std::cout << "AtPA=AtPB SOLVED" << std::endl;
+
+			for(size_t i = 0 ; i < h_x.size(); i++){
+				std::cout << h_x[i] << std::endl;
+			}
+
+			if(h_x.size() == 7 * m_poses.size()){
+				int counter = 0;
+
+				for(size_t i = 0; i < m_poses.size(); i++){
+					QuaternionPose pose = pose_quaternion_from_affine_matrix(m_poses[i]);
+					pose.px += h_x[counter++];
+					pose.py += h_x[counter++];
+					pose.pz += h_x[counter++];
+					pose.q0 += h_x[counter++];
+					pose.q1 += h_x[counter++];
+					pose.q2 += h_x[counter++];
+					pose.q3 += h_x[counter++];
+					m_poses[i] = affine_matrix_from_pose_quaternion(pose);
+				}
+				std::cout << "optimizing with quaternions finished" << std::endl;
+			}else{
+				std::cout << "optimizing with quaternions FAILED" << std::endl;
+			}
+
+			break;
+		}
 	}
 	printHelp();
 	glutPostRedisplay();
@@ -1567,6 +2494,10 @@ void printHelp() {
 	std::cout << "r: optimize (Rodriguez)" << std::endl;
 	std::cout << "q: optimize (Quaternion)" << std::endl;
 	std::cout << "x: optimize (Without rotation matrix parametrization)" << std::endl;
+	std::cout << "a: optimize (Tait-Bryan 2)" << std::endl;
+	std::cout << "s: optimize (Rodriguez 2)" << std::endl;
+	std::cout << "d: optimize (Quaternion 2)" << std::endl;
+
 }
 
 

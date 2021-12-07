@@ -4,8 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../../example_func_xy_jacobian.h"
-#include "../../constraints_jacobian.h"
+#include "example_func_xy_jacobian.h"
+#include "constraints_jacobian.h"
 
 #define RENDER_PSI 0
 #define RENDER_OBJECTIVE_FUNC 1

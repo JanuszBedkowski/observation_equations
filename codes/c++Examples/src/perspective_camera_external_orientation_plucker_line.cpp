@@ -6,11 +6,11 @@
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
-#include "../../perspective_camera_plucker_line_tait_bryan_wc_jacobian.h"
-#include "../../perspective_camera_tait_bryan_wc_jacobian.h"
-#include "../../perspective_camera_plucker_line_rodrigues_wc_jacobian.h"
-#include "../../perspective_camera_plucker_line_quaternion_wc_jacobian.h"
-#include "../../quaternion_constraint_jacobian.h"
+#include "perspective_camera_plucker_line_tait_bryan_wc_jacobian.h"
+#include "perspective_camera_tait_bryan_wc_jacobian.h"
+#include "perspective_camera_plucker_line_rodrigues_wc_jacobian.h"
+#include "perspective_camera_plucker_line_quaternion_wc_jacobian.h"
+#include "quaternion_constraint_jacobian.h"
 
 
 struct LinePoint{

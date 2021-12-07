@@ -6,7 +6,7 @@
 
 #include "structures.h"
 #include "transformations.h"
-#include "../../ray_intersection_observation_equation_jacobian.h"
+#include "ray_intersection_observation_equation_jacobian.h"
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;

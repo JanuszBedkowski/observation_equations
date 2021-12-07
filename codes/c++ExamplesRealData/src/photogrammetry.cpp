@@ -8,10 +8,10 @@
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
-#include "../../metric_camera_colinearity_tait_bryan_wc_jacobian.h"
-#include "../../metric_camera_colinearity_rodrigues_wc_jacobian.h"
-#include "../../ray_intersection_observation_equation_jacobian.h"
-#include "../../constraint_fixed_parameter_jacobian.h"
+#include "metric_camera_colinearity_tait_bryan_wc_jacobian.h"
+#include "metric_camera_colinearity_rodrigues_wc_jacobian.h"
+#include "ray_intersection_observation_equation_jacobian.h"
+#include "constraint_fixed_parameter_jacobian.h"
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;

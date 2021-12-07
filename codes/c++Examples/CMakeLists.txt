@@ -29,6 +29,13 @@ find_package( OpenCV REQUIRED )
 
 include_directories(
 	../common/include
+	../python-scripts/camera-metrics
+	../python-scripts/constraints
+	../python-scripts/example_func
+        ../python-scripts/feature-to-feature-metrics
+	../python-scripts/metrics-fusion
+	../python-scripts/point-to-feature-metrics
+	../python-scripts/point-to-point-metrics
 	${EIGEN3_INCLUDE_DIR} 
 	${EIGEN3_INCLUDE_DIRS} 
 	${Eigen3_DIR}

@@ -18,7 +18,7 @@
 #include "cauchy.h"
 
 
-#include "../../point_to_point_tait_bryan_wc_jacobian.h"
+#include "point_to_point_tait_bryan_wc_jacobian.h"
 
 
 struct ScanPose{

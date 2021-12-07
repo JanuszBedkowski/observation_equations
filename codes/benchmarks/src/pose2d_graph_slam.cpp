@@ -8,11 +8,11 @@
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
-#include "../../relative_pose_tait_bryan_wc_jacobian.h"
-#include "../../relative_pose_rodrigues_wc_jacobian.h"
-#include "../../relative_pose_quaternion_wc_jacobian.h"
-#include "../../quaternion_constraint_jacobian.h"
-#include "../../relative_pose_wc_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_tait_bryan_wc_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_rodrigues_wc_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_quaternion_wc_jacobian.h"
+#include "../../python-scripts/constraints/quaternion_constraint_jacobian.h"
+#include "../../python-scripts/constraints/relative_pose_wc_jacobian.h"
 
 #include "manif/SE2.h"
 

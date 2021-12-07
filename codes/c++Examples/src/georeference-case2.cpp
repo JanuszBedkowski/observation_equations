@@ -7,8 +7,8 @@
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
-#include "../../relative_pose_tait_bryan_wc_jacobian.h"
-#include "../../constraint_fixed_parameter_jacobian.h"
+#include "relative_pose_tait_bryan_wc_jacobian.h"
+#include "constraint_fixed_parameter_jacobian.h"
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;

@@ -7,11 +7,11 @@
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
-#include "../../example_func_xy_jacobian.h"
-#include "../../constraints_jacobian.h"
-#include "../../relative_pose_tait_bryan_wc_jacobian.h"
-#include "../../point_to_point_source_to_target_tait_bryan_wc_jacobian.h"
-#include "../../smoothness_tait_bryan_wc_jacobian.h"
+#include "example_func_xy_jacobian.h"
+#include "constraints_jacobian.h"
+#include "relative_pose_tait_bryan_wc_jacobian.h"
+#include "point_to_point_source_to_target_tait_bryan_wc_jacobian.h"
+#include "smoothness_tait_bryan_wc_jacobian.h"
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;

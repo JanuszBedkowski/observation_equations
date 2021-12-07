@@ -7,10 +7,10 @@
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
-#include "../../point_to_plane_tait_bryan_wc_jacobian.h"
-#include "../../point_to_plane_rodrigues_wc_jacobian.h"
-#include "../../point_to_plane_quaternion_wc_jacobian.h"
-#include "../../quaternion_constraint_jacobian.h"
+#include "point_to_plane_tait_bryan_wc_jacobian.h"
+#include "point_to_plane_rodrigues_wc_jacobian.h"
+#include "point_to_plane_quaternion_wc_jacobian.h"
+#include "quaternion_constraint_jacobian.h"
 
 
 const unsigned int window_width = 1920;

@@ -6,11 +6,11 @@
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
-#include "../../metric_camera_colinearity_tait_bryan_wc_jacobian.h"
-#include "../../metric_camera_colinearity_rodrigues_wc_jacobian.h"
-#include "../../metric_camera_colinearity_quaternion_wc_jacobian.h"
-#include "../../quaternion_constraint_jacobian.h"
-#include "../../constraint_fixed_parameter_jacobian.h"
+#include "metric_camera_colinearity_tait_bryan_wc_jacobian.h"
+#include "metric_camera_colinearity_rodrigues_wc_jacobian.h"
+#include "metric_camera_colinearity_quaternion_wc_jacobian.h"
+#include "quaternion_constraint_jacobian.h"
+#include "constraint_fixed_parameter_jacobian.h"
 
 struct KeyPoint{
 	double ksi;
