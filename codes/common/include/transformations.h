@@ -372,4 +372,15 @@ QuaternionPose pose_quaternion_from_affine_matrix(const Eigen::Affine3d& m){
 	return pq;
 }
 
+inline double normalize_angle(double src_rad)
+{
+	double arg;
+
+	arg = fmod(src_rad, 2.0 * M_PI);
+	if (arg < 0)
+		arg = arg + 2.0 * M_PI;
+	if (arg > M_PI)
+		arg = arg - 2.0 * M_PI;
+	return arg;
+}
 #endif

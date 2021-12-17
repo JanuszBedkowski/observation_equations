@@ -5,8 +5,7 @@
 #include <iomanip>
 #include <fstream>
 #include <iostream>
-
-
+#include <thread>
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
@@ -17,9 +16,10 @@
 #include "transformations.h"
 #include "cauchy.h"
 
-
 #include "point_to_point_tait_bryan_wc_jacobian.h"
+#include "point_to_point_source_to_target_tait_bryan_wc_jacobian.h"
 
+#include "rgd.h"
 
 struct ScanPose{
 	Eigen::Affine3d m;
@@ -65,6 +65,8 @@ void split(std::string &str, char delim, std::vector<std::string> &out)
 std::vector<std::pair<int,int>> nns(ScanPose &sp1, ScanPose &sp2, float radius);
 
 std::vector<std::pair<int,int>> pairs_temp;
+std::vector<Bucket> buckets_render;
+bool show_ndt_covariances = true;
 
 int main(int argc, char *argv[]){
 
@@ -144,6 +146,45 @@ bool initGL(int *argc, char **argv) {
 	return true;
 }
 
+void draw_ellipse(const Eigen::Matrix3d& covar, Eigen::Vector3d& mean, Eigen::Vector3f color, float nstd  = 3)
+{
+
+    Eigen::LLT<Eigen::Matrix<double,3,3> > cholSolver(covar);
+    Eigen::Matrix3d transform = cholSolver.matrixL();
+
+    const double pi = 3.141592;
+    const double di =0.02;
+    const double dj =0.04;
+    const double du =di*2*pi;
+    const double dv =dj*pi;
+    glColor3f(color.x(), color.y(),color.z());
+
+    for (double i = 0; i < 1.0; i+=di)  //horizonal
+    {
+        for (double j = 0; j < 1.0; j+=dj)  //vertical
+        {
+            double u = i*2*pi;      //0     to  2pi
+            double v = (j-0.5)*pi;  //-pi/2 to pi/2
+
+            const Eigen::Vector3d pp0( cos(v)* cos(u),cos(v) * sin(u),sin(v));
+            const Eigen::Vector3d pp1(cos(v) * cos(u + du) ,cos(v) * sin(u + du) ,sin(v));
+            const Eigen::Vector3d pp2(cos(v + dv)* cos(u + du) ,cos(v + dv)* sin(u + du) ,sin(v + dv));
+            const Eigen::Vector3d pp3( cos(v + dv)* cos(u),cos(v + dv)* sin(u),sin(v + dv));
+            Eigen::Vector3d tp0 = transform * (nstd*pp0) + mean;
+            Eigen::Vector3d tp1 = transform * (nstd*pp1) + mean;
+            Eigen::Vector3d tp2 = transform * (nstd*pp2) + mean;
+            Eigen::Vector3d tp3 = transform * (nstd*pp3) + mean;
+
+            glBegin(GL_LINE_LOOP);
+            glVertex3dv(tp0.data());
+            glVertex3dv(tp1.data());
+            glVertex3dv(tp2.data());
+            glVertex3dv(tp3.data());
+            glEnd();
+        }
+    }
+}
+
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -214,10 +255,143 @@ void display() {
 		glEnd();
 	}
 
+	if(show_ndt_covariances){
+		for(size_t i = 0 ; i < buckets_render.size(); i++){
+			if(buckets_render[i].number_of_points > 10){
+				draw_ellipse(buckets_render[i].cov, buckets_render[i].mean, Eigen::Vector3f(0.0, 0.0, 1.0), 1);
+			}
+		}
+	}
+
 	glutSwapBuffers();
 }
 
+void ndt_job(int i, Job* job, std::vector<Bucket>* buckets, Eigen::SparseMatrix<double > *AtPA,
+		Eigen::SparseMatrix<double > *AtPB, std::vector<PointBucketIndexPair> *index_pair_internal, std::vector<Point3D> *pp,
+		std::vector<TaitBryanPose> *poses, std::vector<Eigen::Affine3d> *mposes_inv, size_t trajectory_size) {
 
+	std::vector<Eigen::Triplet<double>> tripletListA;
+	std::vector<Eigen::Triplet<double>> tripletListP;
+	std::vector<Eigen::Triplet<double>> tripletListB;
+
+	for (size_t ii = job->index_begin_inclusive; ii < job->index_end_exclusive; ii++) {
+		Bucket& b = (*buckets)[ii];
+		if (b.number_of_points < 5)continue;
+
+		Eigen::Vector3d mean(0, 0, 0);
+		Eigen::Matrix3d cov;
+		cov.setZero();
+
+		for (int index = b.index_begin; index < b.index_end; index++) {
+			const auto& p = (*pp)[(*index_pair_internal)[index].index_of_point];
+			mean += Eigen::Vector3d(p.x, p.y, p.z);
+		}
+		mean /= b.number_of_points;
+
+		for (int index = b.index_begin; index < b.index_end; index++) {
+			const auto& p = (*pp)[(*index_pair_internal)[index].index_of_point];
+			cov(0, 0) += (mean.x() - p.x) * (mean.x() - p.x);
+			cov(0, 1) += (mean.x() - p.x) * (mean.y() - p.y);
+			cov(0, 2) += (mean.x() - p.x) * (mean.z() - p.z);
+			cov(1, 0) += (mean.y() - p.y) * (mean.x() - p.x);
+			cov(1, 1) += (mean.y() - p.y) * (mean.y() - p.y);
+			cov(1, 2) += (mean.y() - p.y) * (mean.z() - p.z);
+			cov(2, 0) += (mean.z() - p.z) * (mean.x() - p.x);
+			cov(2, 1) += (mean.z() - p.z) * (mean.y() - p.y);
+			cov(2, 2) += (mean.z() - p.z) * (mean.z() - p.z);
+		}
+		cov /= b.number_of_points;
+
+		(*buckets)[ii].mean = mean;
+		(*buckets)[ii].cov = cov;
+
+
+		Eigen::Matrix3d infm = cov.inverse();
+
+		if (!(infm(0, 0) == infm(0, 0)))continue;
+		if (!(infm(0, 1) == infm(0, 1)))continue;
+		if (!(infm(0, 2) == infm(0, 2)))continue;
+
+		if (!(infm(1, 0) == infm(1, 0)))continue;
+		if (!(infm(1, 1) == infm(1, 1)))continue;
+		if (!(infm(1, 2) == infm(1, 2)))continue;
+
+		if (!(infm(2, 0) == infm(2, 0)))continue;
+		if (!(infm(2, 1) == infm(2, 1)))continue;
+		if (!(infm(2, 2) == infm(2, 2)))continue;
+
+
+
+		for (int index = b.index_begin; index < b.index_end; index++) {
+			const auto& p = (*pp)[(*index_pair_internal)[index].index_of_point];
+
+			Eigen::Vector3d point_local(p.x, p.y, p.z);
+			point_local = (*mposes_inv)[p.index_pose] * point_local;
+
+
+			TaitBryanPose pose_s = (*poses)[p.index_pose];
+			double delta_x;
+			double delta_y;
+			double delta_z;
+
+			point_to_point_source_to_target_tait_bryan_wc(delta_x, delta_y, delta_z,
+				pose_s.px, pose_s.py, pose_s.pz, pose_s.om, pose_s.fi, pose_s.ka,
+				point_local.x(), point_local.y(), point_local.z(), mean.x(), mean.y(), mean.z());
+
+			Eigen::Matrix<double, 3, 6, Eigen::RowMajor> jacobian;
+			point_to_point_source_to_target_tait_bryan_wc_jacobian(jacobian,
+				pose_s.px, pose_s.py, pose_s.pz, pose_s.om, pose_s.fi, pose_s.ka,
+				point_local.x(), point_local.y(), point_local.z());
+
+
+			int ir = tripletListB.size();
+			int c = p.index_pose * 6;
+
+			for (int row = 0; row < 3; row++) {
+				for (int col = 0; col < 6; col++) {
+					if (jacobian(row, col) != 0.0) {
+						tripletListA.emplace_back(ir + row, c + col, -jacobian(row, col));
+					}
+				}
+			}
+
+			tripletListP.emplace_back(ir, ir, infm(0, 0));
+			tripletListP.emplace_back(ir, ir + 1, infm(0, 1));
+			tripletListP.emplace_back(ir, ir + 2, infm(0, 2));
+			tripletListP.emplace_back(ir + 1, ir, infm(1, 0));
+			tripletListP.emplace_back(ir + 1, ir + 1, infm(1, 1));
+			tripletListP.emplace_back(ir + 1, ir + 2, infm(1, 2));
+			tripletListP.emplace_back(ir + 2, ir, infm(2, 0));
+			tripletListP.emplace_back(ir + 2, ir + 1, infm(2, 1));
+			tripletListP.emplace_back(ir + 2, ir + 2, infm(2, 2));
+
+			tripletListB.emplace_back(ir, 0, delta_x);
+			tripletListB.emplace_back(ir + 1, 0, delta_y);
+			tripletListB.emplace_back(ir + 2, 0, delta_z);
+		}
+	}
+
+	Eigen::SparseMatrix<double> matA(tripletListB.size(), trajectory_size * 6);
+	Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+	Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+	matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+	matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+	matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+
+	Eigen::SparseMatrix<double> AtPAt(trajectory_size * 6, trajectory_size * 6);
+	Eigen::SparseMatrix<double> AtPBt(trajectory_size * 6, 1);
+
+	{
+		Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+		AtPAt = AtP * matA;
+		AtPBt = AtP * matB;
+
+		(*AtPA) = AtPAt;
+		(*AtPB) = AtPBt;
+	}
+}
 
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 	switch (key) {
@@ -309,22 +483,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'n':{
-			/*pcl::PointCloud<pcl::PointXYZ> pc1;
-			pcl::PointCloud<pcl::PointXYZ> pc2;
-
-			for(size_t i = 0 ; i < scan_poses[0].pc.size(); i++){
-				Eigen::Vector3d v(scan_poses[0].pc[i].x, scan_poses[0].pc[i].y, scan_poses[0].pc[i].z);
-				Eigen::Vector3d vt = scan_poses[0].m * v;
-				pc1.push_back(pcl::PointXYZ(vt.x(), vt.y(), vt.z()));
-			}
-
-			for(size_t i = 0 ; i < scan_poses[1].pc.size(); i++){
-				Eigen::Vector3d v(scan_poses[1].pc[i].x, scan_poses[1].pc[i].y, scan_poses[1].pc[i].z);
-				Eigen::Vector3d vt = scan_poses[1].m * v;
-				pc2.push_back(pcl::PointXYZ(vt.x(), vt.y(), vt.z()));
-			}*/
-
-
 			pairs_temp = nns(scan_poses[0], scan_poses[1], sradius);
 			break;
 		}
@@ -509,9 +667,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					std::vector<std::pair<int,int>> nn = nns(scan_poses[i], scan_poses[j], sradius);
 					std::cout << nn.size() << "," << scan_poses[i].pc.size() << "," << scan_poses[j].pc.size() << std::endl;
 
-					//TaitBryanPose pose_1 = pose_tait_bryan_from_affine_matrix(scan_poses[i].m);
-					//TaitBryanPose pose_2 = pose_tait_bryan_from_affine_matrix(scan_poses[j].m);
-
 					for(size_t k = 0 ; k < nn.size(); k+=1){
 						pcl::PointXYZ &p_1 = scan_poses[i].pc[nn[k].first];
 						pcl::PointXYZ &p_2 = scan_poses[j].pc[nn[k].second];
@@ -690,6 +845,124 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			show_ground_truth =! show_ground_truth;
 			break;
 		}
+		case 'o':{
+			GridParameters rgd_params;
+			rgd_params.resolution_X = sradius;
+			rgd_params.resolution_Y = sradius;
+			rgd_params.resolution_Z = sradius;
+			rgd_params.bounding_box_extension = sradius;
+
+			std::vector<Point3D> points_global;
+			for(size_t i = 0; i < scan_poses.size(); i++){
+				for(size_t j = 0; j < scan_poses[i].pc.size(); j++){
+					Eigen::Vector3d v(scan_poses[i].pc[j].x, scan_poses[i].pc[j].y, scan_poses[i].pc[j].z);
+					Eigen::Vector3d vt = scan_poses[i].m * v;
+					Point3D p;
+					p.x = vt.x();
+					p.y = vt.y();
+					p.z = vt.z();
+					p.index_pose = i;
+					points_global.push_back(p);
+				}
+			}
+
+			std::vector<PointBucketIndexPair> index_pair;
+			std::vector<Bucket> buckets;
+
+			grid_calculate_params(points_global, rgd_params);
+			build_rgd(points_global, index_pair, buckets, rgd_params, 8);
+
+			std::vector<Job> jobs = get_jobs(buckets.size(), 8);
+
+			std::vector<std::thread> threads;
+
+			std::vector<Eigen::SparseMatrix<double>> AtPAtmp(jobs.size());
+			std::vector<Eigen::SparseMatrix<double>> AtPBtmp(jobs.size());
+
+			for (size_t i = 0; i < jobs.size(); i++) {
+				AtPAtmp[i] = Eigen::SparseMatrix<double>(scan_poses.size() * 6, scan_poses.size() * 6);
+				AtPBtmp[i] = Eigen::SparseMatrix<double>(scan_poses.size() * 6, 1);
+			}
+
+			std::vector<TaitBryanPose> poses;
+			std::vector<Eigen::Affine3d> mposes_inv;
+			for(size_t i = 0; i < scan_poses.size(); i++){
+				poses.push_back(pose_tait_bryan_from_affine_matrix(scan_poses[i].m));
+				mposes_inv.push_back(scan_poses[i].m.inverse());
+			}
+
+			for (size_t k = 0; k < jobs.size(); k++) {
+				threads.push_back(std::thread(ndt_job, k, &jobs[k], &buckets, &(AtPAtmp[k]), &(AtPBtmp[k]), &index_pair, &points_global, &poses, &mposes_inv, scan_poses.size()));
+			}
+
+			for (size_t j = 0; j < threads.size(); j++) {
+				threads[j].join();
+			}
+
+			bool init = false;
+			Eigen::SparseMatrix<double> AtPA_ndt(scan_poses.size() * 6, scan_poses.size() * 6);
+			Eigen::SparseMatrix<double> AtPB_ndt(scan_poses.size() * 6, 1);
+
+			for (size_t k = 0; k < jobs.size(); k++) {
+				if (!init) {
+					if (AtPBtmp[k].size() > 0) {
+						AtPA_ndt = AtPAtmp[k];
+						AtPB_ndt = AtPBtmp[k];
+						init = true;
+					}
+				}
+				else {
+					if (AtPBtmp[k].size() > 0) {
+
+						AtPA_ndt += AtPAtmp[k];
+						AtPB_ndt += AtPBtmp[k];
+					}
+				}
+			}
+			std::cout << "start solving AtPA=AtPB" << std::endl;
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA_ndt);
+
+			std::cout << "x = solver.solve(AtPB)" << std::endl;
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB_ndt);
+
+			std::vector<double> h_x;
+
+			for (int k = 0; k < x.outerSize(); ++k) {
+				for (Eigen::SparseMatrix<double>::InnerIterator it(x, k); it; ++it) {
+					if (it.value() == it.value()) {
+						h_x.push_back(it.value());
+						std::cout << it.value() << std::endl;
+					}
+				}
+			}
+
+			if(h_x.size() == scan_poses.size() * 6){
+				buckets_render = buckets;
+				std::cout << "AtPA=AtPB SOLVED" << std::endl;
+				int counter = 0;
+				for (size_t i = 0; i < scan_poses.size(); i++) {
+
+					TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(scan_poses[i].m);
+
+					pose.px += h_x[counter++];
+					pose.py += h_x[counter++];
+					pose.pz += h_x[counter++];
+					pose.om += h_x[counter++];
+					pose.fi += h_x[counter++];
+					pose.ka += h_x[counter++];
+
+					scan_poses[i].m = affine_matrix_from_pose_tait_bryan(pose);
+				}
+			}else{
+				std::cout << "AtPA=AtPB FAILED" << std::endl;
+			}
+
+			break;
+		}
+		case '4':{
+			show_ndt_covariances = !show_ndt_covariances;
+			break;
+		}
 	}
 	printHelp();
 	glutPostRedisplay();
@@ -750,6 +1023,9 @@ void printHelp() {
 	std::cout << "2: sradius += 0.01" << std::endl;
 	std::cout << "3: save current point clouds" << std::endl;
 	std::cout << "g: show_ground_truth =! show_ground_truth" << std::endl;
+	std::cout << "o: optimize (NDT)" << std::endl;
+	std::cout << "n: nns" << std::endl;
+	std::cout << "4: show ndt covariances on/off" << std::endl;
 }
 
 void set_initial_guess(std::vector<ScanPose>& scan_poses){
@@ -893,11 +1169,8 @@ std::vector<std::pair<int,int>> nns(ScanPose &sp1, ScanPose &sp2, float radius)
 		if ( kdtree.radiusSearch (pc2[k], radius, pointIdxRadiusSearch, pointRadiusSquaredDistance) > 0 ){
 			for (std::size_t i = 0; i < pointIdxRadiusSearch.size (); ++i){
 				result.emplace_back(pointIdxRadiusSearch[i], k);
-
-				//std::cout << pointRadiusSquaredDistance[i] << ",";
 				break;
 			}
-			//std::cout << std::endl;
 		}
 	}
 

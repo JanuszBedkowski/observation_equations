@@ -88,6 +88,7 @@ target_link_libraries(photogrammetry
 
 add_executable(point_cloud_registration
 	src/point_cloud_registration.cpp
+	src/rgd.cpp
 )
 
 target_link_libraries(point_cloud_registration

@@ -45,4 +45,12 @@ struct QuaternionPose
 	double q3;
 };
 
+struct Point3D
+{
+	double x;
+	double y;
+	double z;
+	int index_pose;
+};
+
 #endif
