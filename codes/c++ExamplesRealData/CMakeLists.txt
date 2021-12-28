@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(slam-book-examples)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(PROJECT_VERSION 1.0.0)
 
 find_package(OpenGL REQUIRED)
