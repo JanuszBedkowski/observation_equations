@@ -3,6 +3,7 @@
 #include <Eigen/Eigen>
 #include <iostream>
 #include <iomanip>
+#include <limits>
 
 #include "example_func_x_jacobian.h"
 #include "constraints_jacobian.h"
@@ -39,6 +40,18 @@ double contraint_x_trg = 3;
 double weight_constraint = 1;
 int constraint_type = 0;
 
+struct lm_params{
+	double sum_squared_residuals;
+	double lambda;
+};
+
+void init_lm_params(lm_params &p){
+	p.sum_squared_residuals = std::numeric_limits<double>::max();
+	p.lambda = 1.0;
+}
+
+lm_params lmparams;
+
 void obs_eq_constraint(double &delta, double a, double x, double x_trg, int type)
 {
 	if(type == 0){
@@ -57,6 +70,7 @@ void obs_eq_constraint_jacobian(Eigen::Matrix<double, 1, 1> &j, double a, double
 }
 
 int main(int argc, char *argv[]){
+	init_lm_params(lmparams);
 	path_result.push_back(x_result);
 	if (false == initGL(&argc, argv)) {
 		return 4;
@@ -438,12 +452,14 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			x_result-=0.1;
 			path_result.clear();
 			path_result.push_back(x_result);
+			init_lm_params(lmparams);
 			break;
 		}
 		case 'w':{
 			x_result+=0.1;
 			path_result.clear();
 			path_result.push_back(x_result);
+			init_lm_params(lmparams);
 			break;
 		}
 		case '4':{
@@ -462,6 +478,160 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case '7':{
 			weight_constraint *=10;
 			std::cout << "weight_constraint: " << weight_constraint << std::endl;
+			break;
+		}
+		case 'l':{
+			{
+				std::vector<Eigen::Triplet<double>> tripletListA;
+				std::vector<Eigen::Triplet<double>> tripletListP;
+				std::vector<Eigen::Triplet<double>> tripletListB;
+
+				double delta;
+				observation_equation_example_func_x(delta, x_result, x_trg);
+
+				Eigen::Matrix<double, 1, 1> jacobian;
+				observation_equation_example_func_x_jacobian(jacobian, x_result);
+
+				int ir = 0;
+				int ic = 0;
+				tripletListA.emplace_back(ir, ic, -jacobian(0,0));
+				tripletListP.emplace_back(ir, ir,  1);
+				tripletListB.emplace_back(ir, 0,  delta);
+
+				int number_of_columns = 1;
+				Eigen::SparseMatrix<double> matA(tripletListB.size(), number_of_columns);
+				Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+				Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+				matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+				matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+				matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+				Eigen::SparseMatrix<double> AtPA(number_of_columns, number_of_columns);
+				Eigen::SparseMatrix<double> AtPB(number_of_columns, 1);
+
+				{
+				Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+				AtPA = (AtP) * matA;
+				AtPB = (AtP) * matB;
+				}
+
+				std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+				std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+				std::cout << "start solving AtPA=AtPB" << std::endl;
+				Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+				std::cout << "x = solver.solve(AtPB)" << std::endl;
+				Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+				std::vector<double> h_x;
+
+				for (int k=0; k<x.outerSize(); ++k){
+					for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+						h_x.push_back(it.value());
+					}
+				}
+
+				double sum_squared_residuals = 0;
+
+				if(h_x.size() == number_of_columns){
+					for(size_t i = 0 ; i < h_x.size(); i++){
+						std::cout << h_x[i] << std::endl;
+					}
+					std::cout << "AtPA=AtPB SOLVED" << std::endl;
+					std::cout << "update" << std::endl;
+
+					sum_squared_residuals = (x_result + h_x[0]) * (x_result + h_x[0]);
+				}else{
+					std::cout << "AtPA=AtPB FAILED" << std::endl;
+					return;
+				}
+
+				if(sum_squared_residuals < lmparams.sum_squared_residuals){
+					lmparams.lambda *= 0.1;
+				}else{
+					lmparams.lambda *= 10.0;
+				}
+				std::cout << "lambda: " << lmparams.lambda << std::endl;
+				lmparams.sum_squared_residuals = sum_squared_residuals;
+			}
+			//
+			std::vector<Eigen::Triplet<double>> tripletListA;
+			std::vector<Eigen::Triplet<double>> tripletListP;
+			std::vector<Eigen::Triplet<double>> tripletListB;
+
+			double delta;
+			observation_equation_example_func_x(delta, x_result, x_trg);
+			Eigen::Matrix<double, 1, 1> jacobian;
+			observation_equation_example_func_x_jacobian(jacobian, x_result);
+
+			int ir = 0;
+			int ic = 0;
+			tripletListA.emplace_back(ir, ic, -jacobian(0,0));
+			tripletListP.emplace_back(ir, ir,  1);
+			tripletListB.emplace_back(ir, 0,  delta);
+
+			int number_of_columns = 1;
+			Eigen::SparseMatrix<double> matA(tripletListB.size(), number_of_columns);
+			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+			Eigen::SparseMatrix<double> AtPA(number_of_columns, number_of_columns);
+			Eigen::SparseMatrix<double> AtPB(number_of_columns, 1);
+
+			{
+			Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+			AtPA = (AtP) * matA;
+			AtPB = (AtP) * matB;
+			}
+
+			//Levenberg Marquardt
+			std::vector<Eigen::Triplet<double>> tripletListAtAlambda;
+			for(size_t i = 0; i < number_of_columns; i++){
+				tripletListAtAlambda.emplace_back(i, i, lmparams.lambda);
+			}
+			Eigen::SparseMatrix<double> matAtAlambda(number_of_columns, number_of_columns);
+			matAtAlambda.setFromTriplets(tripletListAtAlambda.begin(), tripletListAtAlambda.end());
+
+			AtPA = AtPA + matAtAlambda;
+			//
+
+			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+			std::cout << "start solving AtPA=AtPB" << std::endl;
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+			std::cout << "x = solver.solve(AtPB)" << std::endl;
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+			std::vector<double> h_x;
+
+			for (int k=0; k<x.outerSize(); ++k){
+				for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+					h_x.push_back(it.value());
+				}
+			}
+
+			if(h_x.size() == number_of_columns){
+				for(size_t i = 0 ; i < h_x.size(); i++){
+					std::cout << h_x[i] << std::endl;
+				}
+				std::cout << "AtPA=AtPB SOLVED" << std::endl;
+				std::cout << "update" << std::endl;
+
+				x_result += h_x[0];
+				path_result.push_back(x_result);
+			}else{
+				std::cout << "AtPA=AtPB FAILED" << std::endl;
+				return;
+			}
+
 			break;
 		}
 	}
@@ -514,8 +684,10 @@ void reshape(int w, int h) {
 
 void printHelp() {
 	std::cout << "-------help-------" << std::endl;
-	std::cout << "o: optimize" << std::endl;
-	std::cout << "c: optimize with constaint" << std::endl;
+	std::cout << "o: optimize (Gauss Newton)" << std::endl;
+	std::cout << "c: optimize with constaint (Gauss Newton)" << std::endl;
+	std::cout << "l: optimize (Levenberg Marquardt)" << std::endl;
+	//std::cout << "m: optimize with constaint (Levenberg Marquardt)" << std::endl;
 	std::cout << "-: contraint_a -= 0.01" << std::endl;
 	std::cout << "=: contraint_a += 0.01" << std::endl;
 	std::cout << "d: contraint_x_trg -= 0.1" << std::endl;
