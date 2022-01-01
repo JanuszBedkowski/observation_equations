@@ -342,6 +342,16 @@ target_link_libraries(distance_point_to_plane
 #	${OpenCV_LIBS}
 )
 
+add_executable(m_estimators_functions_viewer
+	src/m_estimators_functions_viewer.cpp
+)
+
+target_link_libraries(m_estimators_functions_viewer
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+#	${OpenCV_LIBS}
+)
+
 
 
 

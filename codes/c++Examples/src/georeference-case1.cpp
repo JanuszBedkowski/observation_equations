@@ -81,10 +81,6 @@ int main(int argc, char *argv[]){
 		loop_edges.emplace_back(i,i+100);
 	}
 
-	if (false == initGL(&argc, argv)) {
-		return 4;
-	}
-
 	TaitBryanPose p;
 	p.px = 0;
 	p.py = 5;
@@ -112,6 +108,10 @@ int main(int argc, char *argv[]){
 	p.pz = 7;
 	m = affine_matrix_from_pose_tait_bryan(p);
 	georeference_data.emplace_back(m, 197);
+
+	if (false == initGL(&argc, argv)) {
+		return 4;
+	}
 
 	printHelp();
 	glutDisplayFunc(display);
