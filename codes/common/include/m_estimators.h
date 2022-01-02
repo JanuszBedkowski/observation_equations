@@ -150,4 +150,32 @@ inline double get_tukey_w(double r, double c){
 	}
 }
 
+inline double get_barron_rho(double r, double alpha, double c){
+	if(alpha <= -0.0000000001){
+		return 1 - exp(-0.5 * (r/c)* (r/c));
+	}else if (alpha == 0){
+		return log(0.5 * (r/c)* (r/c) + 1);
+	}else if (alpha == 2){
+		return 0.5 * (r/c)* (r/c);
+	}else{
+		return fabs(alpha-2)/alpha * (( pow(((r/c)* (r/c))/fabs(alpha-2) + 1, alpha/2) ) - 1);
+	}
+}
+
+inline double get_barron_upsilon(double r, double alpha, double c){
+	if(alpha <= -0.0000000001){
+		return r/(c*c)*exp(-0.5*(r/c)* (r/c));
+	}else if (alpha == 0){
+		return 2*r/(r*r+2*c*c);
+	}else if (alpha == 2){
+		return r/(c*c);
+	}else{
+		return r/(c*c) * ( pow(((r/c)* (r/c))/fabs(alpha-2) + 1, alpha/2-1) );
+	}
+}
+
+inline double get_barron_w(double r, double alpha, double c){
+	return get_barron_upsilon(r, alpha, c)/r;
+}
+
 #endif

@@ -349,7 +349,15 @@ add_executable(m_estimators_functions_viewer
 target_link_libraries(m_estimators_functions_viewer
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-#	${OpenCV_LIBS}
+)
+
+add_executable(adaptive_robust_loss_function_viewer
+	src/adaptive_robust_loss_function_viewer.cpp
+)
+
+target_link_libraries(adaptive_robust_loss_function_viewer
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
 )
 
 
