@@ -57,6 +57,12 @@ std::vector<double> barron2_w;
 int render_type = RENDER_RHO;
 
 int main(int argc, char *argv[]){
+	if(argc == 1){
+		std::cout << "USAGE: " << argv[0] << " param(optional)" << std::endl;
+		std::cout << "param=1 - print rho" << std::endl;
+		std::cout << "param=2 - print upsilon" << std::endl;
+		std::cout << "param=3 - print w" << std::endl;
+	}
 
 	for(double residuum = -10.0; residuum <= 10.0; residuum += 0.01){
 		r.push_back(residuum);
@@ -91,6 +97,29 @@ int main(int argc, char *argv[]){
 		barron2_rho.push_back(get_barron_rho(r[i], 2, c));
 		barron2_upsilon.push_back(get_barron_upsilon(r[i], 2, c));
 		barron2_w.push_back(get_barron_w(r[i], 2, c));
+	}
+
+	if(argc == 2){
+		std::cout << "r,/alpha=-/infty,/alpha=-2,/alpha=0,/alpha=0.5,/alpha=1,/alpha=1.5,/alpha=2" << std::endl;
+		if(atoi(argv[1]) == 1){
+			for(size_t i = 0; i < r.size(); i++){
+				std::cout << r[i] << "," << barronminf_rho[i] << "," << barronm2_rho[i] << "," << barron0_rho[i] << "," <<
+						barron15_rho[i] << "," << barron1_rho[i] << "," << barron32_rho[i] << "," << barron2_rho[i] << std::endl;
+			}
+		}
+		if(atoi(argv[1]) == 2){
+			for(size_t i = 0; i < r.size(); i++){
+				std::cout << r[i] << "," << barronminf_upsilon[i] << "," << barronm2_upsilon[i] << "," << barron0_upsilon[i] << "," <<
+						barron15_upsilon[i] << "," << barron1_upsilon[i] << "," << barron32_upsilon[i] << "," << barron2_upsilon[i] << std::endl;
+			}
+		}
+		if(atoi(argv[1]) == 3){
+			for(size_t i = 0; i < r.size(); i++){
+				std::cout << r[i] << "," << barronminf_w[i] << "," << barronm2_w[i] << "," << barron0_w[i] << "," <<
+						barron15_w[i] << "," << barron1_w[i] << "," << barron32_w[i] << "," << barron2_w[i] << std::endl;
+			}
+		}
+		return 0;
 	}
 
 	if (false == initGL(&argc, argv)) {
