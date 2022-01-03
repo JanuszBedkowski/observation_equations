@@ -129,7 +129,7 @@ int main(int argc, char *argv[]){
 	}
 
 	if(argc == 2){
-		std::cout << "r,L_1,L_2,L_1-L_2,L_p,Fair,Huber,Cauchy,Geman-McClure,Welsch,Tukey" << std::endl;
+		std::cout << "r,$L_1$,$L_2$,$L_1-L_2$,$L_p$,Fair,Huber,Cauchy,Geman-McClure,Welsch,Tukey" << std::endl;
 		if(atoi(argv[1]) == 1){
 			for(size_t i = 0; i < r.size(); i++){
 				std::cout << r[i] << "," << l1_rho[i] << "," << l2_rho[i] << "," << l1l2_rho[i] << "," << lp_rho[i] << "," <<

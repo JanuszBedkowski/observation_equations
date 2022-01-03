@@ -51,3 +51,6 @@ build
 
  codes/__pycache__/*
 
+
+*.eps
+*.csv
