@@ -68,6 +68,12 @@ std::vector<double> tukey_w;
 int render_type = RENDER_RHO;
 
 int main(int argc, char *argv[]){
+	if(argc == 1){
+		std::cout << "USAGE: " << argv[0] << " param(optional)" << std::endl;
+		std::cout << "param=1 - print rho" << std::endl;
+		std::cout << "param=2 - print upsilon" << std::endl;
+		std::cout << "param=3 - print w" << std::endl;
+	}
 
 	for(double residuum = -10.0; residuum <= 10.0; residuum += 0.01){
 		r.push_back(residuum);
@@ -120,6 +126,32 @@ int main(int argc, char *argv[]){
 		tukey_rho.push_back(get_tukey_rho(r[i], c));
 		tukey_upsilon.push_back(get_tukey_upsilon(r[i], c));
 		tukey_w.push_back(get_tukey_w(r[i], c));
+	}
+
+	if(argc == 2){
+		std::cout << "r,L_1,L_2,L_1-L_2,L_p,Fair,Huber,Cauchy,Geman-McClure,Welsch,Tukey" << std::endl;
+		if(atoi(argv[1]) == 1){
+			for(size_t i = 0; i < r.size(); i++){
+				std::cout << r[i] << "," << l1_rho[i] << "," << l2_rho[i] << "," << l1l2_rho[i] << "," << lp_rho[i] << "," <<
+						fair_rho[i] << "," << huber_rho[i] << "," << cauchy_rho[i] << "," <<  geman_mcclure_rho[i] << "," <<
+						welsch_rho[i] << "," << tukey_rho[i] << std::endl;
+			}
+		}
+		if(atoi(argv[1]) == 2){
+			for(size_t i = 0; i < r.size(); i++){
+				std::cout << r[i] << "," << l1_upsilon[i] << "," << l2_upsilon[i] << "," << l1l2_upsilon[i] << "," << lp_upsilon[i] << "," <<
+						fair_upsilon[i] << "," << huber_upsilon[i] << "," << cauchy_upsilon[i] << "," <<  geman_mcclure_upsilon[i] << "," <<
+						welsch_upsilon[i] << "," << tukey_upsilon[i] << std::endl;
+			}
+		}
+		if(atoi(argv[1]) == 3){
+			for(size_t i = 0; i < r.size(); i++){
+				std::cout << r[i] << "," << l1_w[i] << "," << l2_w[i] << "," << l1l2_w[i] << "," << lp_w[i] << "," <<
+						fair_w[i] << "," << huber_w[i] << "," << cauchy_w[i] << "," <<  geman_mcclure_w[i] << "," <<
+						welsch_w[i] << "," << tukey_w[i] << std::endl;
+			}
+		}
+		return 0;
 	}
 
 	if (false == initGL(&argc, argv)) {
