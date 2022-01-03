@@ -43,7 +43,7 @@ def plot_csv(fname, output, title=None, ylabel='', delim=',', SIZE=(8,6), ymax=N
         plt.legend()
 
         if ymax is not None:
-            plt.ylim(0,ymax)
+            plt.ylim(0,float(ymax))
 
         plt.grid(True)
         # plt.axis('equal')
@@ -60,5 +60,5 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--input', help='CSV, comma-separated; delimiter can be changed using --delim',required=True)
     parser.add_argument('-o', '--output', help='Output file.eps',required=True)
     args = parser.parse_args()
-    plot_csv(args.input, args.output, title=args.title, ylabel=args.ylabel, delim=delim, ymax=float(args.ymax))
+    plot_csv(args.input, args.output, title=args.title, ylabel=args.ylabel, delim=delim, ymax=args.ymax)
 
