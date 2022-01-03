@@ -151,7 +151,7 @@ inline double get_tukey_w(double r, double c){
 }
 
 inline double get_barron_rho(double r, double alpha, double c){
-	if(alpha <= -0.0000000001){
+	if(alpha <= -1000000000000.0){
 		return 1 - exp(-0.5 * (r/c)* (r/c));
 	}else if (alpha == 0){
 		return log(0.5 * (r/c)* (r/c) + 1);
@@ -163,7 +163,7 @@ inline double get_barron_rho(double r, double alpha, double c){
 }
 
 inline double get_barron_upsilon(double r, double alpha, double c){
-	if(alpha <= -0.0000000001){
+	if(alpha <= -1000000000000.0){
 		return r/(c*c)*exp(-0.5*(r/c)* (r/c));
 	}else if (alpha == 0){
 		return 2*r/(r*r+2*c*c);
@@ -176,6 +176,16 @@ inline double get_barron_upsilon(double r, double alpha, double c){
 
 inline double get_barron_w(double r, double alpha, double c){
 	return get_barron_upsilon(r, alpha, c)/r;
+}
+
+inline double get_approximate_partition_function(double tau_begin, double tau_end, double alpha, double c, double num_steps){
+	double step = (tau_end - tau_begin) / num_steps;
+	double area = 0.0;
+	for (int i = 0; i < num_steps; i ++) {
+
+		area += exp(-get_barron_rho(tau_begin + (i + 0.5) * step, alpha, c)) * step;
+	}
+	return area;
 }
 
 #endif
