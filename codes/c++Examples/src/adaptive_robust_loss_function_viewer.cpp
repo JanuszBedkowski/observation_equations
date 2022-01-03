@@ -100,7 +100,7 @@ int main(int argc, char *argv[]){
 	}
 
 	if(argc == 2){
-		std::cout << "r,/alpha=-/infty,/alpha=-2,/alpha=0,/alpha=0.5,/alpha=1,/alpha=1.5,/alpha=2" << std::endl;
+		std::cout << "r,$\\alpha=-\\infty$,$\\alpha=-2$,$\\alpha=0$,$\\alpha=0.5$,$\\alpha=1$,$\\alpha=1.5$,$\\alpha=2$" << std::endl;
 		if(atoi(argv[1]) == 1){
 			for(size_t i = 0; i < r.size(); i++){
 				std::cout << r[i] << "," << barronminf_rho[i] << "," << barronm2_rho[i] << "," << barron0_rho[i] << "," <<
