@@ -241,7 +241,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'b':{
 			double min_sum = 1000000000.0;
 			for(double alpha = -10; alpha <=2; alpha += 0.1){
-				double Z_tilde = get_approximate_partition_function(-10, 10, alpha, barron_c, 100);
+				double Z_tilde = get_approximate_partition_function(-10, 10, alpha, 1, 100);
 				double sum = 0;
 				for(size_t i = 0; i < input_data.size() ; i++){
 					double delta;
@@ -340,7 +340,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 				tripletListA.emplace_back(ir, 0, -jacobian(0,0));
 				tripletListA.emplace_back(ir, 1, -jacobian(0,1));
-				tripletListP.emplace_back(ir, ir, get_cauchy_w(delta, 1));
+				tripletListP.emplace_back(ir, ir, get_barron_w(delta, 0, barron_c));
 				tripletListB.emplace_back(ir, 0,  delta);
 			}
 
@@ -394,7 +394,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}
 			break;
 		}
-		case 'h':{
+		case 'l':{
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
 			std::vector<Eigen::Triplet<double>> tripletListB;
@@ -410,7 +410,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 				tripletListA.emplace_back(ir, 0, -jacobian(0,0));
 				tripletListA.emplace_back(ir, 1, -jacobian(0,1));
-				tripletListP.emplace_back(ir, ir, get_huber_w(delta, 1));
+				tripletListP.emplace_back(ir, ir, get_barron_w(delta, 1, barron_c));
 				tripletListB.emplace_back(ir, 0,  delta);
 			}
 
@@ -527,7 +527,7 @@ void printHelp() {
 	std::cout << "'o': optimize" << std::endl;
 	std::cout << "'b': optimize robust Barron" << std::endl;
 	std::cout << "'c': optimize robust Cauchy" << std::endl;
-	std::cout << "'h': optimize robust Huber" << std::endl;
+	std::cout << "'l': optimize robust L1L2" << std::endl;
 	std::cout << "'-': barron_alpha -= 0.1" << std::endl;
 	std::cout << "'=': barron_alpha += 0.1" << std::endl;
 }

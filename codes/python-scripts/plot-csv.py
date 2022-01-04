@@ -43,7 +43,9 @@ def plot_csv(fname, output, title=None, ylabel='', delim=',', SIZE=(8,6), ymax=N
         plt.legend()
 
         if ymax is not None:
-            plt.ylim(0,float(ymax))
+#            plt.ylim(-float(ymax),float(ymax))
+	    plt.ylim(0,float(ymax))
+
 
         plt.grid(True)
         # plt.axis('equal')
