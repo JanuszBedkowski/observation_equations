@@ -360,6 +360,15 @@ target_link_libraries(adaptive_robust_loss_function_viewer
 	${GLUT_glut_LIBRARY}
 )
 
+add_executable(adaptive_robust_loss_function_demo
+	src/adaptive_robust_loss_function_demo.cpp
+)
+
+target_link_libraries(adaptive_robust_loss_function_demo
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+
 
 
 

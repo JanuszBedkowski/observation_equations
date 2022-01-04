@@ -182,10 +182,13 @@ inline double get_approximate_partition_function(double tau_begin, double tau_en
 	double step = (tau_end - tau_begin) / num_steps;
 	double area = 0.0;
 	for (int i = 0; i < num_steps; i ++) {
-
 		area += exp(-get_barron_rho(tau_begin + (i + 0.5) * step, alpha, c)) * step;
 	}
 	return area;
+}
+
+inline double get_truncated_robust_kernel(double r, double alpha, double c, double Z_tilde){
+	return get_barron_rho(r, alpha, c) + log(c*Z_tilde);
 }
 
 #endif

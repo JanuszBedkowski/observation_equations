@@ -26,41 +26,49 @@ std::vector<double> barronminf_rho;
 std::vector<double> barronminf_upsilon;
 std::vector<double> barronminf_w;
 std::vector<double> barronminf_mpdf;
+std::vector<double> barronminf_rho_a_tilde;
 
 std::vector<double> barronm2_rho;
 std::vector<double> barronm2_upsilon;
 std::vector<double> barronm2_w;
 std::vector<double> barronm2_mpdf;
+std::vector<double> barronm2_rho_a_tilde;
 
 std::vector<double> barron0_rho;
 std::vector<double> barron0_upsilon;
 std::vector<double> barron0_w;
 std::vector<double> barron0_mpdf;
+std::vector<double> barron0_rho_a_tilde;
 
 std::vector<double> barron05_rho;
 std::vector<double> barron05_upsilon;
 std::vector<double> barron05_w;
 std::vector<double> barron05_mpdf;
+std::vector<double> barron05_rho_a_tilde;
 
 std::vector<double> barron1_rho;
 std::vector<double> barron1_upsilon;
 std::vector<double> barron1_w;
 std::vector<double> barron1_mpdf;
+std::vector<double> barron1_rho_a_tilde;
 
 std::vector<double> barron15_rho;
 std::vector<double> barron15_upsilon;
 std::vector<double> barron15_w;
 std::vector<double> barron15_mpdf;
+std::vector<double> barron15_rho_a_tilde;
 
 std::vector<double> barron2_rho;
 std::vector<double> barron2_upsilon;
 std::vector<double> barron2_w;
 std::vector<double> barron2_mpdf;
+std::vector<double> barron2_rho_a_tilde;
 
 #define RENDER_RHO 1
 #define RENDER_UPSILON 2
 #define RENDER_W 3
 #define RENDER_P_TILDE 4
+#define RENDER_RHO_A_TILDE 5
 
 int render_type = RENDER_RHO;
 
@@ -72,6 +80,7 @@ int main(int argc, char *argv[]){
 		std::cout << "'2' print upsilon" << std::endl;
 		std::cout << "'3' print w" << std::endl;
 		std::cout << "'4' print mpdf" << std::endl;
+		std::cout << "'5' print rho_a_tide" << std::endl;
 	}
 
 	for(double residuum = -10.0; residuum <= 10.0; residuum += 0.01){
@@ -96,36 +105,44 @@ int main(int argc, char *argv[]){
 		barronminf_upsilon.push_back(get_barron_upsilon(r[i], minf, c));
 		barronminf_w.push_back(get_barron_w(r[i], minf, c));
 		barronminf_mpdf.push_back(1/(c*Z_tilde_minf)*exp(-get_barron_rho(r[i], minf, c)));
+		barronminf_rho_a_tilde.push_back(get_truncated_robust_kernel(r[i], minf, c, Z_tilde_minf));
 
 		barronm2_rho.push_back(get_barron_rho(r[i], -2, c));
 		barronm2_upsilon.push_back(get_barron_upsilon(r[i], -2, c));
 		barronm2_w.push_back(get_barron_w(r[i], -2, c));
 		barronm2_mpdf.push_back(1/(c*Z_tilde_m2)*exp(-get_barron_rho(r[i], -2, c)));
+		barronm2_rho_a_tilde.push_back(get_truncated_robust_kernel(r[i], -2, c, Z_tilde_m2));
 
 		barron0_rho.push_back(get_barron_rho(r[i], 0, c));
 		barron0_upsilon.push_back(get_barron_upsilon(r[i], 0, c));
 		barron0_w.push_back(get_barron_w(r[i], 0, c));
 		barron0_mpdf.push_back(1/(c*Z_tilde_0)*exp(-get_barron_rho(r[i], 0, c)));
+		barron0_rho_a_tilde.push_back(get_truncated_robust_kernel(r[i], 0, c, Z_tilde_0));
 
 		barron05_rho.push_back(get_barron_rho(r[i], 0.5, c));
 		barron05_upsilon.push_back(get_barron_upsilon(r[i], 0.5, c));
 		barron05_w.push_back(get_barron_w(r[i], 0.5, c));
 		barron05_mpdf.push_back(1/(c*Z_tilde_05)*exp(-get_barron_rho(r[i], 0.5, c)));
+		barron05_rho_a_tilde.push_back(get_truncated_robust_kernel(r[i], 0.5, c, Z_tilde_05));
 
 		barron1_rho.push_back(get_barron_rho(r[i], 1, c));
 		barron1_upsilon.push_back(get_barron_upsilon(r[i], 1, c));
 		barron1_w.push_back(get_barron_w(r[i], 1, c));
 		barron1_mpdf.push_back(1/(c*Z_tilde_1)*exp(-get_barron_rho(r[i], 1.0, c)));
+		barron1_rho_a_tilde.push_back(get_truncated_robust_kernel(r[i], 1.0, c, Z_tilde_1));
 
 		barron15_rho.push_back(get_barron_rho(r[i], 1.5, c));
 		barron15_upsilon.push_back(get_barron_upsilon(r[i], 1.5, c));
 		barron15_w.push_back(get_barron_w(r[i], 1.5, c));
 		barron15_mpdf.push_back(1/(c*Z_tilde_15)*exp(-get_barron_rho(r[i], 1.5, c)));
+		barron15_rho_a_tilde.push_back(get_truncated_robust_kernel(r[i], 1.5, c, Z_tilde_15));
 
 		barron2_rho.push_back(get_barron_rho(r[i], 2, c));
 		barron2_upsilon.push_back(get_barron_upsilon(r[i], 2, c));
 		barron2_w.push_back(get_barron_w(r[i], 2, c));
 		barron2_mpdf.push_back(1/(c*Z_tilde_2)*exp(-get_barron_rho(r[i], 2.0, c)));
+		barron2_rho_a_tilde.push_back(get_truncated_robust_kernel(r[i], 2.0, c, Z_tilde_2));
+
 	}
 
 	if(argc == 2){
@@ -152,6 +169,13 @@ int main(int argc, char *argv[]){
 			for(size_t i = 0; i < r.size(); i++){
 				std::cout << r[i] << "," << barronminf_mpdf[i] << "," << barronm2_mpdf[i] << "," << barron0_mpdf[i] << "," <<
 						barron05_mpdf[i] << "," << barron1_mpdf[i] << "," << barron15_mpdf[i] << "," << barron2_mpdf[i] << std::endl;
+			}
+		}
+
+		if(atoi(argv[1]) == 5){
+			for(size_t i = 0; i < r.size(); i++){
+				std::cout << r[i] << "," << barronminf_rho_a_tilde[i] << "," << barronm2_rho_a_tilde[i] << "," << barron0_rho_a_tilde[i] << "," <<
+						barron05_rho_a_tilde[i] << "," << barron1_rho_a_tilde[i] << "," << barron15_rho_a_tilde[i] << "," << barron2_rho_a_tilde[i] << std::endl;
 			}
 		}
 		return 0;
@@ -236,7 +260,7 @@ void display() {
 				glVertex3f(r[i], barronm2_rho[i], 0);
 			}
 			glEnd();
-/*
+
 			glColor3f(0,0,1);
 			glBegin(GL_LINE_STRIP);
 			for(size_t i = 0 ; i < barron0_rho.size(); i++){
@@ -270,7 +294,7 @@ void display() {
 			for(size_t i = 0 ; i < barron2_rho.size(); i++){
 				glVertex3f(r[i], barron2_rho[i], 0);
 			}
-			glEnd();*/
+			glEnd();
 			break;
 		}
 		case RENDER_UPSILON:{
@@ -426,6 +450,57 @@ void display() {
 			glEnd();
 			break;
 		}
+		case RENDER_RHO_A_TILDE:{
+			glColor3f(1,0,0);
+			glBegin(GL_LINE_STRIP);
+			for(size_t i = 0 ; i < barronminf_rho_a_tilde.size(); i++){
+				glVertex3f(r[i], barronminf_rho_a_tilde[i], 0);
+			}
+			glEnd();
+
+			glColor3f(0,1,0);
+			glBegin(GL_LINE_STRIP);
+			for(size_t i = 0 ; i < barronm2_rho_a_tilde.size(); i++){
+				glVertex3f(r[i], barronm2_rho_a_tilde[i], 0);
+			}
+			glEnd();
+
+			glColor3f(0,0,1);
+			glBegin(GL_LINE_STRIP);
+			for(size_t i = 0 ; i < barron0_rho_a_tilde.size(); i++){
+				glVertex3f(r[i], barron0_rho_a_tilde[i], 0);
+			}
+			glEnd();
+
+			glColor3f(0,0,0);
+			glBegin(GL_LINE_STRIP);
+			for(size_t i = 0 ; i < barron05_rho_a_tilde.size(); i++){
+				glVertex3f(r[i], barron05_rho_a_tilde[i], 0);
+			}
+			glEnd();
+
+			glColor3f(0.5,0.9,0);
+			glBegin(GL_LINE_STRIP);
+			for(size_t i = 0 ; i < barron1_rho_a_tilde.size(); i++){
+				glVertex3f(r[i], barron1_rho_a_tilde[i], 0);
+			}
+			glEnd();
+
+			glColor3f(0.0,0.6,0.4);
+			glBegin(GL_LINE_STRIP);
+			for(size_t i = 0 ; i < barron15_rho_a_tilde.size(); i++){
+				glVertex3f(r[i], barron15_rho_a_tilde[i], 0);
+			}
+			glEnd();
+
+			glColor3f(0.6,0.2,0.4);
+			glBegin(GL_LINE_STRIP);
+			for(size_t i = 0 ; i < barron2_rho_a_tilde.size(); i++){
+				glVertex3f(r[i], barron2_rho_a_tilde[i], 0);
+			}
+			glEnd();
+			break;
+		}
 	}
 
 
@@ -452,6 +527,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		}
 		case '4':{
 			render_type = RENDER_P_TILDE;
+			break;
+		}
+		case '5':{
+			render_type = RENDER_RHO_A_TILDE;
 			break;
 		}
 	}
@@ -508,6 +587,7 @@ void printHelp() {
 	std::cout << "2: RENDER_UPSILON" << std::endl;
 	std::cout << "3: RENDER_W" << std::endl;
 	std::cout << "4: RENDER_P_TILDE" << std::endl;
+	std::cout << "5: RENDER_RHO_A_TILDE" << std::endl;
 }
 
 
