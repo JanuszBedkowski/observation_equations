@@ -4,7 +4,7 @@
 #include <Eigen/Eigen>
 
 #include "m_estimators.h"
-#include "example_func_ax_eq_b_jacobian.h"
+#include "example_func_ax_plus_b_eq_y_jacobian.h"
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -42,19 +42,19 @@ std::vector<std::pair<double, double>> input_data;
 int main(int argc, char *argv[]){
 	double y;
 	for(double x = -10; x <= 10; x+= 0.01){
-		example_func_ax_eq_b(y,  x,  a,  b);
+		example_func_ax_plus_b(y,  x,  a,  b);
 		y += ((double(rand()%1000000)/1000000.0) - 0.5) * 2.0 * 0.1;
 		input_data.emplace_back(x,y);
 	}
 
 	//outliers
 	for(double x = -10; x <= 0; x+= 0.02){
-		example_func_ax_eq_b(y,  x,  a,  b);
+		example_func_ax_plus_b(y,  x,  a,  b);
 		y += ((double(rand()%1000000)/1000000.0) - 0.5) * 2.0 + 5;
 		input_data.emplace_back(x,y);
 	}
 	for(double x = 0; x <= 10; x+= 0.02){
-		example_func_ax_eq_b(y,  x,  a,  b);
+		example_func_ax_plus_b(y,  x,  a,  b);
 		y += ((double(rand()%1000000)/1000000.0) - 0.5) * 2.0 - 5;
 		input_data.emplace_back(x,y);
 	}
@@ -67,8 +67,6 @@ int main(int argc, char *argv[]){
 	if (false == initGL(&argc, argv)) {
 		return 4;
 	}
-
-
 
 	printHelp();
 	glutDisplayFunc(display);
@@ -121,7 +119,7 @@ void display() {
 	glBegin(GL_LINE_STRIP);
 	double y;
 	for(double x = -10; x < 10; x+=0.01){
-		example_func_ax_eq_b(y,  x,  a_barron,  b_barron);
+		example_func_ax_plus_b(y,  x,  a_barron,  b_barron);
 		glVertex3f(x, y, 0);
 	}
 	glEnd();
@@ -129,7 +127,7 @@ void display() {
 	glColor3f(0,1,0);
 	glBegin(GL_LINE_STRIP);
 	for(double x = -10; x < 10; x+=0.01){
-		example_func_ax_eq_b(y,  x,  a_cauchy,  b_cauchy);
+		example_func_ax_plus_b(y,  x,  a_cauchy,  b_cauchy);
 		glVertex3f(x, y, 0);
 	}
 	glEnd();
@@ -137,7 +135,7 @@ void display() {
 	glColor3f(0,0,1);
 	glBegin(GL_LINE_STRIP);
 	for(double x = -10; x < 10; x+=0.01){
-		example_func_ax_eq_b(y,  x,  a_huber,  b_huber);
+		example_func_ax_plus_b(y,  x,  a_huber,  b_huber);
 		glVertex3f(x, y, 0);
 	}
 	glEnd();
@@ -145,7 +143,7 @@ void display() {
 	glColor3f(0,0,0);
 	glBegin(GL_LINE_STRIP);
 	for(double x = -10; x < 10; x+=0.01){
-		example_func_ax_eq_b(y,  x,  a,  b);
+		example_func_ax_plus_b(y,  x,  a,  b);
 		glVertex3f(x, y, 0);
 	}
 	glEnd();
@@ -174,10 +172,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			for(size_t i = 0; i < input_data.size() ; i++){
 				double delta;
-				observation_equation_example_func_ax_eq_b(delta, input_data[i].first, input_data[i].second, a, b);
+				observation_equation_example_func_ax_plus_b_eq_y(delta, input_data[i].first, input_data[i].second, a, b);
 
 				Eigen::Matrix<double, 1, 2> jacobian;
-				observation_equation_example_func_ax_eq_b_jacobian(jacobian, input_data[i].first, input_data[i].second, a, b);
+				observation_equation_example_func_ax_plus_b_eq_y_jacobian(jacobian, input_data[i].first, input_data[i].second, a, b);
 
 				int ir = tripletListB.size();
 
@@ -245,7 +243,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				double sum = 0;
 				for(size_t i = 0; i < input_data.size() ; i++){
 					double delta;
-					observation_equation_example_func_ax_eq_b(delta, input_data[i].first, input_data[i].second, a, b);
+					observation_equation_example_func_ax_plus_b_eq_y(delta, input_data[i].first, input_data[i].second, a, b);
 					sum += get_truncated_robust_kernel(delta, alpha, barron_c, Z_tilde);
 				}
 				if(sum < min_sum){
@@ -261,10 +259,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			for(size_t i = 0; i < input_data.size() ; i++){
 				double delta;
-				observation_equation_example_func_ax_eq_b(delta, input_data[i].first, input_data[i].second, a_barron, b_barron);
+				observation_equation_example_func_ax_plus_b_eq_y(delta, input_data[i].first, input_data[i].second, a_barron, b_barron);
 
 				Eigen::Matrix<double, 1, 2> jacobian;
-				observation_equation_example_func_ax_eq_b_jacobian(jacobian, input_data[i].first, input_data[i].second, a_barron, b_barron);
+				observation_equation_example_func_ax_plus_b_eq_y_jacobian(jacobian, input_data[i].first, input_data[i].second, a_barron, b_barron);
 
 				int ir = tripletListB.size();
 
@@ -331,10 +329,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			for(size_t i = 0; i < input_data.size() ; i++){
 				double delta;
-				observation_equation_example_func_ax_eq_b(delta, input_data[i].first, input_data[i].second, a_cauchy, b_cauchy);
+				observation_equation_example_func_ax_plus_b_eq_y(delta, input_data[i].first, input_data[i].second, a_cauchy, b_cauchy);
 
 				Eigen::Matrix<double, 1, 2> jacobian;
-				observation_equation_example_func_ax_eq_b_jacobian(jacobian, input_data[i].first, input_data[i].second, a_cauchy, b_cauchy);
+				observation_equation_example_func_ax_plus_b_eq_y_jacobian(jacobian, input_data[i].first, input_data[i].second, a_cauchy, b_cauchy);
 
 				int ir = tripletListB.size();
 
@@ -401,10 +399,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			for(size_t i = 0; i < input_data.size() ; i++){
 				double delta;
-				observation_equation_example_func_ax_eq_b(delta, input_data[i].first, input_data[i].second, a_huber, b_huber);
+				observation_equation_example_func_ax_plus_b_eq_y(delta, input_data[i].first, input_data[i].second, a_huber, b_huber);
 
 				Eigen::Matrix<double, 1, 2> jacobian;
-				observation_equation_example_func_ax_eq_b_jacobian(jacobian, input_data[i].first, input_data[i].second, a_huber, b_huber);
+				observation_equation_example_func_ax_plus_b_eq_y_jacobian(jacobian, input_data[i].first, input_data[i].second, a_huber, b_huber);
 
 				int ir = tripletListB.size();
 
