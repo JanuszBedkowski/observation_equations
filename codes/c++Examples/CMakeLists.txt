@@ -369,6 +369,15 @@ target_link_libraries(adaptive_robust_loss_function_demo
 	${GLUT_glut_LIBRARY}
 )
 
+add_executable(point_to_point_source_to_landmark
+	src/point_to_point_source_to_landmark.cpp
+)
+
+target_link_libraries(point_to_point_source_to_landmark
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+
 
 
 
