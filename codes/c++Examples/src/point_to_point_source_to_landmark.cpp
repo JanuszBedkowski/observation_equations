@@ -46,6 +46,60 @@ std::vector<Eigen::Vector3d> landmarks;
 std::vector<Node> nodes;
 std::vector<Node> nodesInitial;
 
+void draw_ellipse2D(const Eigen::Matrix3d& covar, Eigen::Vector3d& mean, Eigen::Vector3f color, float nstd  = 3)
+{
+
+    Eigen::LLT<Eigen::Matrix<double,3,3> > cholSolver(covar);
+    Eigen::Matrix3d transform = cholSolver.matrixL();
+
+    const double pi = 3.141592;
+    const double di =0.02;
+    const double dj =0.04;
+    const double du =di*2*pi;
+    const double dv =dj*pi;
+    glColor3f(color.x(), color.y(),color.z());
+
+    for (double i = 0; i < 1.0; i+=di) { //horizonal
+		double u = i*2*pi;      //0     to  2pi
+		const Eigen::Vector3d pp0( cos(u), sin (u),0);
+		const Eigen::Vector3d pp1( cos(u+du), sin(u+du),0);
+		Eigen::Vector3d tp0 = transform * (nstd*pp0) + mean;
+		Eigen::Vector3d tp1 = transform * (nstd*pp1) + mean;
+		glBegin(GL_LINE_LOOP);
+		glVertex3dv(tp0.data());
+		glVertex3dv(tp1.data());
+		glEnd();
+	}
+}
+
+void compute_covariance (std::vector<Eigen::Vector3d> points, Eigen::Vector3d &mean, Eigen::Matrix3d &cov)
+{
+	mean.x() = 0;
+	mean.y() = 0;
+	mean.z() = 0;
+
+	for(size_t i = 0 ; i < points.size(); i++){
+		mean += points[i];
+	}
+	mean /= points.size();
+
+    Eigen::Matrix3d covariance;
+    for (int x = 0; x < 3; x ++)
+    {
+        for (int y = 0; y < 3; y ++)
+        {
+            double element =0;
+            for (const auto pp : points)
+            {
+                element += (pp(x) - mean(x)) * (pp(y) - mean(y));
+
+            }
+            covariance(x,y) = element / (points.size());
+        }
+    };
+    cov = covariance;
+}
+
 int main(int argc, char *argv[]){
 
 	for(size_t i = 0; i < 10; i++){
@@ -67,7 +121,6 @@ int main(int argc, char *argv[]){
 
 		nodes.emplace_back(n);
 	}
-
 
 	nodesInitial = nodes;
 
@@ -113,8 +166,7 @@ bool initGL(int *argc, char **argv) {
 	// projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01,
-			10000.0);
+	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01, 10000.0);
 	glutReshapeFunc(reshape);
 
 	return true;
@@ -129,7 +181,8 @@ void display() {
 	glRotatef(rotate_x, 1.0, 0.0, 0.0);
 	glRotatef(rotate_y, 0.0, 0.0, 1.0);
 
-	glBegin(GL_LINES);
+	glLineWidth(2);
+	/*glBegin(GL_LINES);
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex3f(0.0f, 0.0f, 0.0f);
 	glVertex3f(1.0f, 0.0f, 0.0f);
@@ -141,10 +194,9 @@ void display() {
 	glColor3f(0.0f, 0.0f, 1.0f);
 	glVertex3f(0.0f, 0.0f, 0.0f);
 	glVertex3f(0.0f, 0.0f, 1.0f);
-	glEnd();
+	glEnd();*/
 
-
-	glColor3f(0, 1, 0);
+	glColor3f(0, 0, 0);
 	glBegin(GL_LINES);
 	for(const auto &l:landmarks){
 		glVertex3f(l.x() - 1, l.y(), l.z());
@@ -181,28 +233,41 @@ void display() {
 		}
 	glEnd();
 
-
-
-
-	glColor3f(0, 0, 1);
+	glColor3f(0, 0, 0);
 	glBegin(GL_LINES);
 
 	for(size_t i = 0 ; i < nodes.size(); i++){
 		for(size_t j = 0 ; j < nodes[i].measurements.size(); j++){
 			Eigen::Vector3d meas = nodes[i].pose * nodes[i].measurements[j].value;
 
-			glVertex3f(meas.x() - 0.1, meas.y(), meas.z());
-			glVertex3f(meas.x() + 0.1, meas.y(), meas.z());
+			glVertex3f(meas.x() - 0.3, meas.y(), meas.z());
+			glVertex3f(meas.x() + 0.3, meas.y(), meas.z());
 
-			glVertex3f(meas.x(), meas.y() - 0.1, meas.z());
-			glVertex3f(meas.x(), meas.y() + 0.1, meas.z());
+			glVertex3f(meas.x(), meas.y() - 0.3, meas.z());
+			glVertex3f(meas.x(), meas.y() + 0.3, meas.z());
 		}
 	}
 	glEnd();
+
+	for(int i = 0; i < landmarks.size(); i++){
+		std::vector<Eigen::Vector3d> points;
+		for(size_t ii = 0 ; ii < nodes.size(); ii++){
+			for(size_t j = 0 ; j < nodes[ii].measurements.size(); j++){
+				if(nodes[i].measurements[j].index_landmark == i){
+					Eigen::Vector3d meas = nodes[ii].pose * nodes[ii].measurements[j].value;
+					points.push_back(meas);
+				}
+			}
+		}
+		Eigen::Vector3d mean;
+		Eigen::Matrix3d cov;
+		compute_covariance (points, mean, cov);
+		draw_ellipse2D(cov, mean, Eigen::Vector3f(1.0, 0.0, 0.0),1);
+		draw_ellipse2D(cov, mean, Eigen::Vector3f(0.0, 1.0, 0.0),2);
+		draw_ellipse2D(cov, mean, Eigen::Vector3f(0.0, 0.0, 1.0),3);
+	}
 	glutSwapBuffers();
 }
-
-
 
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 	switch (key) {
