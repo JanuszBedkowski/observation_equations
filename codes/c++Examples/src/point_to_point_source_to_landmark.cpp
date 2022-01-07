@@ -15,6 +15,23 @@
 #include "point_to_point_source_to_landmark_tait_bryan_wc_jacobian.h"
 #include "point_to_point_source_to_landmark_rodrigues_wc_jacobian.h"
 #include "point_to_point_source_to_landmark_quaternion_wc_jacobian.h"
+#include "point_to_point_source_to_landmark_tait_bryan_wc_cov.h"
+
+struct Measurement{
+	Eigen::Vector3d value;
+	int index_landmark;
+};
+
+struct Node{
+	Eigen::Affine3d pose;
+	std::vector<Measurement> measurements;
+};
+
+struct PointMeanCov{
+	Eigen::Vector3d mean;
+	Eigen::Matrix3d cov;
+	Eigen::Vector3d coords;
+};
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -31,16 +48,8 @@ void mouse(int button, int state, int x, int y);
 void motion(int x, int y);
 void reshape(int w, int h);
 void printHelp();
-
-struct Measurement{
-	Eigen::Vector3d value;
-	int index_landmark;
-};
-
-struct Node{
-	Eigen::Affine3d pose;
-	std::vector<Measurement> measurements;
-};
+void calculate_ICP_COV(std::vector<PointMeanCov>& data_pi,
+		std::vector<PointMeanCov>& model_qi, Eigen::Affine3d transform, Eigen::MatrixXd& ICP_COV);
 
 std::vector<Eigen::Vector3d> landmarks;
 std::vector<Node> nodes;
@@ -249,6 +258,7 @@ void display() {
 	}
 	glEnd();
 
+	std::vector<PointMeanCov> lmc;
 	for(int i = 0; i < landmarks.size(); i++){
 		std::vector<Eigen::Vector3d> points;
 		for(size_t ii = 0 ; ii < nodes.size(); ii++){
@@ -265,6 +275,49 @@ void display() {
 		draw_ellipse2D(cov, mean, Eigen::Vector3f(1.0, 0.0, 0.0),1);
 		draw_ellipse2D(cov, mean, Eigen::Vector3f(0.0, 1.0, 0.0),2);
 		draw_ellipse2D(cov, mean, Eigen::Vector3f(0.0, 0.0, 1.0),3);
+		PointMeanCov l;
+		l.coords = landmarks[i];
+		l.mean = mean;
+		l.cov = cov;
+		lmc.push_back(l);
+	}
+
+	for(size_t i = 0 ; i < nodes.size(); i++){
+		std::vector<PointMeanCov> data_pi;
+		std::vector<PointMeanCov> model_qi;
+
+		for(size_t j = 0 ; j < nodes[i].measurements.size(); j++){
+			PointMeanCov pi;
+			pi.coords = nodes[i].measurements[j].value;
+			pi.cov = lmc[nodes[i].measurements[j].index_landmark].cov;
+			pi.cov(0,0)= 0.03 * 0.03;
+			pi.cov(1,1)= 0.03 * 0.03;
+			pi.cov(2,2)= 0.03 * 0.03;
+			pi.mean = lmc[nodes[i].measurements[j].index_landmark].mean;
+			data_pi.push_back(pi);
+
+			PointMeanCov qi = lmc[nodes[i].measurements[j].index_landmark];
+			model_qi.push_back(qi);
+		}
+
+		Eigen::MatrixXd ICP_COV(6,6);
+		ICP_COV = Eigen::MatrixXd::Zero(6,6);
+		calculate_ICP_COV(data_pi, model_qi, nodes[i].pose, ICP_COV);
+
+		Eigen::Vector3d mean(nodes[i].pose(0,3), nodes[i].pose(1,3), nodes[i].pose(2,3));
+		Eigen::Matrix3d cov;
+		cov(0,0) = ICP_COV(0,0);
+		cov(0,1) = ICP_COV(0,1);
+		cov(0,2) = ICP_COV(0,2);
+		cov(1,0) = ICP_COV(1,0);
+		cov(1,1) = ICP_COV(1,1);
+		cov(1,2) = ICP_COV(1,2);
+		cov(2,0) = ICP_COV(2,0);
+		cov(2,1) = ICP_COV(2,1);
+		cov(2,2) = ICP_COV(2,2);
+		draw_ellipse2D(cov, mean, Eigen::Vector3f(1,0,0),1);
+		draw_ellipse2D(cov, mean, Eigen::Vector3f(0,1,0),2);
+		draw_ellipse2D(cov, mean, Eigen::Vector3f(0,0,1),3);
 	}
 	glutSwapBuffers();
 }
@@ -850,6 +903,87 @@ void printHelp() {
 	std::cout << "t: optimize (Tait-Bryan)" << std::endl;
 	std::cout << "r: optimize (Rodrigues)" << std::endl;
 	std::cout << "q: optimize (Quaternion)" << std::endl;
+}
+
+void calculate_ICP_COV(std::vector<PointMeanCov>& data_pi,
+		std::vector<PointMeanCov>& model_qi, Eigen::Affine3d transform, Eigen::MatrixXd& ICP_COV)
+{
+	TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(transform);
+
+    Eigen::MatrixXd d2sum_dbeta2(6,6);
+    d2sum_dbeta2 = Eigen::MatrixXd::Zero(6,6);
+
+    for (size_t s = 0; s < data_pi.size(); ++s )
+    {
+        double pix = data_pi[s].coords.x();
+        double piy = data_pi[s].coords.y();
+        double piz = data_pi[s].coords.z();
+        double qix = model_qi[s].coords.x();
+        double qiy = model_qi[s].coords.y();
+        double qiz = model_qi[s].coords.z();
+
+        Eigen::Matrix<double, 6, 6, Eigen::RowMajor> d2sum_dbeta2i;
+		point_to_point_source_to_landmark_tait_bryan_wc_d2sum_dbeta2(d2sum_dbeta2i, pose.px, pose.py, pose.pz, pose.om,
+        			pose.fi, pose.ka, pix, piy, piz, qix, qiy, qiz);
+
+        Eigen::MatrixXd d2sum_dbeta2_temp(6,6);
+        d2sum_dbeta2_temp << d2sum_dbeta2i;
+        d2sum_dbeta2 = d2sum_dbeta2 + d2sum_dbeta2_temp;
+    }
+
+    int n = data_pi.size();
+    if (n > 200) n = 200;
+    Eigen::MatrixXd d2sum_dxdbeta(6,6*n);
+    for (int k = 0; k < n ; ++k)
+    {
+        double pix = data_pi[k].coords.x();
+        double piy = data_pi[k].coords.y();
+        double piz = data_pi[k].coords.z();
+        double qix = model_qi[k].coords.x();
+        double qiy = model_qi[k].coords.y();
+        double qiz = model_qi[k].coords.z();
+
+        Eigen::MatrixXd d2sum_dxdbeta_temp(6,6);
+        Eigen::Matrix<double, 6, 6, Eigen::RowMajor> d2sum_dxdbetai;
+        point_to_point_source_to_landmark_tait_bryan_wc_d2sum_dxdbeta(d2sum_dxdbetai, pose.px, pose.py, pose.pz, pose.om,
+        		pose.fi, pose.ka, pix, piy, piz, qix, qiy, qiz);
+
+        d2sum_dxdbeta_temp << d2sum_dxdbetai;
+        d2sum_dxdbeta.block<6,6>(0,6*k) = d2sum_dxdbeta_temp;
+    }
+
+    Eigen::MatrixXd cov_z(6*n,6*n);
+    cov_z = 0.0 * Eigen::MatrixXd::Identity(6*n,6*n);
+
+    for(size_t i = 0; i < n ; i ++){
+    	int row = i * 6;
+    	int col = i * 6;
+
+    	cov_z(row, col) = data_pi[i].cov(0,0);
+    	cov_z(row, col + 1) = data_pi[i].cov(0,1);
+    	cov_z(row, col + 2) = data_pi[i].cov(0,2);
+
+    	cov_z(row + 1, col + 0) = data_pi[i].cov(1,0);
+    	cov_z(row + 1, col + 1) = data_pi[i].cov(1,1);
+    	cov_z(row + 1, col + 2) = data_pi[i].cov(1,2);
+
+    	cov_z(row + 2, col + 0) = data_pi[i].cov(2,0);
+    	cov_z(row + 2, col + 1) = data_pi[i].cov(2,1);
+    	cov_z(row + 2, col + 2) = data_pi[i].cov(2,2);
+
+    	cov_z(row + 3, col + 3)     = model_qi[i].cov(0,0);
+    	cov_z(row + 3, col + 3 + 1) = model_qi[i].cov(0,1);
+    	cov_z(row + 3, col + 3 + 2) = model_qi[i].cov(0,2);
+
+    	cov_z(row + 4, col + 3)     = model_qi[i].cov(1,0);
+    	cov_z(row + 4, col + 3 + 1) = model_qi[i].cov(1,1);
+    	cov_z(row + 4, col + 3 + 2) = model_qi[i].cov(1,2);
+
+    	cov_z(row + 5, col + 3)     = model_qi[i].cov(2,0);
+    	cov_z(row + 5, col + 3 + 1) = model_qi[i].cov(2,1);
+    	cov_z(row + 5, col + 3 + 2) = model_qi[i].cov(2,2);
+    }
+    ICP_COV =  d2sum_dbeta2.inverse() * d2sum_dxdbeta * cov_z * d2sum_dxdbeta.transpose() * d2sum_dbeta2.inverse();
 }
 
 
