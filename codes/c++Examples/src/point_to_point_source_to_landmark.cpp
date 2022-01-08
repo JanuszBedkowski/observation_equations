@@ -959,7 +959,7 @@ void calculate_ICP_COV(std::vector<PointMeanCov>& data_pi,
     	int row = i * 6;
     	int col = i * 6;
 
-    	cov_z(row, col) = data_pi[i].cov(0,0);
+    	cov_z(row, col + 0) = data_pi[i].cov(0,0);
     	cov_z(row, col + 1) = data_pi[i].cov(0,1);
     	cov_z(row, col + 2) = data_pi[i].cov(0,2);
 
@@ -971,15 +971,15 @@ void calculate_ICP_COV(std::vector<PointMeanCov>& data_pi,
     	cov_z(row + 2, col + 1) = data_pi[i].cov(2,1);
     	cov_z(row + 2, col + 2) = data_pi[i].cov(2,2);
 
-    	cov_z(row + 3, col + 3)     = model_qi[i].cov(0,0);
+    	cov_z(row + 3, col + 3 + 0) = model_qi[i].cov(0,0);
     	cov_z(row + 3, col + 3 + 1) = model_qi[i].cov(0,1);
     	cov_z(row + 3, col + 3 + 2) = model_qi[i].cov(0,2);
 
-    	cov_z(row + 4, col + 3)     = model_qi[i].cov(1,0);
+    	cov_z(row + 4, col + 3 + 0) = model_qi[i].cov(1,0);
     	cov_z(row + 4, col + 3 + 1) = model_qi[i].cov(1,1);
     	cov_z(row + 4, col + 3 + 2) = model_qi[i].cov(1,2);
 
-    	cov_z(row + 5, col + 3)     = model_qi[i].cov(2,0);
+    	cov_z(row + 5, col + 3 + 0) = model_qi[i].cov(2,0);
     	cov_z(row + 5, col + 3 + 1) = model_qi[i].cov(2,1);
     	cov_z(row + 5, col + 3 + 2) = model_qi[i].cov(2,2);
     }
