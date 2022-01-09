@@ -32,8 +32,8 @@ target_value = Matrix([0,0,0]).vec()
 model_function = transformed_point_source-point_Landmark
 delta = target_value - model_function
 sum=Matrix([delta[0,0]*delta[0,0]+delta[1,0]*delta[1,0]+delta[2,0]*delta[2,0]]).vec()
-d2sum_dbeta2=sum.jacobian(beta_symbols).jacobian(beta_symbols).transpose()
-d2sum_dxdbeta=sum.jacobian(x_symbols).jacobian(beta_symbols).transpose()
+d2sum_dbeta2=sum.jacobian(beta_symbols).jacobian(beta_symbols)
+d2sum_dbetadx=sum.jacobian(beta_symbols).jacobian(x_symbols)
 
 with open("point_to_point_source_to_landmark_tait_bryan_wc_cov.h",'w') as f_cpp:  
     f_cpp.write("inline void point_to_point_source_to_landmark_tait_bryan_wc_d2sum_dbeta2(Eigen::Matrix<double, 6, 6, Eigen::RowMajor> &d2sum_dbeta2, double px, double py, double pz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_L, double y_L, double z_L)\n")
@@ -43,11 +43,11 @@ with open("point_to_point_source_to_landmark_tait_bryan_wc_cov.h",'w') as f_cpp:
             f_cpp.write("d2sum_dbeta2.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(d2sum_dbeta2[i,j])))
     f_cpp.write("}")
     f_cpp.write("\n")
-    f_cpp.write("inline void point_to_point_source_to_landmark_tait_bryan_wc_d2sum_dxdbeta(Eigen::Matrix<double, 6, 6, Eigen::RowMajor> &d2sum_dxdbeta, double px, double py, double pz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_L, double y_L, double z_L)\n")
+    f_cpp.write("inline void point_to_point_source_to_landmark_tait_bryan_wc_d2sum_dbetadx(Eigen::Matrix<double, 6, 6, Eigen::RowMajor> &d2sum_dbetadx, double px, double py, double pz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_L, double y_L, double z_L)\n")
     f_cpp.write("{")
     for i in range (6):
         for j in range (6):
-            f_cpp.write("d2sum_dxdbeta.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(d2sum_dxdbeta[i,j])))
+            f_cpp.write("d2sum_dbetadx.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(d2sum_dbetadx[i,j])))
     f_cpp.write("}")
     f_cpp.write("\n")
 

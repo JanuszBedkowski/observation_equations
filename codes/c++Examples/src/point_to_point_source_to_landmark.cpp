@@ -933,7 +933,7 @@ void calculate_ICP_COV(std::vector<PointMeanCov>& data_pi,
 
     int n = data_pi.size();
     if (n > 200) n = 200;
-    Eigen::MatrixXd d2sum_dxdbeta(6,6*n);
+    Eigen::MatrixXd d2sum_dbetadx(6,6*n);
     for (int k = 0; k < n ; ++k)
     {
         double pix = data_pi[k].coords.x();
@@ -943,47 +943,47 @@ void calculate_ICP_COV(std::vector<PointMeanCov>& data_pi,
         double qiy = model_qi[k].coords.y();
         double qiz = model_qi[k].coords.z();
 
-        Eigen::MatrixXd d2sum_dxdbeta_temp(6,6);
-        Eigen::Matrix<double, 6, 6, Eigen::RowMajor> d2sum_dxdbetai;
-        point_to_point_source_to_landmark_tait_bryan_wc_d2sum_dxdbeta(d2sum_dxdbetai, pose.px, pose.py, pose.pz, pose.om,
+        Eigen::MatrixXd d2sum_dbetadx_temp(6,6);
+        Eigen::Matrix<double, 6, 6, Eigen::RowMajor> d2sum_dbetadxi;
+        point_to_point_source_to_landmark_tait_bryan_wc_d2sum_dbetadx(d2sum_dbetadxi, pose.px, pose.py, pose.pz, pose.om,
         		pose.fi, pose.ka, pix, piy, piz, qix, qiy, qiz);
 
-        d2sum_dxdbeta_temp << d2sum_dxdbetai;
-        d2sum_dxdbeta.block<6,6>(0,6*k) = d2sum_dxdbeta_temp;
+        d2sum_dbetadx_temp << d2sum_dbetadxi;
+        d2sum_dbetadx.block<6,6>(0,6*k) = d2sum_dbetadx_temp;
     }
 
-    Eigen::MatrixXd cov_z(6*n,6*n);
-    cov_z = 0.0 * Eigen::MatrixXd::Identity(6*n,6*n);
+    Eigen::MatrixXd cov_x(6*n,6*n);
+    cov_x = 0.0 * Eigen::MatrixXd::Identity(6*n,6*n);
 
     for(size_t i = 0; i < n ; i ++){
     	int row = i * 6;
     	int col = i * 6;
 
-    	cov_z(row, col + 0) = data_pi[i].cov(0,0);
-    	cov_z(row, col + 1) = data_pi[i].cov(0,1);
-    	cov_z(row, col + 2) = data_pi[i].cov(0,2);
+    	cov_x(row, col + 0) = data_pi[i].cov(0,0);
+    	cov_x(row, col + 1) = data_pi[i].cov(0,1);
+    	cov_x(row, col + 2) = data_pi[i].cov(0,2);
 
-    	cov_z(row + 1, col + 0) = data_pi[i].cov(1,0);
-    	cov_z(row + 1, col + 1) = data_pi[i].cov(1,1);
-    	cov_z(row + 1, col + 2) = data_pi[i].cov(1,2);
+    	cov_x(row + 1, col + 0) = data_pi[i].cov(1,0);
+    	cov_x(row + 1, col + 1) = data_pi[i].cov(1,1);
+    	cov_x(row + 1, col + 2) = data_pi[i].cov(1,2);
 
-    	cov_z(row + 2, col + 0) = data_pi[i].cov(2,0);
-    	cov_z(row + 2, col + 1) = data_pi[i].cov(2,1);
-    	cov_z(row + 2, col + 2) = data_pi[i].cov(2,2);
+    	cov_x(row + 2, col + 0) = data_pi[i].cov(2,0);
+    	cov_x(row + 2, col + 1) = data_pi[i].cov(2,1);
+    	cov_x(row + 2, col + 2) = data_pi[i].cov(2,2);
 
-    	cov_z(row + 3, col + 3 + 0) = model_qi[i].cov(0,0);
-    	cov_z(row + 3, col + 3 + 1) = model_qi[i].cov(0,1);
-    	cov_z(row + 3, col + 3 + 2) = model_qi[i].cov(0,2);
+    	cov_x(row + 3, col + 3 + 0) = model_qi[i].cov(0,0);
+    	cov_x(row + 3, col + 3 + 1) = model_qi[i].cov(0,1);
+    	cov_x(row + 3, col + 3 + 2) = model_qi[i].cov(0,2);
 
-    	cov_z(row + 4, col + 3 + 0) = model_qi[i].cov(1,0);
-    	cov_z(row + 4, col + 3 + 1) = model_qi[i].cov(1,1);
-    	cov_z(row + 4, col + 3 + 2) = model_qi[i].cov(1,2);
+    	cov_x(row + 4, col + 3 + 0) = model_qi[i].cov(1,0);
+    	cov_x(row + 4, col + 3 + 1) = model_qi[i].cov(1,1);
+    	cov_x(row + 4, col + 3 + 2) = model_qi[i].cov(1,2);
 
-    	cov_z(row + 5, col + 3 + 0) = model_qi[i].cov(2,0);
-    	cov_z(row + 5, col + 3 + 1) = model_qi[i].cov(2,1);
-    	cov_z(row + 5, col + 3 + 2) = model_qi[i].cov(2,2);
+    	cov_x(row + 5, col + 3 + 0) = model_qi[i].cov(2,0);
+    	cov_x(row + 5, col + 3 + 1) = model_qi[i].cov(2,1);
+    	cov_x(row + 5, col + 3 + 2) = model_qi[i].cov(2,2);
     }
-    ICP_COV =  d2sum_dbeta2.inverse() * d2sum_dxdbeta * cov_z * d2sum_dxdbeta.transpose() * d2sum_dbeta2.inverse();
+    ICP_COV =  d2sum_dbeta2.inverse() * d2sum_dbetadx * cov_x * d2sum_dbetadx.transpose() * d2sum_dbeta2.inverse();
 }
 
 
