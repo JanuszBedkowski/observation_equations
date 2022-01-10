@@ -24,6 +24,8 @@ void motion(int x, int y);
 void reshape(int w, int h);
 void printHelp();
 
+bool is_loop_closure_added = false;
+
 std::vector<Eigen::Affine3d> m_poses;
 std::vector<Eigen::Affine3d> m_poses_desired;
 std::vector<std::pair<int, int>> odo_edges;
@@ -40,10 +42,10 @@ void draw_ellipse(const Eigen::Matrix3d& covar, Eigen::Vector3d& mean, Eigen::Ve
     Eigen::Matrix3d transform = cholSolver.matrixL();
 
     const double pi = 3.141592;
-    const double di =0.02;
-    const double dj =0.04;
-    const double du =di*2*pi;
-    const double dv =dj*pi;
+    const double di = 0.02;
+    const double dj = 0.04;
+    const double du = di*2*pi;
+    const double dv = dj*pi;
     glColor3f(color.x(), color.y(),color.z());
 
     for (double i = 0; i < 1.0; i+=di)  //horizonal
@@ -289,6 +291,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		}
 		case 'e':{
 			odo_edges.emplace_back(1, m_poses.size()-2);
+			is_loop_closure_added = true;
 			break;
 		}
 		case 'n':{
@@ -733,6 +736,15 @@ void calculate_cov(std::vector<Eigen::Affine3d> m_poses,
 		cov_x(i+2,i+2) = 0.000000001 * 0.000000001;
 		cov_x(i+3,i+3) = 0.000000001 * 0.000000001;
 		cov_x(i+4,i+4) = 0.000000001 * 0.000000001;
+		cov_x(i+5,i+5) = 0.01 * 0.01;
+	}
+	if(is_loop_closure_added){
+		int i = 6 * (odo_edges.size()-1);
+		cov_x(i,i)     = 0.01*0.01;
+		cov_x(i+1,i+1) = 0.01*0.01;
+		cov_x(i+2,i+2) = 0.01*0.01;
+		cov_x(i+3,i+3) = 0.01 * 0.01;
+		cov_x(i+4,i+4) = 0.01 * 0.01;
 		cov_x(i+5,i+5) = 0.01 * 0.01;
 	}
 
