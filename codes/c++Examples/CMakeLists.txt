@@ -222,6 +222,16 @@ target_link_libraries(relative_pose
 #	${OpenCV_LIBS}
 )
 
+add_executable(relative_pose_covariances
+	src/relative_pose_covariances.cpp
+)
+
+target_link_libraries(relative_pose_covariances
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+#	${OpenCV_LIBS}
+)
+
 add_executable(smoothness
 	src/smoothness.cpp
 )

@@ -55,6 +55,12 @@ model_function=t.col_join(parametrization)
 delta=target_value-model_function
 delta_jacobian=delta.jacobian(all_symbols)
 
+beta_symbols = all_symbols
+x_symbols = [px_m, py_m, pz_m, om_m, fi_m, ka_m]
+sum=Matrix([delta[0,0]*delta[0,0]+delta[1,0]*delta[1,0]+delta[2,0]*delta[2,0]+delta[3,0]*delta[3,0]+delta[4,0]*delta[4,0]+delta[5,0]*delta[5,0]]).vec()
+d2sum_dbeta2=sum.jacobian(beta_symbols).jacobian(beta_symbols)
+d2sum_dbetadx=sum.jacobian(beta_symbols).jacobian(x_symbols)
+
 with open("relative_pose_tait_bryan_wc_jacobian.h",'w') as f_cpp:  
     f_cpp.write("inline void relative_pose_obs_eq_tait_bryan_wc_case1(Eigen::Matrix<double, 6, 1> &delta, double px_1, double py_1, double pz_1, double om_1, double fi_1, double ka_1, double px_2, double py_2, double pz_2, double om_2, double fi_2, double ka_2, double px_m, double py_m, double pz_m, double om_m, double fi_m, double ka_m)\n")
     f_cpp.write("{")
@@ -74,3 +80,16 @@ with open("relative_pose_tait_bryan_wc_jacobian.h",'w') as f_cpp:
         f_cpp.write("relative_pose.coeffRef(%d,%d) = %s;\n"%(i, 0, ccode(model_function[i])))
     f_cpp.write("}")
     f_cpp.write("\n")
+    f_cpp.write("inline void relative_pose_obs_eq_tait_bryan_wc_case1_d2sum_dbeta2(Eigen::Matrix<double, 12, 12, Eigen::RowMajor> &j, double px_1, double py_1, double pz_1, double om_1, double fi_1, double ka_1, double px_2, double py_2, double pz_2, double om_2, double fi_2, double ka_2, double px_m, double py_m, double pz_m, double om_m, double fi_m, double ka_m)\n")
+    f_cpp.write("{")
+    for i in range (12):
+        for j in range (12):
+            f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(d2sum_dbeta2[i,j])))
+    f_cpp.write("}")
+    f_cpp.write("inline void relative_pose_obs_eq_tait_bryan_wc_case1_d2sum_dbetadx(Eigen::Matrix<double, 12, 6, Eigen::RowMajor> &j, double px_1, double py_1, double pz_1, double om_1, double fi_1, double ka_1, double px_2, double py_2, double pz_2, double om_2, double fi_2, double ka_2, double px_m, double py_m, double pz_m, double om_m, double fi_m, double ka_m)\n")
+    f_cpp.write("{")
+    for i in range (12):
+        for j in range (6):
+            f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(d2sum_dbetadx[i,j])))
+    f_cpp.write("}")
+
