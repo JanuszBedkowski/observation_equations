@@ -32,6 +32,12 @@ delta_jacobian=delta.jacobian(all_symbols)
 print(delta)
 print(delta_jacobian)
 
+beta_symbols = position_symbols
+x_symbols = [x_t, y_t, z_t]
+sum=Matrix([delta[0,0]*delta[0,0]+delta[1,0]*delta[1,0]+delta[2,0]*delta[2,0]]).vec()
+d2sum_dbeta2=sum.jacobian(beta_symbols).jacobian(beta_symbols)
+d2sum_dbetadx=sum.jacobian(beta_symbols).jacobian(x_symbols)
+
 with open("point_to_point_source_to_target_tait_bryan_wc_jacobian.h",'w') as f_cpp:  
     f_cpp.write("inline void point_to_point_source_to_target_tait_bryan_wc(double &delta_x, double &delta_y, double &delta_z, double px, double py, double pz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_t, double y_t, double z_t)\n")
     f_cpp.write("{")
@@ -46,6 +52,17 @@ with open("point_to_point_source_to_target_tait_bryan_wc_jacobian.h",'w') as f_c
         for j in range (6):
             f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_jacobian[i,j])))
     f_cpp.write("}")
-
+    f_cpp.write("inline void point_to_point_source_to_target_tait_bryan_wc_d2sum_dbeta2(Eigen::Matrix<double, 3, 3, Eigen::RowMajor> &j, double px, double py, double pz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_t, double y_t, double z_t)\n")
+    f_cpp.write("{")
+    for i in range (3):
+        for j in range (3):
+            f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(d2sum_dbeta2[i,j])))
+    f_cpp.write("}")
+    f_cpp.write("inline void point_to_point_source_to_target_tait_bryan_wc_d2sum_dbetadx(Eigen::Matrix<double, 3, 3, Eigen::RowMajor> &j, double px, double py, double pz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_t, double y_t, double z_t)\n")
+    f_cpp.write("{")
+    for i in range (3):
+        for j in range (3):
+            f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(d2sum_dbetadx[i,j])))
+    f_cpp.write("}")
 
 
