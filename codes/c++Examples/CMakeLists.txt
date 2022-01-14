@@ -29,6 +29,7 @@ find_package( OpenCV REQUIRED )
 
 include_directories(
 	../common/include
+        ../python-scripts/
 	../python-scripts/camera-metrics
 	../python-scripts/constraints
 	../python-scripts/example_func
@@ -388,6 +389,14 @@ target_link_libraries(point_to_point_source_to_landmark
 	${GLUT_glut_LIBRARY}
 )
 
+add_executable(ceres_robust_loss_function_viewer
+	src/ceres_robust_loss_function_viewer.cpp
+)
+
+target_link_libraries(ceres_robust_loss_function_viewer
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
 
 
 
