@@ -91,34 +91,41 @@ int main(int argc, char *argv[]){
 		ArctanLoss_first_derivative.push_back(arctan_loss_first_derivative(r[i]*r[i]));
 		ArctanLoss_second_derivative.push_back(arctan_loss_second_derivative(r[i]*r[i]));
 
-		TolerantLoss.push_back(tolerant_loss(r[i]*r[i],1,1));
-		TolerantLoss_first_derivative.push_back(tolerant_loss_first_derivative(r[i]*r[i],1,1));
-		TolerantLoss_second_derivative.push_back(tolerant_loss_second_derivative(r[i]*r[i],1,1));
+		TolerantLoss.push_back(tolerant_loss(r[i]*r[i],2,1));
+		TolerantLoss_first_derivative.push_back(tolerant_loss_first_derivative(r[i]*r[i],2,1));
+		TolerantLoss_second_derivative.push_back(tolerant_loss_second_derivative(r[i]*r[i],2,1));
 	}
 
 	if(argc == 2){
-		std::cout << "r,$L_1$,$L_2$,$L_1-L_2$,$L_p$,Fair,Huber,Cauchy,Geman-McClure,Welsch,Tukey" << std::endl;
-		/*if(atoi(argv[1]) == 1){
+		std::cout << "r,TrivialLoss,HuberLoss,SoftLOneLoss,CauchyLoss,ArctanLoss,TolerantLoss(a=2;b=1)" << std::endl;
+		if(atoi(argv[1]) == 1){
 			for(size_t i = 0; i < r.size(); i++){
-				std::cout << r[i] << "," << l1_rho[i] << "," << l2_rho[i] << "," << l1l2_rho[i] << "," << lp_rho[i] << "," <<
-						fair_rho[i] << "," << huber_rho[i] << "," << cauchy_rho[i] << "," <<  geman_mcclure_rho[i] << "," <<
-						welsch_rho[i] << "," << tukey_rho[i] << std::endl;
+				std::cout << r[i] << "," << TrivialLoss[i] << "," << HuberLoss[i] << "," << SoftLOneLoss[i] << ","
+						<< CauchyLoss[i] << "," <<	ArctanLoss[i] << "," << TolerantLoss[i] << std::endl;
 			}
 		}
 		if(atoi(argv[1]) == 2){
 			for(size_t i = 0; i < r.size(); i++){
-				std::cout << r[i] << "," << l1_upsilon[i] << "," << l2_upsilon[i] << "," << l1l2_upsilon[i] << "," << lp_upsilon[i] << "," <<
-						fair_upsilon[i] << "," << huber_upsilon[i] << "," << cauchy_upsilon[i] << "," <<  geman_mcclure_upsilon[i] << "," <<
-						welsch_upsilon[i] << "," << tukey_upsilon[i] << std::endl;
+				std::cout << r[i] << ","
+						  << TrivialLoss_first_derivative[i] << ","
+						  << HuberLoss_first_derivative[i] << ","
+						  << SoftLOneLoss_first_derivative[i] << ","
+						  << CauchyLoss_first_derivative[i] << ","
+						  << ArctanLoss_first_derivative[i] << ","
+						  << TolerantLoss_first_derivative[i] << std::endl;
 			}
 		}
 		if(atoi(argv[1]) == 3){
 			for(size_t i = 0; i < r.size(); i++){
-				std::cout << r[i] << "," << l1_w[i] << "," << l2_w[i] << "," << l1l2_w[i] << "," << lp_w[i] << "," <<
-						fair_w[i] << "," << huber_w[i] << "," << cauchy_w[i] << "," <<  geman_mcclure_w[i] << "," <<
-						welsch_w[i] << "," << tukey_w[i] << std::endl;
+				std::cout << r[i] << ","
+						  << TrivialLoss_second_derivative[i] << ","
+						  << HuberLoss_second_derivative[i] << ","
+						  << SoftLOneLoss_second_derivative[i] << ","
+						  << CauchyLoss_second_derivative[i] << ","
+						  << ArctanLoss_second_derivative[i] << ","
+						  << TolerantLoss_second_derivative[i] << std::endl;
 			}
-		}*/
+		}
 		return 0;
 	}
 
