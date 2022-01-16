@@ -671,8 +671,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 						pcl::PointXYZ &p_1 = scan_poses[i].pc[nn[k].first];
 						pcl::PointXYZ &p_2 = scan_poses[j].pc[nn[k].second];
 
-						Eigen::Vector3d p_t(p_2.x, p_2.y, p_2.z);// = trajectory[j] * p_2;
-						Eigen::Vector3d p_s(p_1.x, p_1.y, p_1.z);// = p_1;
+						Eigen::Vector3d p_t(p_2.x, p_2.y, p_2.z);//
+						Eigen::Vector3d p_s(p_1.x, p_1.y, p_1.z);//
 
 						int ir = tripletListB.size();
 						int ic_1 = i * 6;
@@ -687,7 +687,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 						px(2,1) = p_s.x();
 						px(2,2) = 0;
 
-						Eigen::Matrix3d R = pose_source.inverse().rotation();
+						Eigen::Matrix3d R = pose_source.rotation();
 						Eigen::Matrix3d Rpx = R*px;
 
 						tripletListA.emplace_back(ir     ,ic_1 + 0, R(0,0));
@@ -711,18 +711,16 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 						tripletListA.emplace_back(ir + 2 ,ic_1 + 4, -Rpx(2,1));
 						tripletListA.emplace_back(ir + 2 ,ic_1 + 5, -Rpx(2,2));
 
-
 						tripletListP.emplace_back(ir    , ir    ,  1);
 						tripletListP.emplace_back(ir + 1, ir + 1,  1);
 						tripletListP.emplace_back(ir + 2, ir + 2,  1);
 
+						Eigen::Vector3d target = scan_poses[j].m * p_t;
+						Eigen::Vector3d source = scan_poses[i].m * p_s;
 
-						Eigen::Vector3d target = scan_poses[i].m.inverse() * (scan_poses[j].m * p_t);
-
-
-						tripletListB.emplace_back(ir    , 0,  -(target.x() - p_s.x()));
-						tripletListB.emplace_back(ir + 1, 0,  -(target.y() - p_s.y()));
-						tripletListB.emplace_back(ir + 2, 0,  -(target.z() - p_s.z()));
+						tripletListB.emplace_back(ir    , 0,  target.x() - source.x());
+						tripletListB.emplace_back(ir + 1, 0,  target.y() - source.y());
+						tripletListB.emplace_back(ir + 2, 0,  target.z() - source.z());
 					}
 				}
 			}
@@ -806,7 +804,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					pose_update.sy = h_x[counter++];
 					pose_update.sz = h_x[counter++];
 
-					scan_poses[i].m = (scan_poses[i].m.inverse() * affine_matrix_from_pose_rodrigues(pose_update)).inverse();
+					scan_poses[i].m = scan_poses[i].m * affine_matrix_from_pose_rodrigues(pose_update);
 				}
 			}else{
 				std::cout << "AtPA=AtPB FAILED" << std::endl;

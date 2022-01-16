@@ -99,3 +99,14 @@ target_link_libraries(point_cloud_registration
 	${PCL_LIBRARIES}
 )
 
+add_executable(point_cloud_registration_lie_algebra
+	src/point_cloud_registration_lie_algebra.cpp
+	src/rgd.cpp
+)
+
+target_link_libraries(point_cloud_registration_lie_algebra
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+	${OpenCV_LIBS}
+	${PCL_LIBRARIES}
+)
