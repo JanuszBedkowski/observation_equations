@@ -398,7 +398,13 @@ target_link_libraries(ceres_robust_loss_function_viewer
 	${GLUT_glut_LIBRARY}
 )
 
+add_executable(distance_to_circle
+	src/distance_to_circle.cpp
+)
 
-
+target_link_libraries(distance_to_circle
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
 
 
