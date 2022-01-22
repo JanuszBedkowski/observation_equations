@@ -17,6 +17,7 @@
 #include "cauchy.h"
 
 #include "point_to_point_tait_bryan_wc_jacobian.h"
+#include "point_to_point_tait_bryan_cw_jacobian.h"
 #include "point_to_point_source_to_target_tait_bryan_wc_jacobian.h"
 
 #include "rgd.h"
@@ -563,6 +564,262 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}
 			break;
 		}
+		case 'h':{
+			ScanPose ground_truth;
+			ground_truth.m = Eigen::Affine3d::Identity();
+			ground_truth.pc = pc_ground_truth;
+
+			for(size_t i = 0 ; i < scan_poses.size() ; i++){
+				std::vector<Eigen::Triplet<double>> tripletListA;
+				std::vector<Eigen::Triplet<double>> tripletListP;
+				std::vector<Eigen::Triplet<double>> tripletListB;
+
+				TaitBryanPose pose_1 = pose_tait_bryan_from_affine_matrix(scan_poses[i].m.inverse());
+				TaitBryanPose pose_2 = pose_tait_bryan_from_affine_matrix(ground_truth.m.inverse());
+
+				Eigen::Affine3d pose_source = scan_poses[i].m;
+				std::vector<std::pair<int,int>> nn = nns(scan_poses[i], ground_truth, sradius);
+
+				std::cout << "nn.size(): " << nn.size() << std::endl;
+
+				for(size_t k = 0 ; k < nn.size(); k+=1){
+					pcl::PointXYZ &p_1 = scan_poses[i].pc[nn[k].first];
+					pcl::PointXYZ &p_2 = ground_truth.pc[nn[k].second];
+
+					double delta_x;
+					double delta_y;
+					double delta_z;
+					point_to_point_tait_bryan_cw(delta_x, delta_y, delta_z, pose_1.px, pose_1.py, pose_1.pz, pose_1.om, pose_1.fi, pose_1.ka, pose_2.px, pose_2.py, pose_2.pz, pose_2.om, pose_2.fi, pose_2.ka, p_1.x, p_1.y, p_1.z, p_2.x, p_2.y, p_2.z);
+
+					Eigen::Matrix<double, 3, 12, Eigen::RowMajor> jacobian;
+					point_to_point_tait_bryan_cw_jacobian(jacobian, pose_1.px, pose_1.py, pose_1.pz, pose_1.om, pose_1.fi, pose_1.ka, pose_2.px, pose_2.py, pose_2.pz, pose_2.om, pose_2.fi, pose_2.ka, p_1.x, p_1.y, p_1.z, p_2.x, p_2.y, p_2.z);
+
+					int ir = tripletListB.size();
+					int ic_1 = 0;
+
+					tripletListA.emplace_back(ir     ,ic_1 + 0, -jacobian(0,0));
+					tripletListA.emplace_back(ir     ,ic_1 + 1, -jacobian(0,1));
+					tripletListA.emplace_back(ir     ,ic_1 + 2, -jacobian(0,2));
+					tripletListA.emplace_back(ir     ,ic_1 + 3, -jacobian(0,3));
+					tripletListA.emplace_back(ir     ,ic_1 + 4, -jacobian(0,4));
+					tripletListA.emplace_back(ir     ,ic_1 + 5, -jacobian(0,5));
+
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 0, -jacobian(1,0));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 1, -jacobian(1,1));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 2, -jacobian(1,2));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 3, -jacobian(1,3));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 4, -jacobian(1,4));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 5, -jacobian(1,5));
+
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 0, -jacobian(2,0));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 1, -jacobian(2,1));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 2, -jacobian(2,2));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 3, -jacobian(2,3));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 4, -jacobian(2,4));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 5, -jacobian(2,5));
+
+					tripletListP.emplace_back(ir    , ir    ,  1);
+					tripletListP.emplace_back(ir + 1, ir + 1,  1);
+					tripletListP.emplace_back(ir + 2, ir + 2,  1);
+
+					Eigen::Vector3d source(p_1.x, p_1.y, p_1.z);
+					source = scan_poses[i].m * source;
+
+					tripletListB.emplace_back(ir    , 0, p_2.x - source.x());
+					tripletListB.emplace_back(ir + 1, 0, p_2.y - source.y());
+					tripletListB.emplace_back(ir + 2, 0, p_2.z - source.z());
+				}
+
+				Eigen::SparseMatrix<double> matA(tripletListB.size(), 6);
+				Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+				Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+				matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+				matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+				matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+				Eigen::SparseMatrix<double> AtPA(6, 6);
+				Eigen::SparseMatrix<double> AtPB(6, 1);
+
+				{
+				Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+				AtPA = (AtP) * matA;
+				AtPB = (AtP) * matB;
+				}
+
+				tripletListA.clear();
+				tripletListP.clear();
+				tripletListB.clear();
+
+				std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+				std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+				std::cout << "start solving AtPA=AtPB" << std::endl;
+				Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+				std::cout << "x = solver.solve(AtPB)" << std::endl;
+				Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+				std::vector<double> h_x;
+
+				for (int k=0; k<x.outerSize(); ++k){
+					for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+						h_x.push_back(it.value());
+					}
+				}
+
+				if(h_x.size() == 6){
+					for(size_t k = 0 ; k < h_x.size(); k++){
+						std::cout << h_x[k] << std::endl;
+					}
+					std::cout << "AtPA=AtPB SOLVED" << std::endl;
+					std::cout << "update" << std::endl;
+
+					int counter = 0;
+
+					TaitBryanPose pose_updated = pose_tait_bryan_from_affine_matrix(scan_poses[i].m.inverse());
+					pose_updated.px += h_x[counter++];
+					pose_updated.py += h_x[counter++];
+					pose_updated.pz += h_x[counter++];
+					pose_updated.om += h_x[counter++];
+					pose_updated.fi += h_x[counter++];
+					pose_updated.ka += h_x[counter++];
+
+					scan_poses[i].m = affine_matrix_from_pose_tait_bryan(pose_updated).inverse();
+				}else{
+					std::cout << "AtPA=AtPB FAILED" << std::endl;
+				}
+			}
+			break;
+		}
+		case 'j':{
+			ScanPose ground_truth;
+			ground_truth.m = Eigen::Affine3d::Identity();
+			ground_truth.pc = pc_ground_truth;
+
+			for(size_t i = 0 ; i < scan_poses.size() ; i++){
+				std::vector<Eigen::Triplet<double>> tripletListA;
+				std::vector<Eigen::Triplet<double>> tripletListP;
+				std::vector<Eigen::Triplet<double>> tripletListB;
+
+				TaitBryanPose pose_1 = pose_tait_bryan_from_affine_matrix(scan_poses[i].m);
+				TaitBryanPose pose_2 = pose_tait_bryan_from_affine_matrix(ground_truth.m);
+
+				Eigen::Affine3d pose_source = scan_poses[i].m;
+				std::vector<std::pair<int,int>> nn = nns(scan_poses[i], ground_truth, sradius);
+
+				std::cout << "nn.size(): " << nn.size() << std::endl;
+
+				for(size_t k = 0 ; k < nn.size(); k+=1){
+					pcl::PointXYZ &p_1 = scan_poses[i].pc[nn[k].first];
+					pcl::PointXYZ &p_2 = ground_truth.pc[nn[k].second];
+
+					double delta_x;
+					double delta_y;
+					double delta_z;
+					point_to_point_tait_bryan_wc(delta_x, delta_y, delta_z, pose_1.px, pose_1.py, pose_1.pz, pose_1.om, pose_1.fi, pose_1.ka, pose_2.px, pose_2.py, pose_2.pz, pose_2.om, pose_2.fi, pose_2.ka, p_1.x, p_1.y, p_1.z, p_2.x, p_2.y, p_2.z);
+
+					Eigen::Matrix<double, 3, 12, Eigen::RowMajor> jacobian;
+					point_to_point_tait_bryan_wc_jacobian(jacobian, pose_1.px, pose_1.py, pose_1.pz, pose_1.om, pose_1.fi, pose_1.ka, pose_2.px, pose_2.py, pose_2.pz, pose_2.om, pose_2.fi, pose_2.ka, p_1.x, p_1.y, p_1.z, p_2.x, p_2.y, p_2.z);
+
+					int ir = tripletListB.size();
+					int ic_1 = 0;
+
+					tripletListA.emplace_back(ir     ,ic_1 + 0, -jacobian(0,0));
+					tripletListA.emplace_back(ir     ,ic_1 + 1, -jacobian(0,1));
+					tripletListA.emplace_back(ir     ,ic_1 + 2, -jacobian(0,2));
+					tripletListA.emplace_back(ir     ,ic_1 + 3, -jacobian(0,3));
+					tripletListA.emplace_back(ir     ,ic_1 + 4, -jacobian(0,4));
+					tripletListA.emplace_back(ir     ,ic_1 + 5, -jacobian(0,5));
+
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 0, -jacobian(1,0));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 1, -jacobian(1,1));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 2, -jacobian(1,2));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 3, -jacobian(1,3));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 4, -jacobian(1,4));
+					tripletListA.emplace_back(ir + 1 ,ic_1 + 5, -jacobian(1,5));
+
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 0, -jacobian(2,0));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 1, -jacobian(2,1));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 2, -jacobian(2,2));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 3, -jacobian(2,3));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 4, -jacobian(2,4));
+					tripletListA.emplace_back(ir + 2 ,ic_1 + 5, -jacobian(2,5));
+
+					tripletListP.emplace_back(ir    , ir    ,  1);
+					tripletListP.emplace_back(ir + 1, ir + 1,  1);
+					tripletListP.emplace_back(ir + 2, ir + 2,  1);
+
+					Eigen::Vector3d source(p_1.x, p_1.y, p_1.z);
+					source = scan_poses[i].m * source;
+
+					tripletListB.emplace_back(ir    , 0, p_2.x - source.x());
+					tripletListB.emplace_back(ir + 1, 0, p_2.y - source.y());
+					tripletListB.emplace_back(ir + 2, 0, p_2.z - source.z());
+				}
+
+				Eigen::SparseMatrix<double> matA(tripletListB.size(), 6);
+				Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+				Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+
+				matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+				matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+				matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+
+				Eigen::SparseMatrix<double> AtPA(6, 6);
+				Eigen::SparseMatrix<double> AtPB(6, 1);
+
+				{
+				Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+				AtPA = (AtP) * matA;
+				AtPB = (AtP) * matB;
+				}
+
+				tripletListA.clear();
+				tripletListP.clear();
+				tripletListB.clear();
+
+				std::cout << "AtPA.size: " << AtPA.size() << std::endl;
+				std::cout << "AtPB.size: " << AtPB.size() << std::endl;
+
+				std::cout << "start solving AtPA=AtPB" << std::endl;
+				Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+
+				std::cout << "x = solver.solve(AtPB)" << std::endl;
+				Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+
+				std::vector<double> h_x;
+
+				for (int k=0; k<x.outerSize(); ++k){
+					for (Eigen::SparseMatrix<double>::InnerIterator it(x,k); it; ++it){
+						h_x.push_back(it.value());
+					}
+				}
+
+				if(h_x.size() == 6){
+					for(size_t k = 0 ; k < h_x.size(); k++){
+						std::cout << h_x[k] << std::endl;
+					}
+					std::cout << "AtPA=AtPB SOLVED" << std::endl;
+					std::cout << "update" << std::endl;
+
+					int counter = 0;
+
+					TaitBryanPose pose_updated = pose_tait_bryan_from_affine_matrix(scan_poses[i].m);
+					pose_updated.px += h_x[counter++];
+					pose_updated.py += h_x[counter++];
+					pose_updated.pz += h_x[counter++];
+					pose_updated.om += h_x[counter++];
+					pose_updated.fi += h_x[counter++];
+					pose_updated.ka += h_x[counter++];
+
+					scan_poses[i].m = affine_matrix_from_pose_tait_bryan(pose_updated);
+				}else{
+					std::cout << "AtPA=AtPB FAILED" << std::endl;
+				}
+			}
+			break;
+		}
 		case '1':{
 			sradius -= 0.01;
 			std::cout << "sradius: " << sradius << std::endl;
@@ -660,7 +917,8 @@ void printHelp() {
 
 	std::cout << "r: optimize (Lie algebra right Jacobian)" << std::endl;
 	std::cout << "l: optimize (Lie algebra left Jacobian)" << std::endl;
-
+	std::cout << "h: optimize (Tait-Bryan cw 'local')" << std::endl;
+	std::cout << "j: optimize (Tait-Bryan wc 'global')" << std::endl;
 	std::cout << "i: initial poses" << std::endl;
 }
 
