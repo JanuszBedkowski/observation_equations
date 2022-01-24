@@ -1,6 +1,6 @@
 from sympy import *
 
-def matrix44FromRodrigues(px, py, pz, sx, sy, sz):
+def matrix44FromRodrigues(tx, ty, tz, sx, sy, sz):
     norm = sqrt( (sx)*(sx) + (sy)*(sy) + (sz)*(sz) )
     ux=sx/norm
     uy=sy/norm
@@ -15,7 +15,7 @@ def matrix44FromRodrigues(px, py, pz, sx, sy, sz):
     c1_rrt = c1 * rrt
     s_r_x = s * r_x
     R = c_eye + c1_rrt + s_r_x
-    return Matrix([[R[0,0],R[0,1],R[0,2],px],[R[1,0],R[1,1],R[1,2],py],[R[2,0],R[2,1],R[2,2],pz],[0,0,0,1]])
+    return Matrix([[R[0,0],R[0,1],R[0,2],tx],[R[1,0],R[1,1],R[1,2],ty],[R[2,0],R[2,1],R[2,2],tz],[0,0,0,1]])
 
 def rodriguesFromMatrix44(m):
     rodrigues = Matrix([0, 0, 0])

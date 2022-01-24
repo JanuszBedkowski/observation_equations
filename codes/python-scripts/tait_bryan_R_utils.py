@@ -15,17 +15,17 @@ def rotZ(a):
 		[sin(a), cos(a), 0, 0],
 		[0, 0, 1, 0],
 		[0, 0, 0, 1]])
-def transXYZ(x, y, z):
-    return Matrix([[1, 0, 0, x],
-		[0, 1, 0, y],
-		[0, 0, 1, z],
+def transXYZ(tx, ty, tz):
+    return Matrix([[1, 0, 0, tx],
+		[0, 1, 0, ty],
+		[0, 0, 1, tz],
 		[0, 0, 0, 1]])
 
-def matrix44FromTaitBryan(px, py, pz, om, fi, ka):
-    return transXYZ(px, py, pz) * rotX(om) * rotY(fi) * rotZ(ka)
+def matrix44FromTaitBryan(tx, ty, tz, om, fi, ka):
+    return transXYZ(tx, ty, tz) * rotX(om) * rotY(fi) * rotZ(ka)
 
-def matrix44FromTaitBryanZYX(px, py, pz, om, fi, ka):
-    return transXYZ(px, py, pz) * rotZ(ka) * rotY(fi) * rotX(om) 
+def matrix44FromTaitBryanZYX(tx, ty, tz, om, fi, ka):
+    return transXYZ(tx, ty, tz) * rotZ(ka) * rotY(fi) * rotX(om) 
 
 def taitBryanFromMatrix44Case1(m):
     omfika = Matrix([0, 0, 0])
