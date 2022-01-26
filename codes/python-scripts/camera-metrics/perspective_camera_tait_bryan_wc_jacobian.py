@@ -20,15 +20,15 @@ orientation_symbols = [om, fi, ka]
 point_symbols = [px, py, pz]
 all_symbols = position_symbols + orientation_symbols + point_symbols
 
-RT_wc = matrix44FromTaitBryan(tx, ty, tz, om, fi, ka)
-#RT_wc = matrix44FromRodrigues(tx, ty, tz, sx, sy, sz)
-#RT_wc = matrix44FromQuaternion(tx, ty, tz, q0, q1, q2, q3)
-R_cw=RT_wc[:-1,:-1].transpose()
-T_wc=Matrix([tx, ty, tz]).vec()
-T_cw=-R_cw*T_wc
+Rt_wc = matrix44FromTaitBryan(tx, ty, tz, om, fi, ka)
+#Rt_wc = matrix44FromRodrigues(tx, ty, tz, sx, sy, sz)
+#Rt_wc = matrix44FromQuaternion(tx, ty, tz, q0, q1, q2, q3)
+R_cw=Rt_wc[:-1,:-1].transpose()
+t_wc=Matrix([tx, ty, tz]).vec()
+t_cw=-R_cw*t_wc
 
 point_global=Matrix([px, py, pz]).vec()
-point_local = R_cw * point_global + T_cw;
+point_local = R_cw * point_global + t_cw;
 s = 1.0 / point_local[2];
 u = s * fx * point_local[0] + cx
 v = s * fy * point_local[1] + cy

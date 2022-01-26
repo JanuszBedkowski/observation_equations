@@ -22,11 +22,11 @@ orientation_symbols = [om, fi, ka]
 plucker_line_symbols = [mx_w, my_w, mz_w]
 all_symbols = position_symbols + orientation_symbols + plucker_line_symbols
 
-RT_wc = matrix44FromTaitBryan(tx, ty, tz, om, fi, ka)
-#RT_wc = matrix44FromRodrigues(tx, ty, tz, sx, sy, sz)
-#RT_wc = matrix44FromQuaternion(tx, ty, tz, q0, q1, q2, q3)
+Rt_wc = matrix44FromTaitBryan(tx, ty, tz, om, fi, ka)
+#Rt_wc = matrix44FromRodrigues(tx, ty, tz, sx, sy, sz)
+#Rt_wc = matrix44FromQuaternion(tx, ty, tz, q0, q1, q2, q3)
 K=plucker_line_K(fx, fy, cx, cy)
-mm_cw = plucker_line_motion_matrix_cw(RT_wc)
+mm_cw = plucker_line_motion_matrix_cw(Rt_wc)
 l_w = Matrix([[mx_w],[my_w],[mz_w],[lx_w],[ly_w],[lz_w]])
 l_c = mm_cw*l_w
 m_c=Matrix([[l_c[0,0]],[l_c[1,0]],[l_c[2,0]]])
