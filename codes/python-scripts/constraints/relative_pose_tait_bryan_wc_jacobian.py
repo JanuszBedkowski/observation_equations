@@ -62,7 +62,7 @@ d2sum_dbeta2=sum.jacobian(beta_symbols).jacobian(beta_symbols)
 d2sum_dbetadx=sum.jacobian(beta_symbols).jacobian(x_symbols)
 
 with open("relative_pose_tait_bryan_wc_jacobian.h",'w') as f_cpp:  
-    f_cpp.write("inline void relative_pose_obs_eq_tait_bryan_wc_case1(Eigen::Matrix<double, 6, 1> &delta, double tx_1, double ty_1, double tz_1, double om_1, double fi_1, double ka_1, double tx_2, double ty_2, double tz_2, double om_2, double fi_2, double ka_2, double px_m, double py_m, double pz_m, double om_m, double fi_m, double ka_m)\n")
+    f_cpp.write("inline void relative_pose_obs_eq_tait_bryan_wc_case1(Eigen::Matrix<double, 6, 1> &delta, double tx_1, double ty_1, double tz_1, double om_1, double fi_1, double ka_1, double tx_2, double ty_2, double tz_2, double om_2, double fi_2, double ka_2, double tx_m, double ty_m, double tz_m, double om_m, double fi_m, double ka_m)\n")
     f_cpp.write("{")
     for i in range (6):
         f_cpp.write("delta.coeffRef(%d,%d) = %s;\n"%(i, 0, ccode(delta[i])))
