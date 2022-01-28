@@ -407,4 +407,12 @@ target_link_libraries(distance_to_circle
 	${GLUT_glut_LIBRARY}
 )
 
+add_executable(mirror-sim
+	src/mirror-sim.cpp
+)
+
+target_link_libraries(mirror-sim
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
 
