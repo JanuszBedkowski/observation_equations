@@ -670,8 +670,8 @@ void calculate_cov(std::vector<Eigen::Affine3d> m_poses,
 		d2sum_dbeta2(i,i) += 1000000;
 	}
 
-	Eigen::MatrixXd d2sum_dbetadx(m_poses.size() * 12, 6 * odo_edges.size());
-	d2sum_dbetadx = Eigen::MatrixXd::Zero(m_poses.size() * 12, 6 * odo_edges.size());
+	Eigen::MatrixXd d2sum_dbetadx(m_poses.size() * 6, 6 * odo_edges.size());
+	d2sum_dbetadx = Eigen::MatrixXd::Zero(m_poses.size() * 6, 6 * odo_edges.size());
 
 	for (int i = 0; i < odo_edges.size() ; i++)
 	{
