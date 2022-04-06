@@ -289,7 +289,7 @@ void display() {
 		for(size_t j = 0 ; j < nodes[i].measurements.size(); j++){
 			PointMeanCov pi;
 			pi.coords = nodes[i].measurements[j].value;
-			pi.cov = lmc[nodes[i].measurements[j].index_landmark].cov;
+			pi.cov = Eigen::Matrix3d::Zero();
 			pi.cov(0,0)= 0.03 * 0.03;
 			pi.cov(1,1)= 0.03 * 0.03;
 			pi.cov(2,2)= 0.03 * 0.03;
