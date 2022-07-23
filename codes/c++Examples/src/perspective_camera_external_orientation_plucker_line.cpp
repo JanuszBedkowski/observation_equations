@@ -3,6 +3,8 @@
 #include <Eigen/Eigen>
 #include <iostream>
 
+#include <limits.h>
+
 #include "structures.h"
 #include "transformations.h"
 #include "cauchy.h"
@@ -46,6 +48,8 @@ void motion(int x, int y);
 void reshape(int w, int h);
 void printHelp();
 PLine get_plucker_line(const Eigen::Vector3d &from, const Eigen::Vector3d &to);
+double rms = std::numeric_limits<double>::max();
+double lambda = 1.0;
 
 int main(int argc, char *argv[]){
 	if (false == initGL(&argc, argv)) {
@@ -594,6 +598,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'o':{
+			double prev_rms = rms;
+			rms = 0.0;
+
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
 			std::vector<Eigen::Triplet<double>> tripletListB;
@@ -660,7 +667,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 							cameras[i].uv[j].first.u, cameras[i].uv[j].first.v,
 							cameras[i].uv[j].second.u, cameras[i].uv[j].second.v);
 
-
 					int ir = tripletListB.size();
 					int ic_camera = i * 6;
 					int ic_line = cameras.size() * 6 + cameras[i].uv[j].first.index_to_line * 4;
@@ -689,16 +695,28 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					tripletListA.emplace_back(ir + 1 , ic_line + 2, -jacobian(1,8));
 					tripletListA.emplace_back(ir + 1 , ic_line + 3, -jacobian(1,9));
 
-					tripletListP.emplace_back(ir    , ir    ,  cauchy(delta(0,0), 0.1));
-					tripletListP.emplace_back(ir + 1, ir + 1,  cauchy(delta(1,0), 0.1));
+					tripletListP.emplace_back(ir    , ir    ,  cauchy(delta(0,0), 1));
+					tripletListP.emplace_back(ir + 1, ir + 1,  cauchy(delta(1,0), 1));
 
 					//tripletListP.emplace_back(ir    , ir    ,  1);
 					//tripletListP.emplace_back(ir + 1, ir + 1,  1);
-
-
 					tripletListB.emplace_back(ir    , 0,  delta(0,0));
 					tripletListB.emplace_back(ir + 1, 0,  delta(1,0));
+
+					rms += delta(0,0) * delta(0,0);
+					rms += delta(1,0) * delta(1,0);
 				}
+			}
+			rms /= tripletListB.size();
+			if(rms > prev_rms){
+				lambda /= 10.0;
+				rms = std::numeric_limits<double>::max();
+				std::cout << "rms > prev_rms " << std::endl;
+				std::cout << "lambda: " << lambda << std::endl;
+				break;
+			}else{
+				if(lambda < 100)
+				lambda *= 10.0;
 			}
 
 			int ir = tripletListB.size();
@@ -741,6 +759,15 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			AtPB = (AtP) * matB;
 			}
 
+			Eigen::SparseMatrix<double> LM(cameras.size() * 6 + lines.size() * 4, cameras.size() * 6 + lines.size() * 4);
+			LM.setIdentity();
+
+			LM *= lambda;
+
+			AtPA = AtPA + (LM);
+
+
+
 			tripletListA.clear();
 			tripletListP.clear();
 			tripletListB.clear();
@@ -762,6 +789,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				}
 			}
 
+			float booster = 1.0;
 			if(h_x.size() == cameras.size() * 6 + lines.size() * 4){
 				for(size_t i = 0 ; i < h_x.size(); i++){
 					std::cout << h_x[i] << std::endl;
@@ -773,12 +801,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 				for(size_t i = 0; i < cameras.size(); i++){
 					TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(cameras[i].pose);
-					pose.px += h_x[counter++] * 0.01;
-					pose.py += h_x[counter++] * 0.01;
-					pose.pz += h_x[counter++] * 0.01;
-					pose.om += h_x[counter++] * 0.01;
-					pose.fi += h_x[counter++] * 0.01;
-					pose.ka += h_x[counter++] * 0.01;
+					pose.px += h_x[counter++] * booster;
+					pose.py += h_x[counter++] * booster;
+					pose.pz += h_x[counter++] * booster;
+					pose.om += h_x[counter++] * booster;
+					pose.fi += h_x[counter++] * booster;
+					pose.ka += h_x[counter++] * booster;
 
 					cameras[i].pose = affine_matrix_from_pose_tait_bryan(pose);
 				}
@@ -820,10 +848,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					pl_ka = U.ka;
 					pl_w = acos(nw.norm()/(sqrt(nw.norm()*nw.norm() + dw.norm()*dw.norm())));
 
-					pl_om += h_x[counter++] * 0.01;
-					pl_fi += h_x[counter++] * 0.01;
-					pl_ka += h_x[counter++] * 0.01;
-					pl_w += h_x[counter++] * 0.01;
+					pl_om += h_x[counter++] * booster;
+					pl_fi += h_x[counter++] * booster;
+					pl_ka += h_x[counter++] * booster;
+					pl_w += h_x[counter++]  * booster;
 
 					TaitBryanPose pose_out;
 					pose_out.om = pl_om;
@@ -860,6 +888,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					lines[i].first = p - l * 100;
 					lines[i].second = p + l * 100;
 				}
+				std::cout << "lambda: " << lambda << std::endl;
 			}else{
 				std::cout << "AtPA=AtPB FAILED" << std::endl;
 			}
