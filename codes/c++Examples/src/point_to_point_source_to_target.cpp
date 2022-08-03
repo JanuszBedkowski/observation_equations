@@ -190,9 +190,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
 				pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
 				pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
+				pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.5;
+				pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.5;
+				pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.5;
 
 				pose_source = pose_source * affine_matrix_from_pose_tait_bryan(pose);
 
@@ -544,6 +544,72 @@ Eigen::SparseMatrix<double> x = solver.solve(AtPB);
 			}
 			break;
 		}
+		case 'u':{
+			Eigen::MatrixXd d2sum_dbeta2(6, 6);
+			d2sum_dbeta2 = Eigen::MatrixXd::Zero(6, 6);
+
+			Eigen::MatrixXd d2sum_dbetadx(6, 6 * points_source_local.size());
+			d2sum_dbetadx = Eigen::MatrixXd::Zero(6, 6 * points_source_local.size());
+
+
+			TaitBryanPose pose_s = pose_tait_bryan_from_affine_matrix(pose_source);
+
+			for(size_t i = 0 ; i < points_source_local.size(); i++){
+				Eigen::Vector3d &p_s = points_source_local[i];
+				Eigen::Vector3d &p_t = points_target_global[i];
+
+				Eigen::Matrix<double, 6, 6, Eigen::RowMajor> d2sum_dbeta2i;
+				point_to_point_source_to_target_tait_bryan_wc_d2sum_dbeta2(
+						d2sum_dbeta2i,
+						pose_s.px, pose_s.py, pose_s.pz, pose_s.om, pose_s.fi, pose_s.ka,
+						p_s.x(), p_s.y(), p_s.z(), p_t.x(), p_t.y(), p_t.z());
+
+				for(size_t r = 0; r < 6; r++){
+					for(size_t c = 0; c < 6; c++){
+						d2sum_dbeta2(r, c) =
+								d2sum_dbeta2(r, c) + d2sum_dbeta2i(r, c);
+					}
+				}
+			}
+
+			for(size_t i = 0 ; i < points_source_local.size(); i++){
+				Eigen::Vector3d &p_s = points_source_local[i];
+				Eigen::Vector3d &p_t = points_target_global[i];
+
+				Eigen::Matrix<double, 6, 6, Eigen::RowMajor> d2sum_dbetadxi(6, 6);
+
+				point_to_point_source_to_target_tait_bryan_wc_d2sum_dbetadx(
+						d2sum_dbetadxi,
+						pose_s.px, pose_s.py, pose_s.pz, pose_s.om, pose_s.fi, pose_s.ka,
+						p_s.x(), p_s.y(), p_s.z(), p_t.x(), p_t.y(), p_t.z());
+
+				int cal = i * 6;
+				for(size_t r = 0; r < 6; r++){
+					for(size_t c = 0; c < 6; c++){
+						d2sum_dbetadx(r, cal + c) = d2sum_dbetadxi(r,c);
+					}
+				}
+			}
+			Eigen::MatrixXd cov_x(6 * points_source_local.size(), 6 * points_source_local.size());
+			cov_x = Eigen::MatrixXd::Zero(6 * points_source_local.size(), 6 * points_source_local.size());
+
+			for(int i = 0 ; i < 6 * points_source_local.size(); i+=6){
+				//source local
+				cov_x(i,i)         = 0.01 * 0.01;
+				cov_x(i + 1,i + 1) = 0.01 * 0.01;
+				cov_x(i + 2,i + 2) = 0.01 * 0.01;
+				//target global
+				cov_x(i + 3,i + 3) = 0.01 * 0.01;
+				cov_x(i + 4,i + 4) = 0.01 * 0.01;
+				cov_x(i + 5,i + 5) = 0.01 * 0.01;
+			}
+
+			auto cov_b = d2sum_dbeta2.inverse() * d2sum_dbetadx * cov_x * d2sum_dbetadx.transpose() * d2sum_dbeta2.inverse();
+			std::cout << "cov_b" << std::endl;
+			std::cout << cov_b << std::endl;
+
+			break;
+		}
 	}
 	printHelp();
 	glutPostRedisplay();
@@ -598,6 +664,7 @@ void printHelp() {
 	std::cout << "t: optimize (Tait-Bryan)" << std::endl;
 	std::cout << "r: optimize (Rodrigues)" << std::endl;
 	std::cout << "q: optimize (Quaternion)" << std::endl;
+	std::cout << "u: uncertainty (Tait-Bryan)" << std::endl;
 }
 
 
