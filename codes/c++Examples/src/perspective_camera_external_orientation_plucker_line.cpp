@@ -766,8 +766,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			AtPA = AtPA + (LM);
 
-
-
 			tripletListA.clear();
 			tripletListP.clear();
 			tripletListB.clear();
