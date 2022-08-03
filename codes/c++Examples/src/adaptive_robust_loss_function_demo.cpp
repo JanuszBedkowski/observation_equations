@@ -34,7 +34,8 @@ double b_cauchy = 1.0;
 double a_huber = 0.3;
 double b_huber = 1.0;
 
-double barron_c = 0.25;
+//double barron_c = 0.25;
+double barron_c = 0.05;
 double barron_alpha = 1;
 
 std::vector<std::pair<double, double>> input_data;
@@ -237,9 +238,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'b':{
+			//double c = 0.01;
 			double min_sum = 1000000000.0;
 			for(double alpha = -10; alpha <=2; alpha += 0.1){
-				double Z_tilde = get_approximate_partition_function(-10, 10, alpha, 1, 100);
+				double Z_tilde = get_approximate_partition_function(-10, 10, alpha, barron_c, 100);
 				double sum = 0;
 				for(size_t i = 0; i < input_data.size() ; i++){
 					double delta;
