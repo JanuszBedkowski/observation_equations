@@ -89,8 +89,8 @@ int main(int argc, char *argv[]){
 
 	double minf = -1000000000.0;
 
-	//float c = 1.0;
-	float c = 0.05;
+	float c = 1.0;
+	//float c = 0.05;
 	float num_steps = 1000000;
 	double Z_tilde_minf = get_approximate_partition_function(-10.0, 10.0, minf, c, num_steps);
 	double Z_tilde_m2   = get_approximate_partition_function(-10.0, 10.0, -2  , c, num_steps);
