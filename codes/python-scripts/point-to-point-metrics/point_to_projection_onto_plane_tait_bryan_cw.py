@@ -21,12 +21,13 @@ all_symbols = position_symbols + orientation_symbols
 
 point_source_local=Matrix([x_src_l, y_src_l, z_src_l, 1]).vec()
 
+#Rt_wc = matrix44FromTaitBryan(tx_cw, ty_cw, tz_cw, om_cw, fi_cw, ka_cw)[:-1,:]
 RT_cw = matrix44FromTaitBryan(tx_cw, ty_cw, tz_cw, om_cw, fi_cw, ka_cw)
 R_wc=RT_cw[:-1,:-1].transpose()
 T_cw=Matrix([tx_cw, ty_cw, tz_cw]).vec()
 T_wc=-R_wc*T_cw
-RT_wc=Matrix.hstack(R_wc, T_wc)
-RT_wc=Matrix.vstack(RT_wc, Matrix([[0,0,0,1]]))
+Rt_wc=Matrix.hstack(R_wc, T_wc)
+#Rt_wc=Matrix.vstack(Rt_wc, Matrix([[0,0,0,1]]))
 
 point_source_global = Rt_wc * point_source_local
 point_source_global_1=Matrix([point_source_global[0], point_source_global[1], point_source_global[2], 1]).vec()
