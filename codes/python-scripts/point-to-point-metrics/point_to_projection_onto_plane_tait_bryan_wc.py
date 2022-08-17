@@ -49,9 +49,12 @@ delta_z=Matrix([delta[2]]).vec()
 delta_z_jacobian=delta_z.jacobian(all_symbols)
 delta_z_hessian=delta_z_jacobian.jacobian(all_symbols)
 delta_hessian = delta_x_hessian + delta_y_hessian + delta_z_hessian
+
+delta_gradient = delta_jacobian.transpose()*delta
+
 #print(delta_jacobian)
 #print(delta_hessian)
-
+#print(delta_gradient)
 
 with open("point_to_projection_onto_plane_tait_bryan_wc_jacobian.h",'w') as f_cpp:  
     f_cpp.write("inline void point_to_projection_onto_plane_tait_bryan_wc(Eigen::Matrix<double, 3, 1> &delta, double tx, double ty, double tz, double om, double fi, double ka, double x_src_l, double y_src_l, double z_src_l, double x_trg_g, double y_trg_g, double z_trg_g, double a, double b, double c)\n")
@@ -73,4 +76,11 @@ with open("point_to_projection_onto_plane_tait_bryan_wc_jacobian.h",'w') as f_cp
         for j in range (6):
             f_cpp.write("h.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_hessian[i,j])))
     f_cpp.write("}")
+    f_cpp.write("inline void point_to_projection_onto_plane_tait_bryan_wc_gradient(Eigen::Matrix<double, 6, 1> &g, double tx, double ty, double tz, double om, double fi, double ka, double x_src_l, double y_src_l, double z_src_l, double x_trg_g, double y_trg_g, double z_trg_g, double a, double b, double c)\n")
+    f_cpp.write("{")
+    for i in range (6):
+        for j in range (1):
+            f_cpp.write("g.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_gradient[i,j])))
+    f_cpp.write("}")
+
 
