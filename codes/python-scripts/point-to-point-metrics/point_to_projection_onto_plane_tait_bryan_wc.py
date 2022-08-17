@@ -1,4 +1,5 @@
 from sympy import *
+from sympy import hessian
 import sys
 sys.path.insert(1, '..')
 from tait_bryan_R_utils import *
@@ -36,15 +37,18 @@ model_function = point_source_global - p_proj
 delta = target_value - model_function
 delta_jacobian=delta.jacobian(all_symbols)
 
-delta_x = Matrix([delta[0]]).vec()
-delta_hessian_x=delta_x.jacobian(all_symbols).jacobian(all_symbols)
-delta_y = Matrix([delta[1]]).vec()
-delta_hessian_y=delta_y.jacobian(all_symbols).jacobian(all_symbols)
-delta_z = Matrix([delta[2]]).vec()
-delta_hessian_z=delta_z.jacobian(all_symbols).jacobian(all_symbols)
-delta_hessian = delta_hessian_x + delta_hessian_y + delta_hessian_z;
+delta_x=Matrix([delta[0]]).vec()
+delta_x_jacobian=delta_x.jacobian(all_symbols)
+delta_x_hessian=delta_x_jacobian.jacobian(all_symbols)
 
-#print(delta)
+delta_y=Matrix([delta[1]]).vec()
+delta_y_jacobian=delta_y.jacobian(all_symbols)
+delta_y_hessian=delta_y_jacobian.jacobian(all_symbols)
+
+delta_z=Matrix([delta[2]]).vec()
+delta_z_jacobian=delta_z.jacobian(all_symbols)
+delta_z_hessian=delta_z_jacobian.jacobian(all_symbols)
+delta_hessian = delta_x_hessian + delta_y_hessian + delta_z_hessian
 #print(delta_jacobian)
 #print(delta_hessian)
 
