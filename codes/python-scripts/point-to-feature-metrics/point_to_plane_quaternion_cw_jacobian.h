@@ -11,4 +11,5 @@ j.coeffRef(0,3) = -vzx*(-2.0*py*q3 + 2.0*pz*q2 - 2.0*q2*zsl + 2.0*q3*ysl) - vzy*
 j.coeffRef(0,4) = -vzx*(-2.0*py*q2 - 2.0*pz*q3 + 2.0*q2*ysl + 2.0*q3*zsl) - vzy*(-2.0*px*q2 + 4*py*q1 - 2.0*pz*q0 + 2.0*q0*zsl - 4*q1*ysl + 2.0*q2*xsl) - vzz*(-2.0*px*q3 + 2.0*py*q0 + 4*pz*q1 - 2.0*q0*ysl - 4*q1*zsl + 2.0*q3*xsl);
 j.coeffRef(0,5) = -vzx*(4*px*q2 - 2.0*py*q1 + 2.0*pz*q0 - 2.0*q0*zsl + 2.0*q1*ysl - 4*q2*xsl) - vzy*(-2.0*px*q1 - 2.0*pz*q3 + 2.0*q1*xsl + 2.0*q3*zsl) - vzz*(-2.0*px*q0 - 2.0*py*q3 + 4*pz*q2 + 2.0*q0*xsl - 4*q2*zsl + 2.0*q3*ysl);
 j.coeffRef(0,6) = -vzx*(4*px*q3 - 2.0*py*q0 - 2.0*pz*q1 + 2.0*q0*ysl + 2.0*q1*zsl - 4*q3*xsl) - vzy*(2.0*px*q0 + 4*py*q3 - 2.0*pz*q2 - 2.0*q0*xsl + 2.0*q2*zsl - 4*q3*ysl) - vzz*(-2.0*px*q1 - 2.0*py*q2 + 2.0*q1*xsl + 2.0*q2*ysl);
-}#endif
+}
+#endif
