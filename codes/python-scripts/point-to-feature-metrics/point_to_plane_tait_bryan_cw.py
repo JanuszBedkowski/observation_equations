@@ -58,5 +58,6 @@ with open("point_to_plane_tait_bryan_cw_jacobian.h",'w') as f_cpp:
         for j in range (6):
             f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_jacobian[i,j])))
     f_cpp.write("}")
+    f_cpp.write("\n")
     f_cpp.write("#endif")
 
