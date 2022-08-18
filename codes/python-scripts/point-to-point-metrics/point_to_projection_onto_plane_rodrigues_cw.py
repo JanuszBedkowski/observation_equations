@@ -37,7 +37,9 @@ print(delta_jacobian)
 
 with open("point_to_projection_onto_plane_rodrigues_cw_jacobian.h",'w') as f_cpp:  
     f_cpp.write("#ifndef _point_to_projection_onto_plane_rodrigues_cw_jacobian_h_")
+    f_cpp.write("\n")
     f_cpp.write("#define _point_to_projection_onto_plane_rodrigues_cw_jacobian_h_")
+    f_cpp.write("\n")
     f_cpp.write("inline void point_to_projection_onto_plane_rodrigues_cw(Eigen::Matrix<double, 3, 1> &delta, double px, double py, double pz, double sx, double sy, double sz, double x_src_l, double y_src_l, double z_src_l, double x_trg_g, double y_trg_g, double z_trg_g, double a, double b, double c)\n")
     f_cpp.write("{")
     f_cpp.write("delta.coeffRef(0,0) = %s;\n"%(ccode(delta[0,0])))
@@ -51,5 +53,6 @@ with open("point_to_projection_onto_plane_rodrigues_cw_jacobian.h",'w') as f_cpp
         for j in range (6):
             f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_jacobian[i,j])))
     f_cpp.write("}")
+    f_cpp.write("\n")
     f_cpp.write("#endif")
 
