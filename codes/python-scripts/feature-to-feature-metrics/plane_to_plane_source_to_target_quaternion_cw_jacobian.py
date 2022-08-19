@@ -47,7 +47,7 @@ with open("plane_to_plane_source_to_target_quaternion_cw_jacobian.h",'w') as f_c
     f_cpp.write("\n")
     f_cpp.write("#define _plane_to_plane_source_to_target_quaternion_cw_jacobian_h_")
     f_cpp.write("\n")
-    f_cpp.write("inline void plane_to_plane_source_to_target_quaternion_wc(Eigen::Matrix<double, 4, 1> &delta, double tx_1, double ty_1, double tz_1, double q0_1, double q1_1, double q2_1, double q3_1, double a_1, double b_1, double c_1, double d_1, double a_2, double b_2, double c_2, double d_2)\n")
+    f_cpp.write("inline void plane_to_plane_source_to_target_quaternion_cw(Eigen::Matrix<double, 4, 1> &delta, double tx_1, double ty_1, double tz_1, double q0_1, double q1_1, double q2_1, double q3_1, double a_1, double b_1, double c_1, double d_1, double a_2, double b_2, double c_2, double d_2)\n")
     f_cpp.write("{")
     for i in range (4):
         f_cpp.write("delta.coeffRef(%d,%d) = %s;\n"%(i, 0, ccode(delta[i])))

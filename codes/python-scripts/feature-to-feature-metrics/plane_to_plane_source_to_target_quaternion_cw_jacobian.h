@@ -1,6 +1,6 @@
 #ifndef _plane_to_plane_source_to_target_quaternion_cw_jacobian_h_
 #define _plane_to_plane_source_to_target_quaternion_cw_jacobian_h_
-inline void plane_to_plane_source_to_target_quaternion_wc(Eigen::Matrix<double, 4, 1> &delta, double tx_1, double ty_1, double tz_1, double q0_1, double q1_1, double q2_1, double q3_1, double a_1, double b_1, double c_1, double d_1, double a_2, double b_2, double c_2, double d_2)
+inline void plane_to_plane_source_to_target_quaternion_cw(Eigen::Matrix<double, 4, 1> &delta, double tx_1, double ty_1, double tz_1, double q0_1, double q1_1, double q2_1, double q3_1, double a_1, double b_1, double c_1, double d_1, double a_2, double b_2, double c_2, double d_2)
 {delta.coeffRef(0,0) = -a_1*(-2*pow(q2_1, 2) - 2*pow(q3_1, 2) + 1) + a_2 - b_1*(2.0*q0_1*q3_1 + 2.0*q1_1*q2_1) - c_1*(-2.0*q0_1*q2_1 + 2.0*q1_1*q3_1);
 delta.coeffRef(1,0) = -a_1*(-2.0*q0_1*q3_1 + 2.0*q1_1*q2_1) - b_1*(-2*pow(q1_1, 2) - 2*pow(q3_1, 2) + 1) + b_2 - c_1*(2.0*q0_1*q1_1 + 2.0*q2_1*q3_1);
 delta.coeffRef(2,0) = -a_1*(2.0*q0_1*q2_1 + 2.0*q1_1*q3_1) - b_1*(-2.0*q0_1*q1_1 + 2.0*q2_1*q3_1) - c_1*(-2*pow(q1_1, 2) - 2*pow(q2_1, 2) + 1) + c_2;
