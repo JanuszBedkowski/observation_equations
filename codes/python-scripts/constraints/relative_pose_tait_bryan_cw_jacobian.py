@@ -40,13 +40,13 @@ Rt_cw_2 = matrix44FromTaitBryan(tx_2, ty_2, tz_2, om_2, fi_2, ka_2)
 #t_cw_1=-R_cw_1*t_wc_1
 #Rt_cw_1=Matrix.hstack(R_cw_1, t_cw_1)
 #Rt_cw_1=Matrix.vstack(Rt_cw_1, Matrix([[0,0,0,1]]))
-R_wc_1=Rt_cw_1[:-1,:-1].transpose()
-t_cw_1=Matrix([tx_1, ty_1, tz_1]).vec()
-t_wc_1=-R_wc_1*t_cw_1
-Rt_wc_1=Matrix.hstack(R_wc_1, t_wc_1)
-Rt_wc_1=Matrix.vstack(Rt_wc_1, Matrix([[0,0,0,1]]))
+R_wc_2=Rt_cw_2[:-1,:-1].transpose()
+t_cw_2=Matrix([tx_2, ty_2, tz_2]).vec()
+t_wc_2=-R_wc_2*t_cw_2
+Rt_wc_2=Matrix.hstack(R_wc_2, t_wc_2)
+Rt_wc_2=Matrix.vstack(Rt_wc_2, Matrix([[0,0,0,1]]))
 
-relative_pose = Rt_wc_1 * Rt_cw_2
+relative_pose = Rt_cw_1 * Rt_wc_2
 
 parametrization = taitBryanFromMatrix44Case1(relative_pose)
 #parametrization = rodriguesFromMatrix44(relative_pose)
