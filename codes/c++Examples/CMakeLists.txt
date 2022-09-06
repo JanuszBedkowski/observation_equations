@@ -416,3 +416,11 @@ target_link_libraries(mirror_sim
 	${GLUT_glut_LIBRARY}
 )
 
+add_executable(pose_interpolation
+	src/pose_interpolation.cpp
+)
+
+target_link_libraries(pose_interpolation
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
