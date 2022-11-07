@@ -37,6 +37,7 @@ include_directories(
 	../python-scripts/metrics-fusion
 	../python-scripts/point-to-feature-metrics
 	../python-scripts/point-to-point-metrics
+	../python-scripts/slerp
 	${EIGEN3_INCLUDE_DIR} 
 	${EIGEN3_INCLUDE_DIRS} 
 	${Eigen3_DIR}
