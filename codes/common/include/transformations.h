@@ -327,7 +327,7 @@ inline Eigen::Affine3d affine_matrix_from_pose_quaternion(const QuaternionPose& 
 	return m;
 }
 
-QuaternionPose pose_quaternion_from_affine_matrix(const Eigen::Affine3d& m){
+inline QuaternionPose pose_quaternion_from_affine_matrix(const Eigen::Affine3d& m){
 	QuaternionPose pq;
 
 	double T, S, X, Y, Z, W;
