@@ -1,0 +1,3 @@
+[submodule "codes/c++Examples/3rdparty/eigen"]
+	path = codes/c++Examples/3rdparty/eigen
+	url = https://gitlab.com/libeigen/eigen.git
