@@ -5,9 +5,24 @@ project(slam-book-examples)
 set(CMAKE_CXX_STANDARD 11)
 set(PROJECT_VERSION 1.0.0)
 
-add_compile_definitions(_USE_MATH_DEFINES)
-include_directories(3rdparty/eigen)
+if (WIN32)
+	add_compile_definitions(_USE_MATH_DEFINES)
+	include_directories(3rdparty/eigen)
+else()
+	find_package(Eigen3 REQUIRED)
+	if(EIGEN3_FOUND)
+		message("EIGEN3 found")
+		message ("EIGEN3_INCLUDE_DIR: " ${EIGEN3_INCLUDE_DIR})
+		message ("EIGEN3_INCLUDE_DIRS: " ${EIGEN3_INCLUDE_DIRS})
+		message ("Eigen3_DIR: " ${Eigen3_DIR})
 
+		include_directories(
+			${EIGEN3_INCLUDE_DIR} 
+			${EIGEN3_INCLUDE_DIRS} 
+			${Eigen3_DIR}
+		)
+	endif()
+endif()
 
 find_package(OpenGL REQUIRED)
 if(OpenGL_FOUND)
@@ -15,22 +30,19 @@ if(OpenGL_FOUND)
 	message ("OPENGL_LIBRARIES: " ${OPENGL_LIBRARIES})
 endif()
 
-#find_package(GLUT REQUIRED)
-#if(GLUT_FOUND)
-#	message("GLUT found")
-#	message ("GLUT_glut_LIBRARY: " ${GLUT_glut_LIBRARY})
-#endif()
+if (WIN32)
+	include_directories(3rdparty/freeglut-3.2.2/include/)
+	add_subdirectory(3rdparty/freeglut-3.2.2)
+else()
+	find_package(GLUT REQUIRED)
+	if(GLUT_FOUND)
+		message("GLUT found")
+		message ("GLUT_glut_LIBRARY: " ${GLUT_glut_LIBRARY})
+	endif()
+endif()
 
-include_directories(3rdparty/freeglut-3.2.2/include/)
-add_subdirectory(3rdparty/freeglut-3.2.2)
 
-#find_package(Eigen3 REQUIRED)
-#if(EIGEN3_FOUND)
-#	message("EIGEN3 found")
-#	message ("EIGEN3_INCLUDE_DIR: " ${EIGEN3_INCLUDE_DIR})
-#	message ("EIGEN3_INCLUDE_DIRS: " ${EIGEN3_INCLUDE_DIRS})
-#	message ("Eigen3_DIR: " ${Eigen3_DIR})
-#endif()
+
 
 
 #find_package( OpenCV REQUIRED )
