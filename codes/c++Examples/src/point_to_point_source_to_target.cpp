@@ -611,7 +611,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 	glutPostRedisplay();
 }
 
-
 void mouse(int button, int state, int x, int y) {
 	if (state == GLUT_DOWN) {
 		mouse_buttons |= 1 << button;

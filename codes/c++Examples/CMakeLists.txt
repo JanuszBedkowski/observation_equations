@@ -220,15 +220,23 @@ target_link_libraries(point_to_point_source_to_target
 )
 endif()
 
-#add_executable(plucker_line_to_plucker_line
-#	src/plucker_line_to_plucker_line.cpp
-#)
-
-#target_link_libraries(plucker_line_to_plucker_line
-#  	${OPENGL_LIBRARIES}
+add_executable(plucker_line_to_plucker_line
+	src/plucker_line_to_plucker_line.cpp
+)
+if (WIN32)
+target_link_libraries(plucker_line_to_plucker_line
+  	${OPENGL_LIBRARIES}
+	freeglut_static
 #	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
-#)
+)
+else()
+target_link_libraries(plucker_line_to_plucker_line
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(plane_to_plane
 #	src/plane_to_plane.cpp
