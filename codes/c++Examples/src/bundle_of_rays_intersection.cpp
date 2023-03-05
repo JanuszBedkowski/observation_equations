@@ -31,13 +31,13 @@ int main(int argc, char *argv[]){
 	for(size_t i = 0; i < 10; i++){
 		TaitBryanPose pose;
 
-		pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 5;
-		pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 5;
-		pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 5;
+		pose.px = random(-0.01, 0.01) + 5;
+		pose.py = random(-0.01, 0.01) + 5;
+		pose.pz = random(-0.01, 0.01) + 5;
 
-		pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
-		pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
-		pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
+		pose.om = random(-2.0, 2.0);
+		pose.fi = random(-2.0, 2.0);
+		pose.ka = random(-2.0, 2.0);
 
 		bundle_of_rays.push_back(affine_matrix_from_pose_tait_bryan(pose));
 	}

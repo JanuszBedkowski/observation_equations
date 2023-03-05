@@ -480,35 +480,53 @@ target_link_libraries(surface_reconstruction_from_lidar_point_cloud
 )
 endif()
 
-#add_executable(optimizing_scale_VO_with_lidar_data
-#	src/optimizing_scale_VO_with_lidar_data.cpp
-#)
-
-#target_link_libraries(optimizing_scale_VO_with_lidar_data
-#  	${OPENGL_LIBRARIES}
+add_executable(optimizing_scale_VO_with_lidar_data
+	src/optimizing_scale_VO_with_lidar_data.cpp
+)
+if (WIN32)
+target_link_libraries(optimizing_scale_VO_with_lidar_data
+  	${OPENGL_LIBRARIES}
+	freeglut_static
 #	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
-#)
+)
+else()
+target_link_libraries(optimizing_scale_VO_with_lidar_data
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(perspective_camera_intrinsic_calibration
 #	src/perspective_camera_intrinsic_calibration.cpp
 #)
-
+#if (WIN32)
+#target_link_libraries(perspective_camera_intrinsic_calibration
+#  	${OPENGL_LIBRARIES}
+#	freeglut_static
+#)
+#else()
 #target_link_libraries(perspective_camera_intrinsic_calibration
 #  	${OPENGL_LIBRARIES}
 #	${GLUT_glut_LIBRARY}
-#	${OpenCV_LIBS}
 #)
+#endif()
 
-#add_executable(bundle_of_rays_intersection
-#	src/bundle_of_rays_intersection.cpp
-#)
-
-#target_link_libraries(bundle_of_rays_intersection
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
-#)
+add_executable(bundle_of_rays_intersection
+	src/bundle_of_rays_intersection.cpp
+)
+if (WIN32)
+target_link_libraries(bundle_of_rays_intersection
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(bundle_of_rays_intersection
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
 #add_executable(rectangular_object_with_unknown_width_height
 #	src/rectangular_object_with_unknown_width_height.cpp
