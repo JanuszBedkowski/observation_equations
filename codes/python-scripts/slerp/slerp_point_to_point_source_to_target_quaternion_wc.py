@@ -40,7 +40,7 @@ with open("slerp_point_to_point_source_to_target_quaternion_wc_jacobian.h",'w') 
     f_cpp.write("delta_z = %s;\n"%(ccode(delta[2,0])))
     f_cpp.write("}")
     f_cpp.write("\n")
-    f_cpp.write("inline void slerp_point_to_point_source_to_target_quaternion_wc_jacobian(Eigen::Matrix<double, 3, 1, Eigen::RowMajor> &j, double px_0, double py_0, double pz_0, double q0_0, double q1_0, double q2_0, double q3_0, double px_1, double py_1, double pz_1, double q0_1, double q1_1, double q2_1, double q3_1, double t0, double t1, double t, double x_s, double y_s, double z_s, double x_t, double y_t, double z_t)\n")
+    f_cpp.write("inline void slerp_point_to_point_source_to_target_quaternion_wc_jacobian(Eigen::Matrix<double, 3, 1> &j, double px_0, double py_0, double pz_0, double q0_0, double q1_0, double q2_0, double q3_0, double px_1, double py_1, double pz_1, double q0_1, double q1_1, double q2_1, double q3_1, double t0, double t1, double t, double x_s, double y_s, double z_s, double x_t, double y_t, double z_t)\n")
     f_cpp.write("{")
     for i in range (3):
         for j in range (1):

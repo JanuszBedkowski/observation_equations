@@ -590,38 +590,62 @@ target_link_libraries(point_to_point_source_to_landmark
 )
 endif()
 
-#add_executable(ceres_robust_loss_function_viewer
-#	src/ceres_robust_loss_function_viewer.cpp
-#)
+add_executable(ceres_robust_loss_function_viewer
+	src/ceres_robust_loss_function_viewer.cpp
+)
+if (WIN32)
+target_link_libraries(ceres_robust_loss_function_viewer
+   ${OPENGL_LIBRARIES}
+   freeglut_static
+)
+else()
+target_link_libraries(ceres_robust_loss_function_viewer
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
-#target_link_libraries(ceres_robust_loss_function_viewer
-#   ${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-#)
+add_executable(distance_to_circle
+	src/distance_to_circle.cpp
+)
+if (WIN32)
+target_link_libraries(distance_to_circle
+   	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(distance_to_circle
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
-#add_executable(distance_to_circle
-#	src/distance_to_circle.cpp
-#)
+add_executable(mirror_sim
+	src/mirror_sim.cpp
+)
+if (WIN32)
+target_link_libraries(mirror_sim
+   	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(mirror_sim
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
-#target_link_libraries(distance_to_circle
-#   	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-#)
-
-#add_executable(mirror_sim
-#	src/mirror_sim.cpp
-#)
-
-#target_link_libraries(mirror_sim
-#   	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-#)
-
-#add_executable(pose_interpolation
-#	src/pose_interpolation.cpp
-#)
-
-#target_link_libraries(pose_interpolation
-#   	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-#)
+add_executable(pose_interpolation
+	src/pose_interpolation.cpp
+)
+if (WIN32)
+target_link_libraries(pose_interpolation
+   	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(pose_interpolation
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()

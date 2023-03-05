@@ -1,11 +1,15 @@
+//#include <Eigen/Eigen>
 #include <GL/freeglut.h>
-#include <Eigen/Eigen>
 
 #include <iostream>
 #include <slerp_point_to_point_source_to_target_quaternion_wc_jacobian.h>
-#include "structures.h"
-#include "transformations.h"
+//#include "structures.h"
+//#include "transformations.h"
 
+int main(int argc, char *argv[]){
+	return 0;
+}
+#if 0
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -50,6 +54,7 @@ public:
 
 		m2.linear() = rotationMatrix2;
 		m2.translation() = Eigen::Vector3d(10, -1, 5);
+	
 	};
 	~PoseInterpolation() { ; };
 
@@ -80,8 +85,6 @@ Eigen::Affine3d PoseInterpolation::pose_interpolation(double t, double t1, doubl
     //Eigen::Vector3d trans2 = aff2.translation();
 
     Eigen::Affine3d result = Eigen::Affine3d::Identity();
-    //result.translation() = (1.0 - alpha) * trans1 + alpha * trans2;
-    //result.linear() = rot1.slerp(alpha, rot2).toRotationMatrix();
 
     QuaternionPose pq_0 = pose_quaternion_from_affine_matrix(aff1);
     QuaternionPose pq_1 = pose_quaternion_from_affine_matrix(aff2);
@@ -130,7 +133,7 @@ Eigen::Affine3d PoseInterpolation::pose_interpolation(double t, double t1, doubl
     return result;
 }
 
-PoseInterpolation pi;
+//PoseInterpolation pi;
 
 int main(int argc, char *argv[]){
 	if (false == initGL(&argc, argv)) {
@@ -172,7 +175,7 @@ bool initGL(int *argc, char **argv) {
 }
 
 void draw_axes(Eigen::Affine3d m){
-	glBegin(GL_LINES);
+	/*glBegin(GL_LINES);
 		glColor3f(1.0f, 0.0f, 0.0f);
 		glVertex3f(m(0,3), m(1,3), m(2,3));
 		glVertex3f(m(0,3) + m(0,0), m(1,3) + m(1,0), m(2,3) + m(2,0));
@@ -184,7 +187,7 @@ void draw_axes(Eigen::Affine3d m){
 		glColor3f(0.0f, 0.0f, 1.0f);
 		glVertex3f(m(0,3), m(1,3), m(2,3));
 		glVertex3f(m(0,3) + m(0,2), m(1,3) + m(1,2), m(2,3) + m(2,2));
-	glEnd();
+	glEnd();*/
 }
 
 void display() {
@@ -196,13 +199,11 @@ void display() {
 	glRotatef(rotate_x, 1.0, 0.0, 0.0);
 	glRotatef(rotate_y, 0.0, 0.0, 1.0);
 
-	draw_axes(pi.m1);
-	draw_axes(pi.m2);
+	//draw_axes(pi.m1);
+	//draw_axes(pi.m2);
 
-	Eigen::Affine3d m3 = pi.pose_interpolation(pi.time_stamp_middle,
-			pi.time_stamp_1, pi.time_stamp_2, pi.m1, pi.m2);
-
-	draw_axes(m3);
+	//Eigen::Affine3d m3 = pi.pose_interpolation(pi.time_stamp_middle, pi.time_stamp_1, pi.time_stamp_2, pi.m1, pi.m2);
+	//draw_axes(m3);
 
 	glutSwapBuffers();
 }
@@ -215,11 +216,11 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			return;
 		}
 		case '-':{
-			pi.time_stamp_middle -= 10000;
+			//pi.time_stamp_middle -= 10000;
 			break;
 		}
 		case '=':{
-			pi.time_stamp_middle += 10000;
+			//pi.time_stamp_middle += 10000;
 			break;
 		}
 	}
@@ -276,3 +277,4 @@ void printHelp() {
 	std::cout << "-: move pose backward" << std::endl;
 }
 
+#endif
