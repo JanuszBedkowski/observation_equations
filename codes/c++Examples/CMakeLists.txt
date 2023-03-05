@@ -528,15 +528,20 @@ target_link_libraries(bundle_of_rays_intersection
 )
 endif()
 
-#add_executable(rectangular_object_with_unknown_width_height
-#	src/rectangular_object_with_unknown_width_height.cpp
-#)
-
-#target_link_libraries(rectangular_object_with_unknown_width_height
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-#	${OpenCV_LIBS}
-#)
+add_executable(rectangular_object_with_unknown_width_height
+	src/rectangular_object_with_unknown_width_height.cpp
+)
+if (WIN32)
+target_link_libraries(rectangular_object_with_unknown_width_height
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(rectangular_object_with_unknown_width_height
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
 #add_executable(sheaf_of_planes
 #	src/sheaf_of_planes.cpp

@@ -53,4 +53,11 @@ struct Point3D
 	int index_pose;
 };
 
+struct Rectangle3D{
+	std::vector<Eigen::Vector3d> corners_local;
+	double scale_x;
+	double scale_y;
+	Eigen::Affine3d pose;
+};
+
 #endif
