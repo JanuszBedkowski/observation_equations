@@ -8,6 +8,17 @@
 #define MAX(a,b) a>b?a:b
 #endif
 
+#include <random>
+ 
+std::random_device rd;
+std::mt19937 gen(rd());
+
+inline double random(double low, double high)
+{
+    std::uniform_int_distribution<> dist(low, high);
+    return dist(gen);
+}
+
 inline TaitBryanPose pose_tait_bryan_from_affine_matrix(Eigen::Affine3d m){
 	TaitBryanPose pose;
 

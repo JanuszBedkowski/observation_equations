@@ -11,17 +11,6 @@
 #include "perspective_camera_quaternion_wc_jacobian.h"
 #include "quaternion_constraint_jacobian.h"
 
-#include <random>
- 
-std::random_device rd;
-std::mt19937 gen(rd());
- 
-double random(double low, double high)
-{
-    std::uniform_int_distribution<> dist(low, high);
-    return dist(gen);
-}
-
 struct KeyPoint{
 	double u;
 	double v;
