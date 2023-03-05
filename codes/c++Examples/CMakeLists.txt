@@ -446,25 +446,39 @@ target_link_libraries(georeference-case2
 )
 endif()
 
-#add_executable(georeference-case4
-#	src/georeference-case4.cpp
-#)
-
-#target_link_libraries(georeference-case4
-#   	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
+add_executable(georeference-case4
+	src/georeference-case4.cpp
+)
+if (WIN32)
+target_link_libraries(georeference-case4
+   	${OPENGL_LIBRARIES}
+	freeglut_static
 ##	${OpenCV_LIBS}
-#)
-
-#add_executable(surface_reconstruction_from_lidar_point_cloud
-#	src/surface_reconstruction_from_lidar_point_cloud.cpp
-#)
-
-#target_link_libraries(surface_reconstruction_from_lidar_point_cloud
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
+)
+else()
+target_link_libraries(georeference-case4
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
-#)
+)
+endif()
+
+add_executable(surface_reconstruction_from_lidar_point_cloud
+	src/surface_reconstruction_from_lidar_point_cloud.cpp
+)
+if (WIN32)
+target_link_libraries(surface_reconstruction_from_lidar_point_cloud
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+##	${OpenCV_LIBS}
+)
+else()
+target_link_libraries(surface_reconstruction_from_lidar_point_cloud
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(optimizing_scale_VO_with_lidar_data
 #	src/optimizing_scale_VO_with_lidar_data.cpp
