@@ -38,9 +38,9 @@ int main(int argc, char *argv[]){
 
 	for(size_t i = 0 ; i < 10000; i++){
 		Eigen::Vector3d p;
-		p.x() = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		p.y() = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		p.z() = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
+		p.x() = random(-100.0, 100.0);
+		p.y() = random(-100.0, 100.0);
+		p.z() = random(-100.0, 100.0);
 		points_global.push_back(p);
 	}
 
@@ -111,8 +111,6 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 
-
-
 bool initGL(int *argc, char **argv) {
 	glutInit(argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
@@ -132,8 +130,7 @@ bool initGL(int *argc, char **argv) {
 	// projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01,
-			10000.0);
+	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01, 10000.0);
 	glutReshapeFunc(reshape);
 
 	return true;
@@ -180,7 +177,6 @@ void display() {
 		if(i == 3)glColor3f(1,0,1);
 		if(i == 4)glColor3f(1,1,0);
 
-
 		for(size_t j = 0 ; j < points_local[i].size(); j++){
 			Eigen::Vector3d vt;
 			vt = m * points_local[i][j];
@@ -202,8 +198,6 @@ void display() {
 	glutSwapBuffers();
 }
 
-
-
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 	switch (key) {
 		case (27): {
@@ -211,15 +205,14 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			return;
 		}
 		case 'n':{
-
 			for(size_t i = 0 ; i < trajectory.size(); i++){
 				TaitBryanPose pose;
-				pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
+				pose.px = random(-1.0, 1.0);
+				pose.py = random(-1.0, 1.0);
+				pose.pz = random(-1.0, 1.0);
+				pose.om = random(-0.1, 0.1);
+				pose.fi = random(-0.1, 0.1);
+				pose.ka = random(-0.1, 0.1);
 
 				trajectory[i] = trajectory[i] * affine_matrix_from_pose_tait_bryan(pose);
 			}
@@ -397,9 +390,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'r':{
 			for(size_t i = 0; i < trajectory.size(); i++){
 				TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(trajectory[i]);
-				posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
+				posetb.om += random(-0.000001, 0.000001);
+				posetb.fi += random(-0.000001, 0.000001);
+				posetb.ka += random(-0.000001, 0.000001);
 				trajectory[i] = affine_matrix_from_pose_tait_bryan(posetb);
 			}
 
@@ -819,10 +812,3 @@ void printHelp() {
 	std::cout << "r: optimize (Rodrigues)" << std::endl;
 	std::cout << "q: optimize (Quaternion)" << std::endl;
 }
-
-
-
-
-
-
-
