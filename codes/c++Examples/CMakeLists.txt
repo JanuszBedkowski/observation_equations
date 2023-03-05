@@ -376,15 +376,22 @@ target_link_libraries(relative_pose
 )
 endif()
 
-#add_executable(relative_pose_covariances
-#	src/relative_pose_covariances.cpp
-#)
-
-#target_link_libraries(relative_pose_covariances
-#   	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
+add_executable(relative_pose_covariances
+	src/relative_pose_covariances.cpp
+)
+if (WIN32)
+target_link_libraries(relative_pose_covariances
+   	${OPENGL_LIBRARIES}
+	freeglut_static
 ##	${OpenCV_LIBS}
-#)
+)
+else()
+target_link_libraries(relative_pose_covariances
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(smoothness
 #	src/smoothness.cpp

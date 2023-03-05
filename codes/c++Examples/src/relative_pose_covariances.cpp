@@ -151,17 +151,17 @@ int main(int argc, char *argv[]){
 	m_poses.push_back(m);
 
 	p_rel_forward_x.px = 1.1;
-	p_rel_forward_x.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-	p_rel_forward_x.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-	p_rel_forward_x.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-	p_rel_forward_x.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-	p_rel_forward_x.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
+	p_rel_forward_x.py = random(-0.1, 0.1);
+	p_rel_forward_x.pz = random(-0.000001, 0.000001);
+	p_rel_forward_x.om = random(-0.000001, 0.000001);
+	p_rel_forward_x.fi = random(-0.000001, 0.000001);
+	p_rel_forward_x.ka = random(-0.000001, 0.000001);
 
-	p_rel_rotate.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-	p_rel_rotate.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-	p_rel_rotate.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-	p_rel_rotate.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-	p_rel_rotate.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
+	p_rel_rotate.px = random(-0.000001, 0.000001);
+	p_rel_rotate.py = random(-0.000001, 0.000001);
+	p_rel_rotate.pz = random(-0.000001, 0.000001);
+	p_rel_rotate.om = random(-0.000001, 0.000001);
+	p_rel_rotate.fi = random(-0.000001, 0.000001);
 	p_rel_rotate.ka = 80 * M_PI/180.0;
 
 
@@ -170,21 +170,21 @@ int main(int argc, char *argv[]){
 			m_rel = affine_matrix_from_pose_tait_bryan(p_rel_forward_x);
 			m = m * m_rel;
 			m_poses.push_back(m);
-			p_rel_forward_x.px += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-			p_rel_forward_x.py += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-			p_rel_forward_x.pz += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			p_rel_forward_x.om += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			p_rel_forward_x.fi += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			p_rel_forward_x.ka += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
+			p_rel_forward_x.px += random(-0.1, 0.1);
+			p_rel_forward_x.py += random(-0.1, 0.1);
+			p_rel_forward_x.pz += random(-0.000001, 0.000001);
+			p_rel_forward_x.om += random(-0.000001, 0.000001);
+			p_rel_forward_x.fi += random(-0.000001, 0.000001);
+			p_rel_forward_x.ka += random(-0.000001, 0.000001);
 		}
 		m_rel = affine_matrix_from_pose_tait_bryan(p_rel_rotate);
 		m = m * m_rel;
-		p_rel_rotate.px += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-		p_rel_rotate.py += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-		p_rel_rotate.pz += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-		p_rel_rotate.om += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-		p_rel_rotate.fi += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-		p_rel_rotate.ka += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
+		p_rel_rotate.px += random(-0.000001, 0.000001);
+		p_rel_rotate.py += random(-0.000001, 0.000001);
+		p_rel_rotate.pz += random(-0.000001, 0.000001);
+		p_rel_rotate.om += random(-0.000001, 0.000001);
+		p_rel_rotate.fi += random(-0.000001, 0.000001);
+		p_rel_rotate.ka += random(-0.000001, 0.000001);
 	}
 	m_poses.pop_back();
 	for(size_t i = 1; i < m_poses.size(); i++){
@@ -297,12 +297,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'n':{
 			for(size_t i = 0 ; i < m_poses.size(); i++){
 				TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(m_poses[i]);
-				pose.px += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.py += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.pz += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.001;
-				pose.om += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.0001;
-				pose.fi += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.0001;
-				pose.ka += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.0001;
+				pose.px += random(-0.1, 0.1);
+				pose.py += random(-0.1, 0.1);
+				pose.pz += random(-0.001, 0.001);
+				pose.om += random(-0.0001, 0.0001);
+				pose.fi += random(-0.0001, 0.0001);
+				pose.ka += random(-0.0001, 0.0001);
 				m_poses[i] = affine_matrix_from_pose_tait_bryan(pose);
 			}
 			break;
