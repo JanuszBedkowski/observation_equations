@@ -5,6 +5,7 @@
 
 #include "m_estimators.h"
 #include "example_func_ax_plus_b_eq_y_jacobian.h"
+#include <transformations.h>
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -44,19 +45,19 @@ int main(int argc, char *argv[]){
 	double y;
 	for(double x = -10; x <= 10; x+= 0.01){
 		example_func_ax_plus_b(y,  x,  a,  b);
-		y += ((double(rand()%1000000)/1000000.0) - 0.5) * 2.0 * 0.1;
+		y += random(-0.1, 0.1);
 		input_data.emplace_back(x,y);
 	}
 
 	//outliers
 	for(double x = -10; x <= 0; x+= 0.02){
 		example_func_ax_plus_b(y,  x,  a,  b);
-		y += ((double(rand()%1000000)/1000000.0) - 0.5) * 2.0 + 5;
+		y += random(-1.0, 1.0) + 5;
 		input_data.emplace_back(x,y);
 	}
 	for(double x = 0; x <= 10; x+= 0.02){
 		example_func_ax_plus_b(y,  x,  a,  b);
-		y += ((double(rand()%1000000)/1000000.0) - 0.5) * 2.0 - 5;
+		y += random(-1.0, 1.0) - 5;
 		input_data.emplace_back(x,y);
 	}
 

@@ -76,13 +76,13 @@ int main(int argc, char *argv[]){
 	trajectory.push_back(affine_matrix_from_pose_tait_bryan(pose));
 
 	for(size_t i = 0 ; i < 100; i++){
-		pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
+		pose.px = random(-100.0, 100.0);
+		pose.py = random(-100.0, 100.0);
+		pose.pz = random(-100.0, 100.0);
 
-		pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 10;
-		pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 10;
-		pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 10;
+		pose.om = random(-10.0, 10.0);
+		pose.fi = random(-10.0, 10.0);
+		pose.ka = random(-10.0, 10.0);
 		planes_global.push_back(affine_matrix_from_pose_tait_bryan(pose));
 	}
 
@@ -208,12 +208,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'n':{
 			for(size_t i = 0 ; i  < trajectory.size(); i++){
 				TaitBryanPose pose;
-				pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
+				pose.px = random(-1.0, 1.0);
+				pose.py = random(-1.0, 1.0);
+				pose.pz = random(-1.0, 1.0);
+				pose.om = random(-0.1, 0.1);
+				pose.fi = random(-0.1, 0.1);
+				pose.ka = random(-0.1, 0.1);
 				trajectory[i] = trajectory[i] * affine_matrix_from_pose_tait_bryan(pose);
 			}
 			break;
@@ -359,9 +359,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'r':{
 			for(size_t i = 0; i < trajectory.size(); i++){
 				TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(trajectory[i]);
-				posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.0000001;
-				posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.0000001;
-				posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.0000001;
+				posetb.om += random(-0.000001, 0.000001);
+				posetb.fi += random(-0.000001, 0.000001);
+				posetb.ka += random(-0.000001, 0.000001);
 				trajectory[i] = affine_matrix_from_pose_tait_bryan(posetb);
 			}
 

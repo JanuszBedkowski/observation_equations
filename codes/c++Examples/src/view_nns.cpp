@@ -4,6 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
+#include <transformations.h>
+
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
 int mouse_old_x, mouse_old_y;
@@ -140,8 +142,8 @@ void display() {
 			glPointSize(4);
 			glBegin(GL_POINTS);
 			for(size_t i = 0 ; i < 10000; i++){
-				float x = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 20.0;
-				float y = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 20.0;
+				float x = random(-20.0, 20.0);
+				float y = random(-20.0, 20.0);
 
 				if( (x-4)*(x-4) + (y-5)*(y-5) < 5*5 ){
 					glColor3f(0,1,0);
@@ -174,8 +176,8 @@ void display() {
 			glPointSize(4);
 			glBegin(GL_POINTS);
 			for(size_t i = 0 ; i < 10000; i++){
-				float x = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 20.0;
-				float y = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 20.0;
+				float x = random(-20.0, 20.0);
+				float y = random(-20.0, 20.0);
 
 				Eigen::Vector2d v(x,y);
 				Eigen::Vector2d vt = m.inverse() * v;
@@ -229,8 +231,8 @@ void display() {
 			glPointSize(4);
 			glBegin(GL_POINTS);
 			for(size_t i = 0 ; i < 10000; i++){
-				float x = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 20.0;
-				float y = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 20.0;
+				float x = random(-20.0, 20.0);
+				float y = random(-20.0, 20.0);
 
 				Eigen::Vector2d v(x,y);
 				Eigen::Vector2d vt = m.inverse() * v;

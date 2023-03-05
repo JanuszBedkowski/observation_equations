@@ -73,7 +73,6 @@ else()
 target_link_libraries(perspective_camera_ba
 	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-#	${OpenCV_LIBS}
 )
 endif()
 
@@ -85,13 +84,11 @@ if (WIN32)
 target_link_libraries(metric_camera_colinearity_ba
    	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(metric_camera_colinearity_ba
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-#	${OpenCV_LIBS}
 )
 endif()
 
@@ -103,13 +100,11 @@ if (WIN32)
 target_link_libraries(metric_camera_coplanarity_ba
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(metric_camera_coplanarity_ba
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-#	${OpenCV_LIBS}
 )
 endif()
 
@@ -121,13 +116,11 @@ if (WIN32)
 target_link_libraries(equirectangular_camera_colinearity_ba
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(equirectangular_camera_colinearity_ba
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-#	${OpenCV_LIBS}
 )
 endif()
 
@@ -139,13 +132,11 @@ if (WIN32)
 target_link_libraries(equirectangular_camera_coplanarity_ba
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(equirectangular_camera_coplanarity_ba
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-#	${OpenCV_LIBS}
 )
 endif()
 
@@ -156,13 +147,11 @@ if (WIN32)
 target_link_libraries(point_to_point
   	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(point_to_point
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -173,14 +162,11 @@ if (WIN32)
 target_link_libraries(point_to_point_with_scale
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(point_to_point_with_scale
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -191,14 +177,11 @@ if (WIN32)
 target_link_libraries(perspective_camera_external_orientation_plucker_line
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(perspective_camera_external_orientation_plucker_line
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -209,14 +192,11 @@ if (WIN32)
 target_link_libraries(point_to_point_source_to_target
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(point_to_point_source_to_target
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -227,14 +207,11 @@ if (WIN32)
 target_link_libraries(plucker_line_to_plucker_line
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(plucker_line_to_plucker_line
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -245,13 +222,11 @@ if (WIN32)
 target_link_libraries(plane_to_plane
   	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(plane_to_plane
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -262,14 +237,11 @@ if (WIN32)
 target_link_libraries(point_to_line
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(point_to_line
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -280,14 +252,11 @@ if (WIN32)
 target_link_libraries(point_to_plane
   	${OPENGL_LIBRARIES}
 	freeglut_static
-	#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(point_to_plane
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -298,13 +267,11 @@ if (WIN32)
 target_link_libraries(point_to_projection_onto_line
   	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(point_to_projection_onto_line
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -315,13 +282,11 @@ if (WIN32)
 target_link_libraries(point_to_projection_onto_plane
   	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(point_to_projection_onto_plane
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -332,13 +297,11 @@ if (WIN32)
 target_link_libraries(simple_optimization_problem_func_x_with_constraints
   	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(simple_optimization_problem_func_x_with_constraints
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -349,13 +312,11 @@ if (WIN32)
 target_link_libraries(simple_optimization_problem_func_xy_with_constraints
   	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(simple_optimization_problem_func_xy_with_constraints
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -366,13 +327,11 @@ if (WIN32)
 target_link_libraries(relative_pose
   	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(relative_pose
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -383,13 +342,11 @@ if (WIN32)
 target_link_libraries(relative_pose_covariances
    	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(relative_pose_covariances
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -400,14 +357,11 @@ if (WIN32)
 target_link_libraries(smoothness
    	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(smoothness
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -418,14 +372,11 @@ if (WIN32)
 target_link_libraries(georeference-case1
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(georeference-case1
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -436,13 +387,11 @@ if (WIN32)
 target_link_libraries(georeference-case2
    	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(georeference-case2
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -453,13 +402,11 @@ if (WIN32)
 target_link_libraries(georeference-case4
    	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(georeference-case4
    	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -470,13 +417,11 @@ if (WIN32)
 target_link_libraries(surface_reconstruction_from_lidar_point_cloud
   	${OPENGL_LIBRARIES}
 	freeglut_static
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(surface_reconstruction_from_lidar_point_cloud
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -487,14 +432,11 @@ if (WIN32)
 target_link_libraries(optimizing_scale_VO_with_lidar_data
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(optimizing_scale_VO_with_lidar_data
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
@@ -550,72 +492,103 @@ if (WIN32)
 target_link_libraries(sheaf_of_planes
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 else()
 target_link_libraries(sheaf_of_planes
   	${OPENGL_LIBRARIES}
 	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
 )
 endif()
 
-#add_executable(view_nns
-#	src/view_nns.cpp
-#)
+add_executable(view_nns
+	src/view_nns.cpp
+)
+if (WIN32)
+target_link_libraries(view_nns
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(view_nns
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
-#target_link_libraries(view_nns
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
-#)
+add_executable(distance_point_to_plane
+	src/distance_point_to_plane.cpp
+)
+if (WIN32)
+target_link_libraries(distance_point_to_plane
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(distance_point_to_plane
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
-#add_executable(distance_point_to_plane
-#	src/distance_point_to_plane.cpp
-#)
+add_executable(m_estimators_functions_viewer
+	src/m_estimators_functions_viewer.cpp
+)
+if (WIN32)
+target_link_libraries(m_estimators_functions_viewer
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(m_estimators_functions_viewer
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
-#target_link_libraries(distance_point_to_plane
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
-#)
+add_executable(adaptive_robust_loss_function_viewer
+	src/adaptive_robust_loss_function_viewer.cpp
+)
+if (WIN32)
+target_link_libraries(adaptive_robust_loss_function_viewer
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(adaptive_robust_loss_function_viewer
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
-#add_executable(m_estimators_functions_viewer
-#	src/m_estimators_functions_viewer.cpp
-#)
+add_executable(adaptive_robust_loss_function_demo
+	src/adaptive_robust_loss_function_demo.cpp
+)
+if (WIN32)
+target_link_libraries(adaptive_robust_loss_function_demo
+	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(adaptive_robust_loss_function_demo
+	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
-#target_link_libraries(m_estimators_functions_viewer
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-#)
-
-#add_executable(adaptive_robust_loss_function_viewer
-#	src/adaptive_robust_loss_function_viewer.cpp
-#)
-
-#target_link_libraries(adaptive_robust_loss_function_viewer
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-#)
-
-#add_executable(adaptive_robust_loss_function_demo
-#	src/adaptive_robust_loss_function_demo.cpp
-#)
-
-#target_link_libraries(adaptive_robust_loss_function_demo
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-#)
-
-#add_executable(point_to_point_source_to_landmark
-#	src/point_to_point_source_to_landmark.cpp
-#)
-
-#target_link_libraries(point_to_point_source_to_landmark
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-#)
+add_executable(point_to_point_source_to_landmark
+	src/point_to_point_source_to_landmark.cpp
+)
+if (WIN32)
+target_link_libraries(point_to_point_source_to_landmark
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(point_to_point_source_to_landmark
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
 
 #add_executable(ceres_robust_loss_function_viewer
 #	src/ceres_robust_loss_function_viewer.cpp
