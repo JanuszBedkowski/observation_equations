@@ -393,15 +393,24 @@ target_link_libraries(relative_pose_covariances
 )
 endif()
 
-#add_executable(smoothness
-#	src/smoothness.cpp
-#)
-
-#target_link_libraries(smoothness
-#   	${OPENGL_LIBRARIES}
+add_executable(smoothness
+	src/smoothness.cpp
+)
+if (WIN32)
+target_link_libraries(smoothness
+   	${OPENGL_LIBRARIES}
+	freeglut_static
 #	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
-#)
+)
+else()
+target_link_libraries(smoothness
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
+
 
 #add_executable(georeference-case1
 #	src/georeference-case1.cpp
