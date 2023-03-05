@@ -359,15 +359,22 @@ target_link_libraries(simple_optimization_problem_func_xy_with_constraints
 )
 endif()
 
-#add_executable(relative_pose
-#	src/relative_pose.cpp
-#)
-
-#target_link_libraries(relative_pose
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
+add_executable(relative_pose
+	src/relative_pose.cpp
+)
+if (WIN32)
+target_link_libraries(relative_pose
+  	${OPENGL_LIBRARIES}
+	freeglut_static
 ##	${OpenCV_LIBS}
-#)
+)
+else()
+target_link_libraries(relative_pose
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(relative_pose_covariances
 #	src/relative_pose_covariances.cpp
