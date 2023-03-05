@@ -273,15 +273,23 @@ target_link_libraries(point_to_line
 )
 endif()
 
-#add_executable(point_to_plane
-#	src/point_to_plane.cpp
-#)
-
-#target_link_libraries(point_to_plane
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
+add_executable(point_to_plane
+	src/point_to_plane.cpp
+)
+if (WIN32)
+target_link_libraries(point_to_plane
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+	#	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
-#)
+)
+else()
+target_link_libraries(point_to_plane
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(point_to_projection_onto_line
 #	src/point_to_projection_onto_line.cpp
