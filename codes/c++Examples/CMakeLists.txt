@@ -30,16 +30,16 @@ if(OpenGL_FOUND)
 	message ("OPENGL_LIBRARIES: " ${OPENGL_LIBRARIES})
 endif()
 
-#if (WIN32)
+if (WIN32)
 	include_directories(3rdparty/freeglut-3.2.2/include/)
 	add_subdirectory(3rdparty/freeglut-3.2.2)
-#else()
-#	find_package(GLUT REQUIRED)
-#	if(GLUT_FOUND)
-#		message("GLUT found")
-#		message ("GLUT_glut_LIBRARY: " ${GLUT_glut_LIBRARY})
-#	endif()
-#endif()
+else()
+	find_package(GLUT REQUIRED)
+	if(GLUT_FOUND)
+		message("GLUT found")
+		message ("GLUT_glut_LIBRARY: " ${GLUT_glut_LIBRARY})
+	endif()
+endif()
 
 #find_package( OpenCV REQUIRED )
 
@@ -64,29 +64,36 @@ add_executable(perspective_camera_ba
 	src/perspective_camera_ba.cpp
 )
 
-#if (WIN32)
+if (WIN32)
 target_link_libraries(perspective_camera_ba	
 	${OPENGL_LIBRARIES} 
 	freeglut_static
 )
-#else()
-#target_link_libraries(perspective_camera_ba
-#	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
+else()
+target_link_libraries(perspective_camera_ba
+	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
 #	${OpenCV_LIBS}
-#)
-#endif()
+)
+endif()
 
 add_executable(metric_camera_colinearity_ba
 	src/metric_camera_colinearity_ba.cpp
 )
 
+if (WIN32)
 target_link_libraries(metric_camera_colinearity_ba
    	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
+#	${OpenCV_LIBS}
 )
+else()
+target_link_libraries(metric_camera_colinearity_ba
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+#	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(metric_camera_coplanarity_ba
 #	src/metric_camera_coplanarity_ba.cpp
