@@ -184,15 +184,23 @@ target_link_libraries(point_to_point_with_scale
 )
 endif()
 
-#add_executable(perspective_camera_external_orientation_plucker_line
-#	src/perspective_camera_external_orientation_plucker_line.cpp
-#)
-
-#target_link_libraries(perspective_camera_external_orientation_plucker_line
-#  	${OPENGL_LIBRARIES}
+add_executable(perspective_camera_external_orientation_plucker_line
+	src/perspective_camera_external_orientation_plucker_line.cpp
+)
+if (WIN32)
+target_link_libraries(perspective_camera_external_orientation_plucker_line
+  	${OPENGL_LIBRARIES}
+	freeglut_static
 #	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
-#)
+)
+else()
+target_link_libraries(perspective_camera_external_orientation_plucker_line
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(point_to_point_source_to_target
 #	src/point_to_point_source_to_target.cpp
