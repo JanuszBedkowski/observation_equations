@@ -131,15 +131,23 @@ target_link_libraries(equirectangular_camera_colinearity_ba
 )
 endif()
 
-#add_executable(equirectangular_camera_coplanarity_ba
-#	src/equirectangular_camera_coplanarity_ba.cpp
-#)
+add_executable(equirectangular_camera_coplanarity_ba
+	src/equirectangular_camera_coplanarity_ba.cpp
+)
 
-#target_link_libraries(equirectangular_camera_coplanarity_ba
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
-##	${OpenCV_LIBS}
-#)
+if (WIN32)
+target_link_libraries(equirectangular_camera_coplanarity_ba
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+#	${OpenCV_LIBS}
+)
+else()
+target_link_libraries(equirectangular_camera_coplanarity_ba
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+#	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(point_to_point
 #	src/point_to_point.cpp

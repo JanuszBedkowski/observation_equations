@@ -52,18 +52,18 @@ int main(int argc, char *argv[]){
 
 	for(size_t i = 0 ; i < 100; i++){
 		Eigen::Vector3d p;
-		p.x() = ((rand()%1000000)/1000000.0 - 0.5) * 2.0 * 100.0;
-		p.y() = ((rand()%1000000)/1000000.0 - 0.5) * 2.0 * 200.0;
-		p.z() = ((rand()%1000000)/1000000.0 - 0.5) * 2.0 * 100.0;
+		p.x() = random(-100.0, 100.0);
+		p.y() = random(-200.0, 200.0);
+		p.z() = random(-100.0, 100.0);
 		tie_points.push_back(p);
 	}
 
 	for(int i = -50 ; i < 50; i+=20){
 		Camera c;
 		c.pose = Eigen::Affine3d::Identity();
-		c.pose(0,3) = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.0;
+		c.pose(0,3) = random(-1.0, 1.0);
 		c.pose(1,3) = i;
-		c.pose(2,3) = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.0;
+		c.pose(2,3) = random(-1.0, 1.0);
 		cameras.push_back(c);
 	}
 
@@ -170,9 +170,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'c':{
 			for(size_t i = 0; i < cameras.size(); i++){
 				TaitBryanPose pose;
-				pose.om = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1;
-				pose.fi = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1;
-				pose.ka = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1;
+				pose.om = random(-0.1, 0.1);
+				pose.fi = random(-0.1, 0.1);
+				pose.ka = random(-0.1, 0.1);
 
 				Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(pose);
 				cameras[i].pose = cameras[i].pose * m;
@@ -181,9 +181,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		}
 		case 'p':{
 			for(size_t i = 0; i < tie_points.size(); i++){
-				tie_points[i].x() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.0;
-				tie_points[i].y() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.0;
-				tie_points[i].z() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.0;
+				tie_points[i].x() += random(-1.0, 1.0);
+				tie_points[i].y() += random(-1.0, 1.0);
+				tie_points[i].z() += random(-1.0, 1.0);
 			}
 			break;
 		}
@@ -308,9 +308,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'r':{
 			for(size_t i = 0; i < cameras.size(); i++){
 				TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(cameras[i].pose);
-				posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
+				posetb.om += random(-0.000001, 0.000001);
+				posetb.fi += random(-0.000001, 0.000001);
+				posetb.ka += random(-0.000001, 0.000001);
 				cameras[i].pose = affine_matrix_from_pose_tait_bryan(posetb);
 			}
 
@@ -434,9 +434,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'q':{
 			for(size_t i = 0; i < cameras.size(); i++){
 				TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(cameras[i].pose);
-				posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
+				posetb.om += random(-0.000001, 0.000001);
+				posetb.fi += random(-0.000001, 0.000001);
+				posetb.ka += random(-0.000001, 0.000001);
 				cameras[i].pose = affine_matrix_from_pose_tait_bryan(posetb);
 			}
 
@@ -584,7 +584,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 	}
-
 	printHelp();
 	glutPostRedisplay();
 }
@@ -640,7 +639,3 @@ void printHelp() {
 	std::cout << "c: add noise to cameras" << std::endl;
 	std::cout << "p: add noise to tie points" << std::endl;
 }
-
-
-
-
