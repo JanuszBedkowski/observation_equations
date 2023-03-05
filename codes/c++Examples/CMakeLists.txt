@@ -315,7 +315,6 @@ if (WIN32)
 target_link_libraries(point_to_projection_onto_plane
   	${OPENGL_LIBRARIES}
 	freeglut_static
-#	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
 )
 else()
@@ -326,15 +325,22 @@ target_link_libraries(point_to_projection_onto_plane
 )
 endif()
 
-#add_executable(simple_optimization_problem_func_x_with_constraints
-#	src/simple_optimization_problem_func_x_with_constraints.cpp
-#)
-
-#target_link_libraries(simple_optimization_problem_func_x_with_constraints
-#  	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
+add_executable(simple_optimization_problem_func_x_with_constraints
+	src/simple_optimization_problem_func_x_with_constraints.cpp
+)
+if (WIN32)
+target_link_libraries(simple_optimization_problem_func_x_with_constraints
+  	${OPENGL_LIBRARIES}
+	freeglut_static
 ##	${OpenCV_LIBS}
-#)
+)
+else()
+target_link_libraries(simple_optimization_problem_func_x_with_constraints
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(simple_optimization_problem_func_xy_with_constraints
 #	src/simple_optimization_problem_func_xy_with_constraints.cpp

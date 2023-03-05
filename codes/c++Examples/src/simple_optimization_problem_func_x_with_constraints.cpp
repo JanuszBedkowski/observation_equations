@@ -7,6 +7,7 @@
 
 #include "example_func_x_jacobian.h"
 #include "constraints_jacobian.h"
+#include <transformations.h>
 
 #define RENDER_PSI 0
 #define RENDER_OBJECTIVE_FUNC 1
@@ -404,7 +405,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'r':{
-			x_result = ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 20;
+			x_result = random(-20.0, 20.0);
 			path_result.clear();
 			path_result.push_back(x_result);
 			break;
