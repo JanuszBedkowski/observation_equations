@@ -15,7 +15,7 @@ std::mt19937 gen(rd());
 
 inline double random(double low, double high)
 {
-    std::uniform_int_distribution<> dist(low, high);
+    std::uniform_real_distribution<double> dist(low, high);
     return dist(gen);
 }
 

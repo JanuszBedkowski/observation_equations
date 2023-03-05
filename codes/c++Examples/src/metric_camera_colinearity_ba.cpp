@@ -69,7 +69,6 @@ int main(int argc, char *argv[]){
 		cameras.push_back(c);
 	}
 
-
 	for(size_t i = 0 ; i < cameras.size(); i++){
 		for(size_t j = 0; j < tie_points.size(); j++){
 			KeyPoint kp;

@@ -58,7 +58,6 @@ int main(int argc, char *argv[]){
 		p.x() = random(-100.0, 100.0);
 		p.y() = random(-100.0, 100.0);
 		p.z() = random(-100.0, -90.0);
-		
 		tie_points.push_back(p);
 	}
 
@@ -178,7 +177,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				pose.om = random(-0.1, 0.1);
 				pose.fi = random(-0.1, 0.1);
 				pose.ka = random(-0.1, 0.1);
-
 				Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(pose);
 				cameras[i].pose = cameras[i].pose * m;
 			}
