@@ -76,13 +76,13 @@ int main(int argc, char *argv[]){
 	trajectory.push_back(affine_matrix_from_pose_tait_bryan(pose));
 
 	for(size_t i = 0 ; i < 100; i++){
-		pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
+		pose.px = random(-100.0, 100.0);
+		pose.py = random(-100.0, 100.0);
+		pose.pz = random(-100.0, 100.0);
 
-		pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 10;
-		pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 10;
-		pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 10;
+		pose.om = random(-10.0, 10.0);
+		pose.fi = random(-10.0, 10.0);
+		pose.ka = random(-10.0, 10.0);
 		lines_global.push_back(affine_matrix_from_pose_tait_bryan(pose));
 	}
 
@@ -110,8 +110,6 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 
-
-
 bool initGL(int *argc, char **argv) {
 	glutInit(argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
@@ -131,8 +129,7 @@ bool initGL(int *argc, char **argv) {
 	// projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01,
-			10000.0);
+	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01, 10000.0);
 	glutReshapeFunc(reshape);
 
 	return true;
@@ -173,7 +170,6 @@ void display() {
 	}
 	glEnd();
 
-
 	for(size_t i = 0 ; i < lines_local.size(); i++){
 		Eigen::Affine3d &m = trajectory[i];
 
@@ -195,11 +191,8 @@ void display() {
 			glEnd();
 		}
 	}
-
-
 	glutSwapBuffers();
 }
-
 
 void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 	switch (key) {
@@ -210,12 +203,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'n':{
 			for(size_t i = 0 ; i  < trajectory.size(); i++){
 				TaitBryanPose pose;
-				pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
+				pose.px = random(-1.0, 1.0);
+				pose.py = random(-1.0, 1.0);
+				pose.pz = random(-1.0, 1.0);
+				pose.om = random(-0.1, 0.1);
+				pose.fi = random(-0.1, 0.1);
+				pose.ka = random(-0.1, 0.1);
 				trajectory[i] = trajectory[i] * affine_matrix_from_pose_tait_bryan(pose);
 			}
 			break;
@@ -263,7 +256,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 									}
 								}
 							}
-
 							tripletListP.emplace_back(ir    , ir    ,  cauchy(delta(0,0), 1));
 							tripletListP.emplace_back(ir + 1, ir + 1,  cauchy(delta(1,0), 1));
 
@@ -363,9 +355,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'r':{
 			for(size_t i = 0; i < trajectory.size(); i++){
 				TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(trajectory[i]);
-				posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
+				posetb.om += random(-0.000001, 0.000001);
+				posetb.fi += random(-0.000001, 0.000001);
+				posetb.ka += random(-0.000001, 0.000001);
 				trajectory[i] = affine_matrix_from_pose_tait_bryan(posetb);
 			}
 
@@ -411,8 +403,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 									}
 								}
 							}
-
-
 							tripletListP.emplace_back(ir    , ir    ,  cauchy(delta(0,0), 1));
 							tripletListP.emplace_back(ir + 1, ir + 1,  cauchy(delta(1,0), 1));;
 
@@ -465,7 +455,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.clear();
 			tripletListP.clear();
 			tripletListB.clear();
-
 
 			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
 			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
@@ -674,7 +663,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 	}
-
 	printHelp();
 	glutPostRedisplay();
 }
