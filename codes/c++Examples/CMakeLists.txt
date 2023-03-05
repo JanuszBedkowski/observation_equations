@@ -543,15 +543,23 @@ target_link_libraries(rectangular_object_with_unknown_width_height
 )
 endif()
 
-#add_executable(sheaf_of_planes
-#	src/sheaf_of_planes.cpp
-#)
-
-#target_link_libraries(sheaf_of_planes
-#  	${OPENGL_LIBRARIES}
+add_executable(sheaf_of_planes
+	src/sheaf_of_planes.cpp
+)
+if (WIN32)
+target_link_libraries(sheaf_of_planes
+  	${OPENGL_LIBRARIES}
+	freeglut_static
 #	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
-#)
+)
+else()
+target_link_libraries(sheaf_of_planes
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(view_nns
 #	src/view_nns.cpp

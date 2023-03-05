@@ -38,13 +38,13 @@ int main(int argc, char *argv[]){
 	for(size_t i = 0; i < 10; i++){
 		TaitBryanPose pose;
 
-		pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 5;
-		pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 5;
-		pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 5;
+		pose.px = random(-0.01, 0.01) + 5;
+		pose.py = random(-0.01, 0.01) + 5;
+		pose.pz = random(-0.01, 0.01) + 5;
 
-		pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 90;
-		pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.0001;
-		pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.0001;
+		pose.om = random(-90.0, 90.0);
+		pose.fi = random(-0.0001, 0.0001);
+		pose.ka = random(-0.0001, 0.0001);
 
 		sheaf_of_planes.push_back(affine_matrix_from_pose_tait_bryan(pose));
 	}
@@ -281,13 +281,13 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'n':{
 			TaitBryanPose pose;
 
-			pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0;
-			pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0;
-			pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0;
+			pose.px = random(-2.0, 2.0);
+			pose.py = random(-2.0, 2.0);
+			pose.pz = random(-2.0, 2.0);
 
-			pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
-			pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
-			pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
+			pose.om = random(-2.0, 2.0);
+			pose.fi = random(-2.0, 2.0);
+			pose.ka = random(-2.0, 2.0);
 
 
 			for(size_t i = 0; i < sheaf_of_planes.size(); i++){
@@ -297,9 +297,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				pose_omfika.py = 0;
 				pose_omfika.pz = 0;
 
-				pose_omfika.om = ((float(rand()%1000000))/1000000.0f - 0.5) * .012;
-				pose_omfika.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * .012;
-				pose_omfika.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * .012;
+				pose_omfika.om = random(-0.01, 0.01);
+				pose_omfika.fi = random(-0.01, 0.01);
+				pose_omfika.ka = random(-0.01, 0.01);
 
 				sheaf_of_planes[i] =  affine_matrix_from_pose_tait_bryan(pose_omfika) * affine_matrix_from_pose_tait_bryan(pose) * sheaf_of_planes[i] * affine_matrix_from_pose_tait_bryan(pose_omfika).inverse();
 			}
