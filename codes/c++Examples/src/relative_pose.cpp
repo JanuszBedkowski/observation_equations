@@ -393,7 +393,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListB.emplace_back(ir + 4 , 0, 0);
 			tripletListB.emplace_back(ir + 5 , 0, 0);
 
-
 			Eigen::SparseMatrix<double> matA(tripletListB.size(), m_poses.size() * 6);
 			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
 			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
@@ -401,7 +400,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
 			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
 			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
-
 
 			Eigen::SparseMatrix<double> AtPA(m_poses.size() * 6 , m_poses.size() * 6);
 			Eigen::SparseMatrix<double> AtPB(m_poses.size() * 6 , 1);
@@ -432,9 +430,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					h_x.push_back(it.value());
 				}
 			}
-
 			std::cout << "h_x.size(): " << h_x.size() << std::endl;
-
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
 			for(size_t i = 0 ; i < h_x.size(); i++){
@@ -463,8 +459,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		}
 
 		case 'r':{
-			std::cout << "ToDo: " << __FILE__ << " " << __LINE__ << std::endl;
-			#if 0 
+			//std::cout << "ToDo: " << __FILE__ << " " << __LINE__ << std::endl;
+			#if 1 
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
 			std::vector<Eigen::Triplet<double>> tripletListB;
@@ -2105,6 +2101,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'd':{
+			std::cout << "ToDo " << __FILE__ << " " << __LINE__ << std::endl; 
+			#if 0
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
 			std::vector<Eigen::Triplet<double>> tripletListB;
@@ -2438,7 +2436,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}else{
 				std::cout << "optimizing with quaternions FAILED" << std::endl;
 			}
-
+			#endif
 			break;
 		}
 	}

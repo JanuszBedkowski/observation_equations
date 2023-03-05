@@ -411,26 +411,40 @@ target_link_libraries(smoothness
 )
 endif()
 
-
-#add_executable(georeference-case1
-#	src/georeference-case1.cpp
-#)
-
-#target_link_libraries(georeference-case1
-#  	${OPENGL_LIBRARIES}
+add_executable(georeference-case1
+	src/georeference-case1.cpp
+)
+if (WIN32)
+target_link_libraries(georeference-case1
+  	${OPENGL_LIBRARIES}
+	freeglut_static
 #	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
-#)
-
-#add_executable(georeference-case2
-#	src/georeference-case2.cpp
-#)
-
-#target_link_libraries(georeference-case2
-#   	${OPENGL_LIBRARIES}
-#	${GLUT_glut_LIBRARY}
+)
+else()
+target_link_libraries(georeference-case1
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
 ##	${OpenCV_LIBS}
-#)
+)
+endif()
+
+add_executable(georeference-case2
+	src/georeference-case2.cpp
+)
+if (WIN32)
+target_link_libraries(georeference-case2
+   	${OPENGL_LIBRARIES}
+	freeglut_static
+##	${OpenCV_LIBS}
+)
+else()
+target_link_libraries(georeference-case2
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+##	${OpenCV_LIBS}
+)
+endif()
 
 #add_executable(georeference-case4
 #	src/georeference-case4.cpp
