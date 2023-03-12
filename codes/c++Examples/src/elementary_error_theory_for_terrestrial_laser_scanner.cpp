@@ -9,6 +9,7 @@
 #include <elementary_error_theory_for_terrestrial_laser_scanner_jacobian.h>
 
 #include <iostream>
+#include <string>
 
 static bool show_demo_window = true;
 static bool show_another_window = false;
@@ -24,11 +25,11 @@ bool gui_mouse_down{ false };
 float mouse_sensitivity = 1.0;
 
 double sigma_r = 0.01;
-double sigma_alpha = 0.01;
-double sigma_theta = 0.01;
+double sigma_polar_angle = 0.01;
+double sigma_azimuthal_angle = 0.01;
 double measurement_r = 10.0;
-double measurement_alpha = M_PI * 0.25;
-double measurement_theta = M_PI * 0.25;
+double measurement_polar_angle = M_PI * 0.25;
+double measurement_azimuthal_angle = M_PI * 0.25;
 
 void my_display_code()
 {
@@ -148,9 +149,9 @@ void display() {
     glEnd();
  
     
-    double x = measurement_r * sin(measurement_alpha) * cos(measurement_theta);
-    double y = measurement_r * sin(measurement_alpha) * sin(measurement_theta);
-    double z = measurement_r * cos(measurement_theta);
+    double x = measurement_r * sin(measurement_polar_angle) * cos(measurement_azimuthal_angle);
+    double y = measurement_r * sin(measurement_polar_angle) * sin(measurement_azimuthal_angle);
+    double z = measurement_r * cos(measurement_polar_angle);
 
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_LINES);
@@ -160,7 +161,7 @@ void display() {
     
     Eigen::Matrix<double, 3, 3> j;
 
-    elementary_error_theory_for_terrestrial_laser_scanner_jacobian(j, measurement_r, measurement_alpha, measurement_theta);
+    elementary_error_theory_for_terrestrial_laser_scanner_jacobian(j, measurement_r, measurement_polar_angle, measurement_azimuthal_angle);
     
     Eigen::Matrix<double, 3, 3> cox_r_alpha_theta;
     cox_r_alpha_theta(0, 0) = sigma_r * sigma_r;
@@ -168,20 +169,18 @@ void display() {
     cox_r_alpha_theta(0, 2) = 0.0;
 
     cox_r_alpha_theta(1, 0) = 0.0;
-    cox_r_alpha_theta(1, 1) = sigma_alpha * sigma_alpha;
+    cox_r_alpha_theta(1, 1) = sigma_polar_angle * sigma_polar_angle;
     cox_r_alpha_theta(1, 2) = 0.0;
 
-    cox_r_alpha_theta(1, 0) = 0.0;
-    cox_r_alpha_theta(1, 1) = 0.0;
-    cox_r_alpha_theta(1, 2) = sigma_theta * sigma_theta;
+    cox_r_alpha_theta(2, 0) = 0.0;
+    cox_r_alpha_theta(2, 1) = 0.0;
+    cox_r_alpha_theta(2, 2) = sigma_azimuthal_angle * sigma_azimuthal_angle;
 
     
     Eigen::Matrix<double, 3, 3> cov_xyz = j * cox_r_alpha_theta * j.transpose();
 
-    //std::cout << "---cov_xyz---" << std::endl;
-    //std::cout << cov_xyz << std::endl;
-
     draw_ellipse(cov_xyz, Eigen::Vector3d(x, y, z), Eigen::Vector3f(0, 1, 0), 3);
+
 
 
     ImGui_ImplOpenGL2_NewFrame();
@@ -190,11 +189,20 @@ void display() {
     //my_display_code();
     if(ImGui::Begin("error propagation DEMO")){
         ImGui::InputDouble("sigma_r", &sigma_r, 0.0001, 0.001);
-        ImGui::InputDouble("sigma_alpha", &sigma_alpha, 0.0001, 0.001);
-        ImGui::InputDouble("sigma_theta", &sigma_theta, 0.0001, 0.001);
+        ImGui::InputDouble("sigma_polar_angle", &sigma_polar_angle, 0.0001, 0.001);
+        ImGui::InputDouble("sigma_azimuthal_angle", &sigma_azimuthal_angle, 0.0001, 0.001);
         ImGui::InputDouble("measurement_r", &measurement_r, 1.0, 1.0);
-        ImGui::InputDouble("measurement_alpha", &measurement_alpha, 0.01, 0.1);
-        ImGui::InputDouble("measurement_theta", &measurement_theta, 0.01, 0.1);
+        ImGui::InputDouble("measurement_polar_angle", &measurement_polar_angle, 0.01, 0.1);
+        ImGui::InputDouble("measurement_azimuthal_angle", &measurement_azimuthal_angle, 0.01, 0.1);
+
+        ImGui::Text("----cov_xyz----");
+        std::string meassage = std::to_string(cov_xyz(0, 0)) + " " + std::to_string(cov_xyz(0, 1)) + " " + std::to_string(cov_xyz(0, 2));
+        ImGui::Text(meassage.c_str());
+        meassage = std::to_string(cov_xyz(1, 0)) + " " + std::to_string(cov_xyz(1, 1)) + " " + std::to_string(cov_xyz(1, 2));
+        ImGui::Text(meassage.c_str());
+        meassage = std::to_string(cov_xyz(2, 0)) + " " + std::to_string(cov_xyz(2, 1)) + " " + std::to_string(cov_xyz(2, 2));
+        ImGui::Text(meassage.c_str());
+
         ImGui::End();
     }
 

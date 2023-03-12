@@ -8,8 +8,8 @@ j(0,2) = -r*sin(alpha)*sin(theta);
 j(1,0) = sin(alpha)*sin(theta);
 j(1,1) = r*sin(theta)*cos(alpha);
 j(1,2) = r*sin(alpha)*cos(theta);
-j(2,0) = cos(theta);
-j(2,1) = 0;
-j(2,2) = -r*sin(theta);
+j(2,0) = cos(alpha);
+j(2,1) = -r*sin(alpha);
+j(2,2) = 0;
 }
 #endif

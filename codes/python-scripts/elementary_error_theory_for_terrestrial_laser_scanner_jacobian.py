@@ -2,13 +2,13 @@ from sympy import *
 import sys
 
 x,y,z = symbols('x y z')
-r,alpha,theta = symbols('r alpha theta')
+r,polar_angle,azimuthal_angle = symbols('r alpha theta')
 
-x = r * sin(alpha) * cos (theta)
-y = r * sin(alpha) * sin (theta)
-z = r * cos(theta)
+x = r * sin(polar_angle) * cos (azimuthal_angle)
+y = r * sin(polar_angle) * sin (azimuthal_angle)
+z = r * cos(polar_angle)
 
-TLS_symbols = [r,alpha,theta]
+TLS_symbols = [r, polar_angle, azimuthal_angle]
 
 coordinates = Matrix([x, y, z]).vec()
 
