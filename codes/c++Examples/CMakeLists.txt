@@ -649,3 +649,33 @@ target_link_libraries(pose_interpolation
 	${GLUT_glut_LIBRARY}
 )
 endif()
+
+include_directories(
+3rdparty/imgui 
+3rdparty/imgui/backends
+)
+set(IMGUI_SRCS
+3rdparty/imgui/imgui.cpp 
+3rdparty/imgui/imgui_demo.cpp 
+3rdparty/imgui/imgui_draw.cpp 
+3rdparty/imgui/imgui_tables.cpp 
+3rdparty/imgui/imgui_widgets.cpp
+3rdparty/imgui/backends/imgui_impl_glut.cpp 
+3rdparty/imgui/backends/imgui_impl_opengl2.cpp
+)
+
+add_executable(elementary_error_theory_for_terrestrial_laser_scanner
+	src/elementary_error_theory_for_terrestrial_laser_scanner.cpp
+	${IMGUI_SRCS}
+)
+if (WIN32)
+target_link_libraries(elementary_error_theory_for_terrestrial_laser_scanner
+   	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(elementary_error_theory_for_terrestrial_laser_scanner
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
