@@ -98,6 +98,7 @@
         "openglsupport": "cpp",
         "specialfunctions": "cpp",
         "splines": "cpp",
-        "eigen": "cpp"
+        "eigen": "cpp",
+        "filesystem": "cpp"
     }
 }

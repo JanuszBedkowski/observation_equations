@@ -6,6 +6,9 @@
 #include <GL/freeglut.h>
 #include <Eigen/Eigen>
 
+#include <elementary_error_theory_for_terrestrial_laser_scanner_jacobian.h>
+
+#include <iostream>
 
 static bool show_demo_window = true;
 static bool show_another_window = false;
@@ -19,6 +22,13 @@ int mouse_old_x, mouse_old_y;
 int mouse_buttons = 0; 
 bool gui_mouse_down{ false };
 float mouse_sensitivity = 1.0;
+
+double sigma_r = 0.01;
+double sigma_alpha = 0.01;
+double sigma_theta = 0.01;
+double measurement_r = 10.0;
+double measurement_alpha = M_PI * 0.25;
+double measurement_theta = M_PI * 0.25;
 
 void my_display_code()
 {
@@ -69,6 +79,44 @@ void reshape(int w, int h) {
     glLoadIdentity();
 }
 
+void draw_ellipse(const Eigen::Matrix3d& covar, Eigen::Vector3d& mean, Eigen::Vector3f color, float nstd  = 3)
+{
+    Eigen::LLT<Eigen::Matrix<double,3,3> > cholSolver(covar);
+    Eigen::Matrix3d transform = cholSolver.matrixL();
+
+    const double pi = 3.141592;
+    const double di = 0.02;
+    const double dj = 0.04;
+    const double du = di*2*pi;
+    const double dv = dj*pi;
+    glColor3f(color.x(), color.y(),color.z());
+
+    for (double i = 0; i < 1.0; i+=di)  //horizonal
+    {
+        for (double j = 0; j < 1.0; j+=dj)  //vertical
+        {
+            double u = i*2*pi;      //0     to  2pi
+            double v = (j-0.5)*pi;  //-pi/2 to pi/2
+
+            const Eigen::Vector3d pp0( cos(v)* cos(u),cos(v) * sin(u),sin(v));
+            const Eigen::Vector3d pp1(cos(v) * cos(u + du) ,cos(v) * sin(u + du) ,sin(v));
+            const Eigen::Vector3d pp2(cos(v + dv)* cos(u + du) ,cos(v + dv)* sin(u + du) ,sin(v + dv));
+            const Eigen::Vector3d pp3( cos(v + dv)* cos(u),cos(v + dv)* sin(u),sin(v + dv));
+            Eigen::Vector3d tp0 = transform * (nstd*pp0) + mean;
+            Eigen::Vector3d tp1 = transform * (nstd*pp1) + mean;
+            Eigen::Vector3d tp2 = transform * (nstd*pp2) + mean;
+            Eigen::Vector3d tp3 = transform * (nstd*pp3) + mean;
+
+            glBegin(GL_LINE_LOOP);
+            glVertex3dv(tp0.data());
+            glVertex3dv(tp1.data());
+            glVertex3dv(tp2.data());
+            glVertex3dv(tp3.data());
+            glEnd();
+        }
+    }
+}
+
 void display() {
     ImGuiIO& io = ImGui::GetIO();
     glViewport(0, 0, (GLsizei)io.DisplaySize.x, (GLsizei)io.DisplaySize.y);
@@ -99,11 +147,58 @@ void display() {
     glVertex3f(0.0f, 0.0f, 1.0f);
     glEnd();
  
+    
+    double x = measurement_r * sin(measurement_alpha) * cos(measurement_theta);
+    double y = measurement_r * sin(measurement_alpha) * sin(measurement_theta);
+    double z = measurement_r * cos(measurement_theta);
+
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glBegin(GL_LINES);
+        glVertex3d(0.0, 0.0, 0.0);
+        glVertex3d(x, y, z);
+    glEnd();
+    
+    Eigen::Matrix<double, 3, 3> j;
+
+    elementary_error_theory_for_terrestrial_laser_scanner_jacobian(j, measurement_r, measurement_alpha, measurement_theta);
+    
+    Eigen::Matrix<double, 3, 3> cox_r_alpha_theta;
+    cox_r_alpha_theta(0, 0) = sigma_r * sigma_r;
+    cox_r_alpha_theta(0, 1) = 0.0;
+    cox_r_alpha_theta(0, 2) = 0.0;
+
+    cox_r_alpha_theta(1, 0) = 0.0;
+    cox_r_alpha_theta(1, 1) = sigma_alpha * sigma_alpha;
+    cox_r_alpha_theta(1, 2) = 0.0;
+
+    cox_r_alpha_theta(1, 0) = 0.0;
+    cox_r_alpha_theta(1, 1) = 0.0;
+    cox_r_alpha_theta(1, 2) = sigma_theta * sigma_theta;
+
+    
+    Eigen::Matrix<double, 3, 3> cov_xyz = j * cox_r_alpha_theta * j.transpose();
+
+    //std::cout << "---cov_xyz---" << std::endl;
+    //std::cout << cov_xyz << std::endl;
+
+    draw_ellipse(cov_xyz, Eigen::Vector3d(x, y, z), Eigen::Vector3f(0, 1, 0), 3);
+
+
     ImGui_ImplOpenGL2_NewFrame();
     ImGui_ImplGLUT_NewFrame();
 
-    my_display_code();
-    
+    //my_display_code();
+    if(ImGui::Begin("error propagation DEMO")){
+        ImGui::InputDouble("sigma_r", &sigma_r, 0.0001, 0.001);
+        ImGui::InputDouble("sigma_alpha", &sigma_alpha, 0.0001, 0.001);
+        ImGui::InputDouble("sigma_theta", &sigma_theta, 0.0001, 0.001);
+        ImGui::InputDouble("measurement_r", &measurement_r, 1.0, 1.0);
+        ImGui::InputDouble("measurement_alpha", &measurement_alpha, 0.01, 0.1);
+        ImGui::InputDouble("measurement_theta", &measurement_theta, 0.01, 0.1);
+        ImGui::End();
+    }
+
+
     ImGui::Render();
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
     
