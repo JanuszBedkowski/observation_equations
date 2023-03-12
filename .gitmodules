@@ -1,3 +1,6 @@
 [submodule "codes/c++Examples/3rdparty/eigen"]
 	path = codes/c++Examples/3rdparty/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+[submodule "codes/c++Examples/3rdparty/imgui"]
+	path = codes/c++Examples/3rdparty/imgui
+	url = https://github.com/ocornut/imgui.git
