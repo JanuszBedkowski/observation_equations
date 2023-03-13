@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <random>
 
 static bool show_demo_window = true;
 static bool show_another_window = false;
@@ -30,6 +31,11 @@ double sigma_azimuthal_angle = 0.01;
 double measurement_r = 10.0;
 double measurement_polar_angle = M_PI * 0.25;
 double measurement_azimuthal_angle = M_PI * 0.25;
+
+bool show_ellise_1sigma = true;
+bool show_ellise_2sigma = true;
+bool show_ellise_3sigma = true;
+bool show_points_normal_distribution = true;
 
 void my_display_code()
 {
@@ -118,6 +124,23 @@ void draw_ellipse(const Eigen::Matrix3d& covar, Eigen::Vector3d& mean, Eigen::Ve
     }
 }
 
+std::vector<Eigen::Vector3d> get_points_normal_distribution(const Eigen::Matrix3d& covar, const Eigen::Vector3d& mean, const int num_points = 100)
+{
+    Eigen::LLT<Eigen::Matrix<double,3,3> > cholSolver(covar);
+    Eigen::Matrix3d transform = cholSolver.matrixL();
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::vector<Eigen::Vector3d> res;
+    for(int i = 0; i < num_points; i++){
+        std::normal_distribution<double> x{0.0, 1.0};
+        std::normal_distribution<double> y{0.0, 1.0};
+        std::normal_distribution<double> z{0.0, 1.0};
+        Eigen::Vector3d xyz(x(gen), y(gen), z(gen));
+        res.emplace_back(transform * xyz + mean);
+    }
+    return res;
+}
+
 void display() {
     ImGuiIO& io = ImGui::GetIO();
     glViewport(0, 0, (GLsizei)io.DisplaySize.x, (GLsizei)io.DisplaySize.y);
@@ -176,24 +199,39 @@ void display() {
     cox_r_alpha_theta(2, 1) = 0.0;
     cox_r_alpha_theta(2, 2) = sigma_azimuthal_angle * sigma_azimuthal_angle;
 
-    
     Eigen::Matrix<double, 3, 3> cov_xyz = j * cox_r_alpha_theta * j.transpose();
+    if(show_ellise_1sigma)draw_ellipse(cov_xyz, Eigen::Vector3d(x, y, z), Eigen::Vector3f(1, 0, 0), 1);
+    if(show_ellise_2sigma)draw_ellipse(cov_xyz, Eigen::Vector3d(x, y, z), Eigen::Vector3f(0, 1, 0), 2);
+    if(show_ellise_3sigma)draw_ellipse(cov_xyz, Eigen::Vector3d(x, y, z), Eigen::Vector3f(0, 0, 1), 3);
 
-    draw_ellipse(cov_xyz, Eigen::Vector3d(x, y, z), Eigen::Vector3f(0, 1, 0), 3);
-
-
+    if(show_points_normal_distribution){
+        std::vector<Eigen::Vector3d> points = get_points_normal_distribution(cov_xyz, Eigen::Vector3d(x, y, z), 10000);
+        glPointSize(2.0);
+        glColor3d(1.0, 1.0, 1.0);
+        glBegin(GL_POINTS);
+            for(const auto &p:points){
+                glVertex3d(p.x(), p.y(), p.z());
+            }
+        glEnd();
+        glPointSize(1.0);
+    }
 
     ImGui_ImplOpenGL2_NewFrame();
     ImGui_ImplGLUT_NewFrame();
 
     //my_display_code();
     if(ImGui::Begin("error propagation DEMO")){
-        ImGui::InputDouble("sigma_r", &sigma_r, 0.0001, 0.001);
-        ImGui::InputDouble("sigma_polar_angle", &sigma_polar_angle, 0.0001, 0.001);
-        ImGui::InputDouble("sigma_azimuthal_angle", &sigma_azimuthal_angle, 0.0001, 0.001);
-        ImGui::InputDouble("measurement_r", &measurement_r, 1.0, 1.0);
-        ImGui::InputDouble("measurement_polar_angle", &measurement_polar_angle, 0.01, 0.1);
-        ImGui::InputDouble("measurement_azimuthal_angle", &measurement_azimuthal_angle, 0.01, 0.1);
+        ImGui::InputDouble("sigma_r", &sigma_r, 0.1, 0.1);
+        ImGui::InputDouble("sigma_polar_angle", &sigma_polar_angle, 0.01, 0.01);
+        ImGui::InputDouble("sigma_azimuthal_angle", &sigma_azimuthal_angle, 0.01, 0.01);
+        ImGui::InputDouble("measurement_r", &measurement_r, 0.1, 0.1);
+        ImGui::InputDouble("measurement_polar_angle", &measurement_polar_angle, 0.01, 0.01);
+        ImGui::InputDouble("measurement_azimuthal_angle", &measurement_azimuthal_angle, 0.01, 0.01);
+
+        ImGui::Checkbox("show_ellise_1sigma", &show_ellise_1sigma);
+        ImGui::Checkbox("show_ellise_2sigma", &show_ellise_2sigma);
+        ImGui::Checkbox("show_ellise_3sigma", &show_ellise_3sigma);
+        ImGui::Checkbox("show_points_normal_distribution", &show_points_normal_distribution);
 
         ImGui::Text("----cov_xyz----");
         std::string meassage = std::to_string(cov_xyz(0, 0)) + " " + std::to_string(cov_xyz(0, 1)) + " " + std::to_string(cov_xyz(0, 2));
@@ -202,6 +240,8 @@ void display() {
         ImGui::Text(meassage.c_str());
         meassage = std::to_string(cov_xyz(2, 0)) + " " + std::to_string(cov_xyz(2, 1)) + " " + std::to_string(cov_xyz(2, 2));
         ImGui::Text(meassage.c_str());
+
+
 
         ImGui::End();
     }
