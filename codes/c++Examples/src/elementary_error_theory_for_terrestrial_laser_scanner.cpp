@@ -176,6 +176,11 @@ void display() {
     double y = measurement_r * sin(measurement_polar_angle) * sin(measurement_azimuthal_angle);
     double z = measurement_r * cos(measurement_polar_angle);
 
+    //double r_check = sqrt(x*x + y*y + z*z);
+    //double polar_angle_check = acos(z / sqrt(x*x + y*y + z*z));
+    //double azimuthal_angle_check = atan(y/x);
+    //std::cout << measurement_r << " " << r_check << " " << measurement_polar_angle << " " << polar_angle_check << " " << measurement_azimuthal_angle << " " << azimuthal_angle_check << std::endl;
+
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_LINES);
         glVertex3d(0.0, 0.0, 0.0);
