@@ -12,9 +12,12 @@ TLS_symbols = [r, polar_angle, azimuthal_angle]
 
 coordinates = Matrix([x, y, z]).vec()
 
+print(latex(coordinates))
+
 jacobian=coordinates.jacobian(TLS_symbols)
 
-print(jacobian)
+print("----\n")
+print(latex(jacobian))
 
 with open("elementary_error_theory_for_terrestrial_laser_scanner_jacobian.h",'w') as f_cpp:
     f_cpp.write("#ifndef __ELEMENTARY_ERROR_THEORY_FOR_TERRESTRIAL_LASER_SCANNER_JACOBIAN_H__\n")
