@@ -413,9 +413,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			for(size_t i = 0 ; i < h_x.size(); i++){
-				std::cout << h_x[i] << std::endl;
-			}
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
 
 			if(h_x.size() == 6 * vertices.size()){
 				int counter = 0;
@@ -620,9 +620,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			for(size_t i = 0 ; i < h_x.size(); i++){
-				std::cout << h_x[i] << std::endl;
-			}
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
 
 			if(h_x.size() == 6 * vertices.size()){
 				int counter = 0;
@@ -818,9 +818,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			for(size_t i = 0 ; i < h_x.size(); i++){
-				std::cout << h_x[i] << std::endl;
-			}
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
 
 			if(h_x.size() == 6 * vertices.size()){
 				int counter = 0;
@@ -1018,9 +1018,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			for(size_t i = 0 ; i < h_x.size(); i++){
-				std::cout << h_x[i] << std::endl;
-			}
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
 
 			if(h_x.size() == 6 * vertices.size()){
 				int counter = 0;
