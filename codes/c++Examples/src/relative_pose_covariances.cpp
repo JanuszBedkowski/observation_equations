@@ -96,6 +96,9 @@ void draw_ellipse2D(const Eigen::Matrix3d& covar, Eigen::Vector3d& mean, Eigen::
 		glVertex3dv(tp0.data());
 		glVertex3dv(tp1.data());
 		glEnd();
+
+		//check Mahanalobis Distance
+		//std::cout << sqrt((tp0 - mean).transpose() * covar.inverse() * (tp0 - mean)) << std::endl;
 	}
 }
 
