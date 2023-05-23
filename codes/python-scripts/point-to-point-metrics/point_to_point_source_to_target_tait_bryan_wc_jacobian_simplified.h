@@ -152,3 +152,4 @@ AtPB.coeffRef(0,0) = p11*(cos_fi*cos_ka*x_s - cos_fi*sin_ka*y_s + sin_fi*z_s + t
 AtPB.coeffRef(1,0) = p21*(cos_fi*cos_ka*x_s - cos_fi*sin_ka*y_s + sin_fi*z_s + tx - x_t) + p22*(-cos_fi*sin_om*z_s + ty + x_s*(cos_ka*sin_fi*sin_om + cos_om*sin_ka) + y_s*(cos_ka*cos_om - sin_fi*sin_ka*sin_om) - y_t) + p23*(cos_fi*cos_om*z_s + tz - x_s*(cos_ka*cos_om*sin_fi - sin_ka*sin_om) + y_s*(cos_ka*sin_om + cos_om*sin_fi*sin_ka) - z_t);
 AtPB.coeffRef(2,0) = p31*(cos_fi*cos_ka*x_s - cos_fi*sin_ka*y_s + sin_fi*z_s + tx - x_t) + p32*(-cos_fi*sin_om*z_s + ty + x_s*(cos_ka*sin_fi*sin_om + cos_om*sin_ka) + y_s*(cos_ka*cos_om - sin_fi*sin_ka*sin_om) - y_t) + p33*(cos_fi*cos_om*z_s + tz - x_s*(cos_ka*cos_om*sin_fi - sin_ka*sin_om) + y_s*(cos_ka*sin_om + cos_om*sin_fi*sin_ka) - z_t);
 }
+#endif
