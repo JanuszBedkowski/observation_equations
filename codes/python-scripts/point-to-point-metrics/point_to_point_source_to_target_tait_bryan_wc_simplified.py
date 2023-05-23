@@ -122,7 +122,7 @@ with open("point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified.h",
     f_cpp.write("double cos_om = cos(om);\n")
     f_cpp.write("double sin_fi = sin(fi);\n")
     f_cpp.write("double cos_fi = cos(fi);\n")
-    f_cpp.write("double sin_ka = sin6ka);\n")
+    f_cpp.write("double sin_ka = sin(ka);\n")
     f_cpp.write("double cos_ka = cos(ka);\n")
     for name, value_expr in delta_jacobian_variables:
         f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
