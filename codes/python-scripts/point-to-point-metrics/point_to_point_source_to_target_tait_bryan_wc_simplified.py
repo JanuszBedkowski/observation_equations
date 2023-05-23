@@ -127,8 +127,7 @@ with open("point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified.h",
     for name, value_expr in delta_jacobian_variables:
         f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
     for i in range (6):
-        for j in range (1):
-            f_cpp.write("AtPB.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(AtPB[i,j])))
+        f_cpp.write("AtPB.coeffRef(%d) = %s;\n"%(i, ccode(AtPB[i])))
     f_cpp.write("}\n")
     f_cpp.write("#endif\n")
 #    f_cpp.write("inline void point_to_point_source_to_target_tait_bryan_wc_d2sum_dbeta2(Eigen::Matrix<double, 6, 6, Eigen::RowMajor> &j, double tx, double ty, double tz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_t, double y_t, double z_t)\n")
