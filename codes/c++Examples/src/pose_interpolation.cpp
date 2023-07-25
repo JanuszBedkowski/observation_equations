@@ -54,9 +54,6 @@ public:
 	Eigen::Affine3d pose_interpolation(double t, double t1, double t2,
 		Eigen::Affine3d const& aff1, Eigen::Affine3d const& aff2);
 
-	void Imgui();
-	void render();
-
 	float time_stamp_1;
 	float time_stamp_2;
 	float time_stamp_middle;
