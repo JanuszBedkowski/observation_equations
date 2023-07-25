@@ -64,31 +64,31 @@ int main(int argc, char *argv[]){
 	for(int i = -50 ; i < 50; i+=20){
 		Camera c;
 		c.pose = Eigen::Affine3d::Identity();
-		c.pose(0,3) = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.0;
+		c.pose(0,3) = random(-1.0, 1.0);
 		c.pose(1,3) = i;
-		c.pose(2,3) = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.0;
+		c.pose(2,3) = random(-1.0, 1.0);
 		cameras.push_back(c);
 	}
 
 	for(float x = 0; x <= 100; x += 5){
-		Eigen::Vector3d a(x+(float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1, -50.0, 100);
-		Eigen::Vector3d b(x+(float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1,  50.0, 100);
+		Eigen::Vector3d a(x + random(-0.1, 0.1), -50.0, 100);
+		Eigen::Vector3d b(x + random(-0.1, 0.1),  50.0, 100);
 		lines.emplace_back(a,b);
 	}
 	for(float y = -50; y <= 50; y += 5){
-		Eigen::Vector3d a(0, y+(float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1, 100);
-		Eigen::Vector3d b(100.0, y+(float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1, 100);
+		Eigen::Vector3d a(0, y + random(-0.1, 0.1), 100);
+		Eigen::Vector3d b(100.0, y + random(-0.1, 0.1), 100);
 		lines.emplace_back(a,b);
 	}
 
 	for(float x = -100; x <= 0; x += 5){
-		Eigen::Vector3d a(x+(float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1, -50.0, 140);
-		Eigen::Vector3d b(x+(float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1,  50.0, 140);
+		Eigen::Vector3d a(x + random(-0.1, 0.1), -50.0, 140);
+		Eigen::Vector3d b(x + random(-0.1, 0.1),  50.0, 140);
 		lines.emplace_back(a,b);
 	}
 	for(float y = -50; y <= 50; y += 5){
-		Eigen::Vector3d a(-100, y+(float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1, 140);
-		Eigen::Vector3d b(0.0, y+(float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1, 140);
+		Eigen::Vector3d a(-100, y + random(-0.1, 0.1), 140);
+		Eigen::Vector3d b(0.0, y + random(-0.1, 0.1), 140);
 		lines.emplace_back(a,b);
 	}
 
@@ -113,7 +113,6 @@ int main(int argc, char *argv[]){
 			cameras[i].uv.push_back(uv);
 		}
 	}
-
 
 	printHelp();
 	glutDisplayFunc(display);
@@ -144,8 +143,7 @@ bool initGL(int *argc, char **argv) {
 	// projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01,
-			10000.0);
+	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01, 10000.0);
 	glutReshapeFunc(reshape);
 
 	return true;
@@ -206,12 +204,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'c':{
 			for(size_t i = 1; i < cameras.size(); i++){
 				TaitBryanPose pose;
-				pose.px = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1;
-				pose.py = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1;
-				pose.pz = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1;
-				pose.om = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1;
-				pose.fi = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1;
-				pose.ka = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1;
+				pose.px = random(-1.0, 1.0);
+				pose.py = random(-1.0, 1.0);
+				pose.pz = random(-1.0, 1.0);
+				pose.om = random(-0.1, 0.1);
+				pose.fi = random(-0.1, 0.1);
+				pose.ka = random(-0.1, 0.1);
 
 				Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(pose);
 				cameras[i].pose = cameras[i].pose * m;
@@ -220,13 +218,13 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		}
 		case 'v':{
 			for(size_t i = 0; i < lines.size(); i++){
-				lines[i].first.x() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.1;
-				lines[i].first.y() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.1;
-				lines[i].first.z() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.1;
+				lines[i].first.x() += random(-1.0, 1.0);
+				lines[i].first.y() += random(-1.0, 1.0);
+				lines[i].first.z() += random(-1.0, 1.0);
 
-				lines[i].second.x() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.1;
-				lines[i].second.y() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.1;
-				lines[i].second.z() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.1;
+				lines[i].second.x() += random(-1.0, 1.0);
+				lines[i].second.y() += random(-1.0, 1.0);
+				lines[i].second.z() += random(-1.0, 1.0);
 			}
 			break;
 		}
@@ -345,12 +343,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'r':{
 			for(size_t i = 0; i < cameras.size(); i++){
 				TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(cameras[i].pose);
-				posetb.px += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.py += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.pz += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
+				posetb.px += random(-0.000001, 0.000001);
+				posetb.py += random(-0.000001, 0.000001);
+				posetb.pz += random(-0.000001, 0.000001);
+				posetb.om += random(-0.000001, 0.000001);
+				posetb.fi += random(-0.000001, 0.000001);
+				posetb.ka += random(-0.000001, 0.000001);
 				cameras[i].pose = affine_matrix_from_pose_tait_bryan(posetb);
 			}
 
@@ -552,7 +550,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListA.clear();
 			tripletListP.clear();
 			tripletListB.clear();
-
 
 			std::cout << "AtPA.size: " << AtPA.size() << std::endl;
 			std::cout << "AtPB.size: " << AtPB.size() << std::endl;
@@ -969,5 +966,3 @@ PLine get_plucker_line(const Eigen::Vector3d &from, const Eigen::Vector3d &to)
 
 	return plucker_line;
 }
-
-

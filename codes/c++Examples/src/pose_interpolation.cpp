@@ -1,9 +1,11 @@
-#include <GL/freeglut.h>
 #include <Eigen/Eigen>
-
+#include <GL/freeglut.h>
 #include <iostream>
-#include "structures.h"
-#include "transformations.h"
+#include <cmath>   
+
+#include <slerp_point_to_point_source_to_target_quaternion_wc_jacobian.h>
+#include <structures.h>
+#include <transformations.h>
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -48,6 +50,7 @@ public:
 
 		m2.linear() = rotationMatrix2;
 		m2.translation() = Eigen::Vector3d(10, -1, 5);
+	
 	};
 	~PoseInterpolation() { ; };
 
@@ -64,19 +67,61 @@ public:
 Eigen::Affine3d PoseInterpolation::pose_interpolation(double t, double t1, double t2,
     Eigen::Affine3d const& aff1, Eigen::Affine3d const& aff2) {
     // assume here t1 <= t <= t2
-    double alpha = 0.0;
-    if (t2 != t1)
-        alpha = (t - t1) / (t2 - t1);
+    //double alpha = 0.0;
+    //if (t2 != t1)
+    //   alpha = (t - t1) / (t2 - t1);
 
-    Eigen::Quaternion<double> rot1(aff1.linear());
-    Eigen::Quaternion<double> rot2(aff2.linear());
+    //Eigen::Quaternion<double> rot1(aff1.linear());
+    //Eigen::Quaternion<double> rot2(aff2.linear());
 
-    Eigen::Vector3d trans1 = aff1.translation();
-    Eigen::Vector3d trans2 = aff2.translation();
+    //Eigen::Vector3d trans1 = aff1.translation();
+    //Eigen::Vector3d trans2 = aff2.translation();
 
-    Eigen::Affine3d result;
-    result.translation() = (1.0 - alpha) * trans1 + alpha * trans2;
-    result.linear() = rot1.slerp(alpha, rot2).toRotationMatrix();
+    Eigen::Affine3d result = Eigen::Affine3d::Identity();
+
+    QuaternionPose pq_0 = pose_quaternion_from_affine_matrix(aff1);
+    QuaternionPose pq_1 = pose_quaternion_from_affine_matrix(aff2);
+
+    double px;
+    double py;
+    double pz;
+    double q0;
+    double q1;
+    double q2;
+    double q3;
+
+    double px_0 = pq_0.px;
+    double py_0 = pq_0.py;
+    double pz_0 = pq_0.pz;
+    double q0_0 = pq_0.q0;
+    double q1_0 = pq_0.q1;
+    double q2_0 = pq_0.q2;
+    double q3_0 = pq_0.q3;
+
+    double px_1 = pq_1.px;
+	double py_1 = pq_1.py;
+	double pz_1 = pq_1.pz;
+	double q0_1 = pq_1.q0;
+	double q1_1 = pq_1.q1;
+	double q2_1 = pq_1.q2;
+	double q3_1 = pq_1.q3;
+
+    slerp_point_to_point_source_to_target_quaternion_wc_interpolate(
+    		px, py, pz, q0, q1, q2, q3,
+    		px_0, py_0, pz_0, q0_0, q1_0, q2_0, q3_0,
+    		px_1, py_1, pz_1, q0_1, q1_1, q2_1, q3_1,
+    		t1, t2, t);
+
+    QuaternionPose pq;
+    pq.px = px;
+    pq.py = py;
+    pq.pz = pz;
+    pq.q0 = q0;
+    pq.q1 = q1;
+    pq.q2 = q2;
+    pq.q3 = q3;
+
+    result = affine_matrix_from_pose_quaternion(pq);
 
     return result;
 }
@@ -150,9 +195,7 @@ void display() {
 	draw_axes(pi.m1);
 	draw_axes(pi.m2);
 
-	Eigen::Affine3d m3 = pi.pose_interpolation(pi.time_stamp_middle,
-			pi.time_stamp_1, pi.time_stamp_2, pi.m1, pi.m2);
-
+	Eigen::Affine3d m3 = pi.pose_interpolation(pi.time_stamp_middle, pi.time_stamp_1, pi.time_stamp_2, pi.m1, pi.m2);
 	draw_axes(m3);
 
 	glutSwapBuffers();

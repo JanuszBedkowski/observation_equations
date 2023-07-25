@@ -8,6 +8,17 @@
 #define MAX(a,b) a>b?a:b
 #endif
 
+#include <random>
+ 
+std::random_device rd;
+std::mt19937 gen(rd());
+
+inline double random(double low, double high)
+{
+    std::uniform_real_distribution<double> dist(low, high);
+    return dist(gen);
+}
+
 inline TaitBryanPose pose_tait_bryan_from_affine_matrix(Eigen::Affine3d m){
 	TaitBryanPose pose;
 
@@ -30,7 +41,7 @@ inline TaitBryanPose pose_tait_bryan_from_affine_matrix(Eigen::Affine3d m){
 			// not a unique solution: thetaz − thetax = atan2 ( r10 , r11 )
 			pose.fi = -M_PI / 2.0;
 			pose.om = -atan2(m(1,0), m(1,1));
-			pose.ka = 0;
+			pose.ka = 0.0;
 			return pose;
 		}
 	}
@@ -43,7 +54,6 @@ inline TaitBryanPose pose_tait_bryan_from_affine_matrix(Eigen::Affine3d m){
 		pose.ka = 0.0;
 		return pose;
 	}
-
 	return pose;
 }
 
@@ -327,7 +337,7 @@ inline Eigen::Affine3d affine_matrix_from_pose_quaternion(const QuaternionPose& 
 	return m;
 }
 
-QuaternionPose pose_quaternion_from_affine_matrix(const Eigen::Affine3d& m){
+inline QuaternionPose pose_quaternion_from_affine_matrix(const Eigen::Affine3d& m){
 	QuaternionPose pq;
 
 	double T, S, X, Y, Z, W;

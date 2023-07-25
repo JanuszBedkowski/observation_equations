@@ -6,13 +6,13 @@
 
 #include "example_func_xy_jacobian.h"
 #include "constraints_jacobian.h"
+#include <transformations.h>
 
 #define RENDER_PSI 0
 #define RENDER_OBJECTIVE_FUNC 1
 #define RENDER_OBJECTIVE_FUNC_WITH_CONTRAINT 2
 
 int render_type = RENDER_PSI;
-
 
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
@@ -465,8 +465,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			return;
 		}
 		case 'o':{
-			x_result += ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 0.0001;
-			y_result += ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 0.0001;
+			x_result += random(-0.0001, 0.0001);
+			y_result += random(-0.0001, 0.0001);
 
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
@@ -553,8 +553,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'c':{
-			x_result += ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 0.0001;
-			y_result += ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 0.0001;
+			x_result += random(-0.0001, 0.0001);
+			y_result += random(-0.0001, 0.0001);
 
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
@@ -647,8 +647,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'z':{
-			x_result += ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 0.0001;
-			y_result += ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 0.0001;
+			x_result += random(-0.0001, 0.0001);
+			y_result += random(-0.0001, 0.0001);
 
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
@@ -756,8 +756,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'x':{
-			x_result += ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 0.0001;
-			y_result += ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 0.0001;
+			x_result += random(-0.0001, 0.0001);
+			y_result += random(-0.0001, 0.0001);
 
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
@@ -883,8 +883,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 'r':{
-			x_result = ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 10;
-			y_result = ((rand()%1000000)/1000000.0f - 0.5) * 2.0 * 10;
+			x_result = random(-10.0, 10.0);
+			y_result = random(-10.0, 10.0);
 			path_result.clear();
 			path_result.emplace_back(x_result, y_result);
 			break;

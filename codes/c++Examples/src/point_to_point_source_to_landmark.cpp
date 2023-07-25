@@ -48,8 +48,7 @@ void mouse(int button, int state, int x, int y);
 void motion(int x, int y);
 void reshape(int w, int h);
 void printHelp();
-void calculate_ICP_COV(std::vector<PointMeanCov>& data_pi,
-		std::vector<PointMeanCov>& model_qi, Eigen::Affine3d transform, Eigen::MatrixXd& ICP_COV);
+void calculate_ICP_COV(std::vector<PointMeanCov>& data_pi, std::vector<PointMeanCov>& model_qi, Eigen::Affine3d transform, Eigen::MatrixXd& ICP_COV);
 
 std::vector<Eigen::Vector3d> landmarks;
 std::vector<Node> nodes;
@@ -112,12 +111,12 @@ void compute_covariance (std::vector<Eigen::Vector3d> points, Eigen::Vector3d &m
 int main(int argc, char *argv[]){
 
 	for(size_t i = 0; i < 10; i++){
-		landmarks.emplace_back(Eigen::Vector3d((rand()%1000 - 500)*0.1, (rand()%1000 - 500)*0.1, (rand()%1000 - 500)*0.0001));
+		landmarks.emplace_back(Eigen::Vector3d(random(-50.0, 50.0), random(0.0, 50.0), random(-0.1, 0.1)));
 	}
 
 	for(size_t i = 0; i < 10; i++){
 		Eigen::Affine3d m = Eigen::Affine3d::Identity();
-		m(0,3) = (rand()%1000 - 500)*0.001;
+		m(0,3) = random(-0.001, 0.001);
 		m(1,3) = i*5;
 		m(2,3) = 1;
 		Node n;
@@ -331,12 +330,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'n':{
 			for(size_t i = 0 ; i < nodes.size(); i++){
 				TaitBryanPose pose;
-						pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.5;
-						pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.5;
-						pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.0000005;
-						pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.0000005;
-						pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.0000005;
-						pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.005;
+						pose.px = random(-0.5, 0.5);
+						pose.py = random(-0.5, 0.5);
+						pose.pz = random(-0.000001, 0.000001);
+						pose.om = random(-0.000001, 0.000001);
+						pose.fi = random(-0.000001, 0.000001);
+						pose.ka = random(-0.001, 0.001);
 				nodes[i].pose = nodes[i].pose * affine_matrix_from_pose_tait_bryan(pose);
 			}
 			break;

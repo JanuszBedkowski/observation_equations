@@ -29,7 +29,6 @@ void motion(int x, int y);
 void reshape(int w, int h);
 void printHelp();
 
-
 Eigen::Affine3d pose_source;
 std::vector<Eigen::Vector3d> points_target_global;
 std::vector<Eigen::Vector3d> points_source_local;
@@ -38,9 +37,9 @@ int main(int argc, char *argv[]){
 
 	for(size_t i = 0 ; i < 100; i++){
 		Eigen::Vector3d p;
-		p.x() = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		p.y() = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		p.z() = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
+		p.x() = random(-100.0, 100.0);
+		p.y() = random(-100.0, 100.0);
+		p.z() = random(-100.0, 100.0);
 		points_target_global.push_back(p);
 	}
 
@@ -94,8 +93,7 @@ bool initGL(int *argc, char **argv) {
 	// projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01,
-			10000.0);
+	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01, 10000.0);
 	glutReshapeFunc(reshape);
 
 	return true;
@@ -123,7 +121,6 @@ void display() {
 	glVertex3f(0.0f, 0.0f, 0.0f);
 	glVertex3f(0.0f, 0.0f, 1.0f);
 	glEnd();
-
 
 	Eigen::Affine3d &m = pose_source;
 
@@ -187,15 +184,14 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		}
 		case 'n':{
 				TaitBryanPose pose;
-				pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.0;
-				pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.5;
-				pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.5;
-				pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.5;
+				pose.px = random(-1.0, 1.0);
+				pose.py = random(-1.0, 1.0);
+				pose.pz = random(-1.0, 1.0);
+				pose.om = random(-0.5, 0.5);
+				pose.fi = random(-0.5, 0.5);
+				pose.ka = random(-0.5, 0.5);
 
 				pose_source = pose_source * affine_matrix_from_pose_tait_bryan(pose);
-
 			break;
 		}
 		case 't':{
@@ -205,57 +201,57 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			TaitBryanPose pose_s = pose_tait_bryan_from_affine_matrix(pose_source);
 
-for(size_t i = 0 ; i < points_source_local.size(); i++){
-	Eigen::Vector3d &p_t = points_target_global[i];
-	Eigen::Vector3d &p_s = points_source_local[i];
-	double delta_x;
-	double delta_y;
-	double delta_z;
-	point_to_point_source_to_target_tait_bryan_wc(delta_x, delta_y, delta_z, pose_s.px, pose_s.py, pose_s.pz, pose_s.om, pose_s.fi, pose_s.ka, p_s.x(), p_s.y(), p_s.z(), p_t.x(), p_t.y(), p_t.z());
+			for(size_t i = 0 ; i < points_source_local.size(); i++){
+				Eigen::Vector3d &p_t = points_target_global[i];
+				Eigen::Vector3d &p_s = points_source_local[i];
+				double delta_x;
+				double delta_y;
+				double delta_z;
+				point_to_point_source_to_target_tait_bryan_wc(delta_x, delta_y, delta_z, pose_s.px, pose_s.py, pose_s.pz, pose_s.om, pose_s.fi, pose_s.ka, p_s.x(), p_s.y(), p_s.z(), p_t.x(), p_t.y(), p_t.z());
 
-	Eigen::Matrix<double, 3, 6, Eigen::RowMajor> jacobian;
-	point_to_point_source_to_target_tait_bryan_wc_jacobian(jacobian, pose_s.px, pose_s.py, pose_s.pz, pose_s.om, pose_s.fi, pose_s.ka, p_s.x(), p_s.y(), p_s.z());
+				Eigen::Matrix<double, 3, 6, Eigen::RowMajor> jacobian;
+				point_to_point_source_to_target_tait_bryan_wc_jacobian(jacobian, pose_s.px, pose_s.py, pose_s.pz, pose_s.om, pose_s.fi, pose_s.ka, p_s.x(), p_s.y(), p_s.z());
 
-	int ir = tripletListB.size();
+				int ir = tripletListB.size();
 
-	for(int row = 0; row < 3; row++){
-		for(int col = 0; col < 6; col++){
-			if(jacobian(row,col)!=0.0){
-			tripletListA.emplace_back(ir+row,col,-jacobian(row,col));
+				for(int row = 0; row < 3; row++){
+					for(int col = 0; col < 6; col++){
+						if(jacobian(row,col)!=0.0){
+						tripletListA.emplace_back(ir+row,col,-jacobian(row,col));
+						}
+					}
+				}
+
+				tripletListP.emplace_back(ir    , ir    , 1);
+				tripletListP.emplace_back(ir + 1, ir + 1, 1);
+				tripletListP.emplace_back(ir + 2, ir + 2, 1);
+
+				tripletListB.emplace_back(ir    , 0,  delta_x);
+				tripletListB.emplace_back(ir + 1, 0,  delta_y);
+				tripletListB.emplace_back(ir + 2, 0,  delta_z);
 			}
-		}
-	}
 
-	tripletListP.emplace_back(ir    , ir    , 1);
-	tripletListP.emplace_back(ir + 1, ir + 1, 1);
-	tripletListP.emplace_back(ir + 2, ir + 2, 1);
+			Eigen::SparseMatrix<double> matA(tripletListB.size(), 6);
+			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
+			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
 
-	tripletListB.emplace_back(ir    , 0,  delta_x);
-	tripletListB.emplace_back(ir + 1, 0,  delta_y);
-	tripletListB.emplace_back(ir + 2, 0,  delta_z);
-}
+			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
+			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
+			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
 
-Eigen::SparseMatrix<double> matA(tripletListB.size(), 6);
-Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
-Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
+			Eigen::SparseMatrix<double> AtPA(6, 6);
+			Eigen::SparseMatrix<double> AtPB(6, 1);
 
-matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
-matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
-matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
+			Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
+			AtPA = AtP * matA;
+			AtPB = AtP * matB;
 
-Eigen::SparseMatrix<double> AtPA(6, 6);
-Eigen::SparseMatrix<double> AtPB(6, 1);
+						tripletListA.clear();
+						tripletListP.clear();
+						tripletListB.clear();
 
-Eigen::SparseMatrix<double> AtP = matA.transpose() * matP;
-AtPA = AtP * matA;
-AtPB = AtP * matB;
-
-			tripletListA.clear();
-			tripletListP.clear();
-			tripletListB.clear();
-
-Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
-Eigen::SparseMatrix<double> x = solver.solve(AtPB);
+			Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(AtPA);
+			Eigen::SparseMatrix<double> x = solver.solve(AtPB);
 
 			std::vector<double> h_x;
 
@@ -292,9 +288,9 @@ Eigen::SparseMatrix<double> x = solver.solve(AtPB);
 		case 'r':{
 
 			TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(pose_source);
-			posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-			posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-			posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
+			posetb.om += random(-0.000001, 0.000001);
+			posetb.fi += random(-0.000001, 0.000001);
+			posetb.ka += random(-0.000001, 0.000001);
 			pose_source = affine_matrix_from_pose_tait_bryan(posetb);
 
 			std::vector<Eigen::Triplet<double>> tripletListA;
@@ -614,7 +610,6 @@ Eigen::SparseMatrix<double> x = solver.solve(AtPB);
 	printHelp();
 	glutPostRedisplay();
 }
-
 
 void mouse(int button, int state, int x, int y) {
 	if (state == GLUT_DOWN) {

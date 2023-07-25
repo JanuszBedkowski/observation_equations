@@ -20,13 +20,7 @@ float translate_z = -10.0;
 float translate_x, translate_y = 0.0;
 
 std::vector<std::vector<Eigen::Affine3d>> bundle_of_rays;
-struct Rectangle{
-	std::vector<Eigen::Vector3d> corners_local;
-	double scale_x;
-	double scale_y;
-	Eigen::Affine3d pose;
-};
-Rectangle rectangle;
+Rectangle3D rectangle;
 
 bool initGL(int *argc, char **argv);
 void display();
@@ -37,33 +31,17 @@ void reshape(int w, int h);
 void printHelp();
 
 int main(int argc, char *argv[]){
-
 	std::vector<Eigen::Affine3d> br;
 	for(size_t i = 0; i < 25; i++){
 		TaitBryanPose pose;
 
-		pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 10;
-		pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + -5;
-		pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + -2;
+		pose.px = random(-0.01, 0.01) + 10;
+		pose.py = random(-0.01, 0.01) + -5;
+		pose.pz = random(-0.01, 0.01) + -2;
 
-		pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
-		pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
-		pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
-
-		br.push_back(affine_matrix_from_pose_tait_bryan(pose));
-	}
-	bundle_of_rays.push_back(br);
-	br.clear();
-	for(size_t i = 0; i < 25; i++){
-		TaitBryanPose pose;
-
-		pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 10;
-		pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 +  5;
-		pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + -2;
-
-		pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
-		pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
-		pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
+		pose.om = random(-1.5, 1.5);
+		pose.fi = random(-1.5, 1.5);
+		pose.ka = random(-1.5, 1.5);
 
 		br.push_back(affine_matrix_from_pose_tait_bryan(pose));
 	}
@@ -72,13 +50,13 @@ int main(int argc, char *argv[]){
 	for(size_t i = 0; i < 25; i++){
 		TaitBryanPose pose;
 
-		pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 10;
-		pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 +  5;
-		pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 +  5;
+		pose.px = random(-0.01, 0.01) + 10;
+		pose.py = random(-0.01, 0.01) +  5;
+		pose.pz = random(-0.01, 0.01) + -2;
 
-		pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
-		pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
-		pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
+		pose.om = random(-1.5, 1.5);
+		pose.fi = random(-1.5, 1.5);
+		pose.ka = random(-1.5, 1.5);
 
 		br.push_back(affine_matrix_from_pose_tait_bryan(pose));
 	}
@@ -87,19 +65,33 @@ int main(int argc, char *argv[]){
 	for(size_t i = 0; i < 25; i++){
 		TaitBryanPose pose;
 
-		pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + 10;
-		pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 + -5;
-		pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.01 +  5;
+		pose.px = random(-0.01, 0.01) + 10;
+		pose.py = random(-0.01, 0.01) +  5;
+		pose.pz = random(-0.01, 0.01) +  5;
 
-		pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
-		pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
-		pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 1.5;
+		pose.om = random(-1.5, 1.5);
+		pose.fi = random(-1.5, 1.5);
+		pose.ka = random(-1.5, 1.5);
 
 		br.push_back(affine_matrix_from_pose_tait_bryan(pose));
 	}
 	bundle_of_rays.push_back(br);
 	br.clear();
+	for(size_t i = 0; i < 25; i++){
+		TaitBryanPose pose;
 
+		pose.px = random(-0.01, 0.01) + 10;
+		pose.py = random(-0.01, 0.01) + -5;
+		pose.pz = random(-0.01, 0.01) +  5;
+
+		pose.om = random(-1.5, 1.5);
+		pose.fi = random(-1.5, 1.5);
+		pose.ka = random(-1.5, 1.5);
+
+		br.push_back(affine_matrix_from_pose_tait_bryan(pose));
+	}
+	bundle_of_rays.push_back(br);
+	br.clear();
 
 	rectangle.scale_x = 1.0;
 	rectangle.scale_y = 1.0;
@@ -108,8 +100,6 @@ int main(int argc, char *argv[]){
 	rectangle.corners_local.emplace_back( 1,-1, 0);
 	rectangle.corners_local.emplace_back( 1, 1, 0);
 	rectangle.corners_local.emplace_back(-1, 1, 0);
-
-
 
 	if (false == initGL(&argc, argv)) {
 		return 4;
@@ -124,8 +114,6 @@ int main(int argc, char *argv[]){
 
 	return 0;
 }
-
-
 
 bool initGL(int *argc, char **argv) {
 	glutInit(argc, argv);
@@ -317,14 +305,13 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			std::vector<Eigen::Triplet<double>> tripletListB;
 
 			TaitBryanPose pose_rand;
-			pose_rand.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
+			pose_rand.px = random(-0.000001, 0.000001);
+			pose_rand.py = random(-0.000001, 0.000001);
+			pose_rand.pz = random(-0.000001, 0.000001);
+			pose_rand.om = random(-0.000001, 0.000001);
+			pose_rand.fi = random(-0.000001, 0.000001);
+			pose_rand.ka = random(-0.000001, 0.000001);
 			rectangle.pose = rectangle.pose * affine_matrix_from_pose_tait_bryan(pose_rand);
-
 
 			RodriguesPose pose = pose_rodrigues_from_affine_matrix(rectangle.pose);
 
@@ -435,14 +422,13 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			std::vector<Eigen::Triplet<double>> tripletListB;
 
 			TaitBryanPose pose_rand;
-			pose_rand.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-			pose_rand.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
+			pose_rand.px = random(-0.000001, 0.000001);
+			pose_rand.py = random(-0.000001, 0.000001);
+			pose_rand.pz = random(-0.000001, 0.000001);
+			pose_rand.om = random(-0.000001, 0.000001);
+			pose_rand.fi = random(-0.000001, 0.000001);
+			pose_rand.ka = random(-0.000001, 0.000001);
 			rectangle.pose = rectangle.pose * affine_matrix_from_pose_tait_bryan(pose_rand);
-
 
 			QuaternionPose pose = pose_quaternion_from_affine_matrix(rectangle.pose);
 
@@ -571,35 +557,34 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				for(size_t j = 0; j < bundle_of_rays[i].size(); j++){
 					TaitBryanPose pose;
 
-					pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.05;
-					pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.05;
-					pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 0.05;
+					pose.px = random(-0.05, 0.05);
+					pose.py = random(-0.05, 0.05);
+					pose.pz = random(-0.05, 0.05);
 
-					pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
-					pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
-					pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
+					pose.om = random(-2.0, 2.0);
+					pose.fi = random(-2.0, 2.0);
+					pose.ka = random(-2.0, 2.0);
 
 					bundle_of_rays[i][j] = bundle_of_rays[i][j] * affine_matrix_from_pose_tait_bryan(pose);
 				}
 			}
 			TaitBryanPose pose;
 
-			pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 5;
-			pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 5;
-			pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 5;
+			pose.px = random(-5.0, 5.0);
+			pose.py = random(-5.0, 5.0);
+			pose.pz = random(-5.0, 5.0);
 
-			pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
-			pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
-			pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 2;
+			pose.om = random(-2.0, 2.0);
+			pose.fi = random(-2.0, 2.0);
+			pose.ka = random(-2.0, 2.0);
 
 			rectangle.pose = rectangle.pose * affine_matrix_from_pose_tait_bryan(pose);
 
-			rectangle.scale_x += ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 5;
-			rectangle.scale_y += ((float(rand()%1000000))/1000000.0f - 0.5) * 2.0 * 5;
+			rectangle.scale_x += random(-5.0, 5.0);
+			rectangle.scale_y += random(-5.0, 5.0);
 			break;
 		}
 	}
-
 	printHelp();
 	glutPostRedisplay();
 }

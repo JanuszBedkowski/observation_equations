@@ -52,7 +52,7 @@ int main(int argc, char *argv[]){
 
 		Eigen::Affine3d mrot = affine_matrix_from_pose_tait_bryan(rot);
 
-		Eigen::Vector3d p(2 + ((float(rand()%1000000))/1000000.0 - 0.05) * 2.0 * 0.1, 0, 0);
+		Eigen::Vector3d p(2 + random(-0.1, 0.1), 0, 0);
 		Eigen::Affine3d m = m_center * mrot;
 		Eigen::Vector3d pt = m * p;
 
@@ -199,6 +199,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				circle.x += h_x[0];
 				circle.y += h_x[1];
 				circle.r += h_x[2];
+
+				std::cout << "circle.x " << circle.x << " circle.y " << circle.y << " circle.r " << circle.r << std::endl;
 			}
 		break;
 		}
@@ -256,24 +258,14 @@ void printHelp() {
 
 void draw_circle(const Circle &circle, float angle_step_rad, float r, float g, float b){
 	glColor3f(r,g,b);
-	Eigen::Affine3d m_center = Eigen::Affine3d::Identity();
-	m_center(0,3) = circle.x;
-	m_center(1,3) = circle.y;
-
-
 	glBegin(GL_LINE_STRIP);
 	for(double angle = 0.0; angle <= 2.0 * M_PI; angle += angle_step_rad){
 		TaitBryanPose rot;
 		rot.ka = angle;
-
 		Eigen::Affine3d mrot = affine_matrix_from_pose_tait_bryan(rot);
-
-		Eigen::Vector3d p(circle.r, 0,0);
-		Eigen::Affine3d m = m_center * mrot;
-		Eigen::Vector3d pt = m * p;
-
-		glVertex3f(pt.x(), pt.y(), pt.z());
-
+		Eigen::Vector3d p(circle.r, 0, 0);
+		Eigen::Vector3d pt = mrot * p;
+		glVertex3f(circle.x + pt.x(), circle.y + pt.y(), pt.z());
 	}
 	glEnd();
 }

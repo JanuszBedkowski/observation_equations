@@ -40,9 +40,9 @@ int main(int argc, char *argv[]){
 
 	for(size_t i = 0 ; i < 10000; i++){
 		Eigen::Vector3d p;
-		p.x() = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		p.y() = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
-		p.z() = ((float(rand()%1000000))/1000000.0f - 0.5) * 100;
+		p.x() = random(-100.0, 100.0);
+		p.y() = random(-100.0, 100.0);
+		p.z() = random(-100.0, 100.0);
 		points_global.push_back(p);
 	}
 
@@ -337,13 +337,13 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 						RodriguesPose pose_1 = pose_rodrigues_from_affine_matrix(trajectory[i]);
 						RodriguesPose pose_2 = pose_rodrigues_from_affine_matrix(trajectory[j]);
 
-						pose_1.sx += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.000001;
-						pose_1.sy += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.000001;
-						pose_1.sz += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.000001;
+						pose_1.sx += random(-0.000001, 0.000001);
+						pose_1.sy += random(-0.000001, 0.000001);
+						pose_1.sz += random(-0.000001, 0.000001);
 
-						pose_2.sx += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.000001;
-						pose_2.sy += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.000001;
-						pose_2.sz += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.000001;
+						pose_2.sx += random(-0.000001, 0.000001);
+						pose_2.sy += random(-0.000001, 0.000001);
+						pose_2.sz += random(-0.000001, 0.000001);
 
 						for(size_t k = 0 ; k < points_local[i].size(); k++){
 							Eigen::Vector3d &p_1 = points_local[i][k];

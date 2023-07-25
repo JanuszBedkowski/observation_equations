@@ -1,0 +1,6 @@
+[submodule "3rdparty/eigen"]
+	path = 3rdparty/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "3rdparty/imgui"]
+	path = 3rdparty/imgui
+	url = https://github.com/ocornut/imgui.git

@@ -44,9 +44,9 @@ int main(int argc, char *argv[]){
 		p.px = i;
 		p.py = -1;
 		p.pz = 0.0;
-		p.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-		p.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-		p.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
+		p.om = random(-0.01, 0.01);
+		p.fi = random(-0.01, 0.01);
+		p.ka = random(-0.01, 0.01);
 
 		Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(p);
 		m_poses.push_back(m);
@@ -56,9 +56,9 @@ int main(int argc, char *argv[]){
 		p.px = i;
 		p.py = 1;
 		p.pz = 0.0;
-		p.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-		p.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-		p.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
+		p.om = random(-0.01, 0.01);
+		p.fi = random(-0.01, 0.01);
+		p.ka = random(-0.01, 0.01);
 
 		Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(p);
 		m_poses.push_back(m);
@@ -112,8 +112,7 @@ bool initGL(int *argc, char **argv) {
 	// projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01,
-			10000.0);
+	gluPerspective(60.0, (GLfloat) window_width / (GLfloat) window_height, 0.01, 10000.0);
 	glutReshapeFunc(reshape);
 
 	return true;
@@ -157,8 +156,6 @@ void display() {
 		glVertex3f(m_poses[loop_edges[i].second](0,3), m_poses[loop_edges[i].second](1,3), m_poses[loop_edges[i].second](2,3) );
 	}
 	glEnd();
-
-
 	glutSwapBuffers();
 }
 
@@ -171,12 +168,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'n':{
 			for(size_t i = 0 ; i < m_poses.size(); i++){
 				TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(m_poses[i]);
-				pose.px += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.py += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.pz += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.om += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-				pose.fi += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-				pose.ka += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
+				pose.px += random(-0.1, 0.1);
+				pose.py += random(-0.1, 0.1);
+				pose.pz += random(-0.1, 0.1);
+				pose.om += random(-0.01, 0.01);
+				pose.fi += random(-0.01, 0.01);
+				pose.ka += random(-0.01, 0.01);
 				m_poses[i] = affine_matrix_from_pose_tait_bryan(pose);
 			}
 			break;
@@ -396,7 +393,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			tripletListB.emplace_back(ir + 4 , 0, 0);
 			tripletListB.emplace_back(ir + 5 , 0, 0);
 
-
 			Eigen::SparseMatrix<double> matA(tripletListB.size(), m_poses.size() * 6);
 			Eigen::SparseMatrix<double> matP(tripletListB.size(), tripletListB.size());
 			Eigen::SparseMatrix<double> matB(tripletListB.size(), 1);
@@ -404,7 +400,6 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			matA.setFromTriplets(tripletListA.begin(), tripletListA.end());
 			matP.setFromTriplets(tripletListP.begin(), tripletListP.end());
 			matB.setFromTriplets(tripletListB.begin(), tripletListB.end());
-
 
 			Eigen::SparseMatrix<double> AtPA(m_poses.size() * 6 , m_poses.size() * 6);
 			Eigen::SparseMatrix<double> AtPB(m_poses.size() * 6 , 1);
@@ -435,9 +430,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 					h_x.push_back(it.value());
 				}
 			}
-
 			std::cout << "h_x.size(): " << h_x.size() << std::endl;
-
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
 			for(size_t i = 0 ; i < h_x.size(); i++){
@@ -466,6 +459,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		}
 
 		case 'r':{
+			//std::cout << "ToDo: " << __FILE__ << " " << __LINE__ << std::endl;
+			#if 1 
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
 			std::vector<Eigen::Triplet<double>> tripletListB;
@@ -754,7 +749,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}else{
 				std::cout << "optimizing with rodrigues FAILED" << std::endl;
 			}
-
+			#endif
 			break;
 		}
 		case 'q':{
@@ -1805,6 +1800,8 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			break;
 		}
 		case 's':{
+			std::cout << "ToDo" << __FILE__ << " " << __LINE__ << std::endl;
+			#if 0
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
 			std::vector<Eigen::Triplet<double>> tripletListB;
@@ -2100,9 +2097,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 				std::cout << "optimizing with rodrigues FAILED" << std::endl;
 			}
 
+			#endif
 			break;
 		}
 		case 'd':{
+			std::cout << "ToDo " << __FILE__ << " " << __LINE__ << std::endl; 
+			#if 0
 			std::vector<Eigen::Triplet<double>> tripletListA;
 			std::vector<Eigen::Triplet<double>> tripletListP;
 			std::vector<Eigen::Triplet<double>> tripletListB;
@@ -2436,7 +2436,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 			}else{
 				std::cout << "optimizing with quaternions FAILED" << std::endl;
 			}
-
+			#endif
 			break;
 		}
 	}

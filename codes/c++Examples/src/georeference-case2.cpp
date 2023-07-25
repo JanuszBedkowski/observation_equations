@@ -41,9 +41,9 @@ int main(int argc, char *argv[]){
 		p.px = i;
 		p.py = -1;
 		p.pz = 0.0;
-		p.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-		p.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-		p.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
+		p.om = random(-0.01, 0.01);
+		p.fi = random(-0.01, 0.01);
+		p.ka = random(-0.01, 0.01);
 
 		Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(p);
 		m_poses.push_back(m);
@@ -53,9 +53,9 @@ int main(int argc, char *argv[]){
 		p.px = i;
 		p.py = 1;
 		p.pz = 0.0;
-		p.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-		p.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-		p.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
+		p.om = random(-0.01, 0.01);
+		p.fi = random(-0.01, 0.01);
+		p.ka = random(-0.01, 0.01);
 
 		Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(p);
 		m_poses.push_back(m);
@@ -217,12 +217,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'n':{
 			for(size_t i = 0 ; i < m_poses.size(); i++){
 				TaitBryanPose pose = pose_tait_bryan_from_affine_matrix(m_poses[i]);
-				pose.px += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.py += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.pz += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.om += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-				pose.fi += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
-				pose.ka += ((float(rand()%1000000))/1000000.0f - 0.5) * 0.01;
+				pose.px += random(-0.1, 0.1);
+				pose.py += random(-0.1, 0.1);
+				pose.pz += random(-0.1, 0.1);
+				pose.om += random(-0.01, 0.01);
+				pose.fi += random(-0.01, 0.01);
+				pose.ka += random(-0.01, 0.01);
 				m_poses[i] = affine_matrix_from_pose_tait_bryan(pose);
 			}
 			break;

@@ -11,7 +11,6 @@
 #include "perspective_camera_quaternion_wc_jacobian.h"
 #include "quaternion_constraint_jacobian.h"
 
-
 struct KeyPoint{
 	double u;
 	double v;
@@ -31,8 +30,8 @@ const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
 int mouse_old_x, mouse_old_y;
 int mouse_buttons = 0;
-float rotate_x = -215, rotate_y = 273;
-float translate_z = -68.0;
+float rotate_x = 0, rotate_y = 0;
+float translate_z = -200.0;
 float translate_x = 4, translate_y = 30.0;
 
 bool initGL(int *argc, char **argv);
@@ -56,21 +55,20 @@ int main(int argc, char *argv[]){
 
 	for(size_t i = 0 ; i < 100; i++){
 		Eigen::Vector3d p;
-		p.x() = ((rand()%1000000)/1000000.0 - 0.5) * 2.0 * 100.0;
-		p.y() = ((rand()%1000000)/1000000.0 - 0.5) * 2.0 * 105.0;
-		p.z() = 100 + ((rand()%1000000)/1000000.0 - 0.5) * 2.0 * 5.0;
+		p.x() = random(-100.0, 100.0);
+		p.y() = random(-100.0, 100.0);
+		p.z() = random(-100.0, -90.0);
 		tie_points.push_back(p);
 	}
 
-	for(int i = -50 ; i < 50; i+=20){
+	for(int i = -50 ; i < 50; i += 20){
 		Camera c;
 		c.pose = Eigen::Affine3d::Identity();
-		c.pose(0,3) = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.0;
+		c.pose(0,3) = random(-1.0, 1.0);
 		c.pose(1,3) = i;
-		c.pose(2,3) = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.0;
+		c.pose(2,3) = random(-1.0, 1.0);
 		cameras.push_back(c);
 	}
-
 
 	for(size_t i = 0 ; i < cameras.size(); i++){
 		for(size_t j = 0; j < tie_points.size(); j++){
@@ -173,13 +171,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'c':{
 			for(size_t i = 0; i < cameras.size(); i++){
 				TaitBryanPose pose;
-				pose.px = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1;
-				pose.py = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1;
-				pose.pz = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1;
-				pose.om = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1;
-				pose.fi = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1;
-				pose.ka = (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.1;
-
+				pose.px = random(-1.0, 1.0);
+				pose.py = random(-1.0, 1.0);
+				pose.pz = random(-1.0, 1.0);
+				pose.om = random(-0.1, 0.1);
+				pose.fi = random(-0.1, 0.1);
+				pose.ka = random(-0.1, 0.1);
 				Eigen::Affine3d m = affine_matrix_from_pose_tait_bryan(pose);
 				cameras[i].pose = cameras[i].pose * m;
 			}
@@ -187,21 +184,21 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		}
 		case 'p':{
 			for(size_t i = 0; i < tie_points.size(); i++){
-				tie_points[i].x() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.1;
-				tie_points[i].y() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.1;
-				tie_points[i].z() += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 1.1;
+				tie_points[i].x() += random(-1.0, 1.0);
+				tie_points[i].y() += random(-1.0, 1.0);
+				tie_points[i].z() += random(-1.0, 1.0);
 			}
 			break;
 		}
 		case 't':{
 			for(size_t i = 0; i < cameras.size(); i++){
 				TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(cameras[i].pose);
-				posetb.px += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.py += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.pz += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
+				posetb.px += random(-0.000001, 0.000001);
+				posetb.py += random(-0.000001, 0.000001);
+				posetb.pz += random(-0.000001, 0.000001);
+				posetb.om += random(-0.000001, 0.000001);
+				posetb.fi += random(-0.000001, 0.000001);
+				posetb.ka += random(-0.000001, 0.000001);
 				cameras[i].pose = affine_matrix_from_pose_tait_bryan(posetb);
 			}
 
@@ -354,12 +351,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'r':{
 			for(size_t i = 0; i < cameras.size(); i++){
 				TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(cameras[i].pose);
-				posetb.px += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.py += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.pz += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
+				posetb.px += random(-0.000001, 0.000001);
+				posetb.py += random(-0.000001, 0.000001);
+				posetb.pz += random(-0.000001, 0.000001);
+				posetb.om += random(-0.000001, 0.000001);
+				posetb.fi += random(-0.000001, 0.000001);
+				posetb.ka += random(-0.000001, 0.000001);
 				cameras[i].pose = affine_matrix_from_pose_tait_bryan(posetb);
 			}
 
@@ -510,12 +507,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'q':{
 			for(size_t i = 0; i < cameras.size(); i++){
 				TaitBryanPose posetb = pose_tait_bryan_from_affine_matrix(cameras[i].pose);
-				posetb.px += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.py += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.pz += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.om += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.fi += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
-				posetb.ka += (float(rand()%1000000)/1000000.0 - 0.5) * 2.0 * 0.00001;
+				posetb.px += random(-0.000001, 0.000001);
+				posetb.py += random(-0.000001, 0.000001);
+				posetb.pz += random(-0.000001, 0.000001);
+				posetb.om += random(-0.000001, 0.000001);
+				posetb.fi += random(-0.000001, 0.000001);
+				posetb.ka += random(-0.000001, 0.000001);
 				cameras[i].pose = affine_matrix_from_pose_tait_bryan(posetb);
 			}
 

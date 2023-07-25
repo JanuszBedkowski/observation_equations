@@ -57,8 +57,8 @@ bool find_nearest_neighbour(Eigen::Vector3d &p_t, Eigen::Affine3d vertex, const 
 			if( dist < min_dist_xy){
 				min_dist_xy = dist;
 				p_t = reference_points[i];
-				p_t.x() = vertex(0,3) + ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
-				p_t.y() = vertex(1,3) + ((float(rand()%1000000))/1000000.0f - 0.5) * 0.000001;
+				p_t.x() = vertex(0,3) + random(-0.000001, 0.000001);
+				p_t.y() = vertex(1,3) + random(-0.000001, 0.000001);
 				found = true;
 			}
 		}
@@ -69,13 +69,13 @@ bool find_nearest_neighbour(Eigen::Vector3d &p_t, Eigen::Affine3d vertex, const 
 int main(int argc, char *argv[]){
 
 	for(size_t i = 0; i < 10000; i++){
-		double x = ((float(rand()%1000000)/1000000.0f - 0.5) * 2.0) * 20.0;
-		double y = ((float(rand()%1000000)/1000000.0f - 0.5) * 2.0) * 20.0;
+		double x = random(-20.0, 20.0);
+		double y = random(-20.0, 20.0);
 		double z;
 		example_func_xy(z, x, y);
 
 		if( (x-4)*(x-4) + (y-5)*(y-5) > 49){
-			reference_points.emplace_back(x,y,z*10 + ((float(rand()%1000000)/1000000.0f - 0.5) * 2.0) * 0.1);
+			reference_points.emplace_back(x,y,z*10 + random(-0.1, 0.1));
 		}
 	}
 
@@ -221,12 +221,12 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		case 'n':{
 			for(size_t i = 0 ; i < vertices.size(); i++){
 				TaitBryanPose pose;
-				pose.px = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.py = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.pz = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.om = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.fi = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
-				pose.ka = ((float(rand()%1000000))/1000000.0f - 0.5) * 0.1;
+				pose.px = random(-0.1, 0.1);
+				pose.py = random(-0.1, 0.1);
+				pose.pz = random(-0.1, 0.1);
+				pose.om = random(-0.1, 0.1);
+				pose.fi = random(-0.1, 0.1);
+				pose.ka = random(-0.1, 0.1);
 
 				vertices[i] = vertices[i] * affine_matrix_from_pose_tait_bryan(pose);
 			}
@@ -413,9 +413,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			for(size_t i = 0 ; i < h_x.size(); i++){
-				std::cout << h_x[i] << std::endl;
-			}
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
 
 			if(h_x.size() == 6 * vertices.size()){
 				int counter = 0;
@@ -620,9 +620,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			for(size_t i = 0 ; i < h_x.size(); i++){
-				std::cout << h_x[i] << std::endl;
-			}
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
 
 			if(h_x.size() == 6 * vertices.size()){
 				int counter = 0;
@@ -818,9 +818,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			for(size_t i = 0 ; i < h_x.size(); i++){
-				std::cout << h_x[i] << std::endl;
-			}
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
 
 			if(h_x.size() == 6 * vertices.size()){
 				int counter = 0;
@@ -1018,9 +1018,9 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 
 			std::cout << "AtPA=AtPB SOLVED" << std::endl;
 
-			for(size_t i = 0 ; i < h_x.size(); i++){
-				std::cout << h_x[i] << std::endl;
-			}
+			//for(size_t i = 0 ; i < h_x.size(); i++){
+			//	std::cout << h_x[i] << std::endl;
+			//}
 
 			if(h_x.size() == 6 * vertices.size()){
 				int counter = 0;
