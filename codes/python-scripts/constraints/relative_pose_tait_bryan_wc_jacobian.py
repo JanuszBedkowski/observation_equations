@@ -1,3 +1,4 @@
+import sympy
 from sympy import *
 import sys
 sys.path.insert(1, '..')
@@ -61,7 +62,51 @@ sum=Matrix([delta[0,0]*delta[0,0]+delta[1,0]*delta[1,0]+delta[2,0]*delta[2,0]+de
 d2sum_dbeta2=sum.jacobian(beta_symbols).jacobian(beta_symbols)
 d2sum_dbetadx=sum.jacobian(beta_symbols).jacobian(x_symbols)
 
+
+##################################################
+sin_om_1, cos_om_1 = symbols('sin_om_1 cos_om_1')
+sin_fi_1, cos_fi_1 = symbols('sin_fi_1 cos_fi_1')
+sin_ka_1, cos_ka_1 = symbols('sin_ka_1 cos_ka_1')
+
+sin_om_2, cos_om_2 = symbols('sin_om_2 cos_om_2')
+sin_fi_2, cos_fi_2 = symbols('sin_fi_2 cos_fi_2')
+sin_ka_2, cos_ka_2 = symbols('sin_ka_2 cos_ka_2')
+
+
+
+### simplified 1
+substitutions1 = [(sympy.sin(om_1), sin_om_1), (sympy.cos(om_1), cos_om_1), (sympy.sin(
+fi_1), sin_fi_1), (sympy.cos(fi_1), cos_fi_1), (sympy.sin(ka_1), sin_ka_1), (sympy.cos(ka_1), cos_ka_1), (sympy.sin(om_2), sin_om_2), (sympy.cos(om_2), cos_om_2), (sympy.sin(
+fi_2), sin_fi_2), (sympy.cos(fi_2), cos_fi_2), (sympy.sin(ka_2), sin_ka_2), (sympy.cos(ka_2), cos_ka_2)]
+
+delta1 = sympy.simplify(delta.subs(substitutions1))
+delta1_variables, delta1_simple = sympy.cse(
+        delta1, order='none')
+delta1_simple = delta1_simple[0]
+###
+delta_jacobian1 = sympy.simplify(delta_jacobian.subs(substitutions1))
+delta_jacobian1_variables, delta_jacobian1_simple = sympy.cse(
+        delta_jacobian1, order='none')
+delta_jacobian1_simple = delta_jacobian1_simple[0]
+###
+model_function1 = sympy.simplify(model_function.subs(substitutions1))
+model_function1_variables, model_function1_simple = sympy.cse(
+        model_function1, order='none')
+model_function1_simple = model_function1_simple[0]
+
+### simplified 2
+substitutions2 = [(sympy.sin(om_1), 0), (sympy.cos(om_1), 1), (sympy.sin(
+fi_1), 0), (sympy.cos(fi_1), 1), (sympy.sin(ka_1), 0), (sympy.cos(ka_1), 1), (sympy.sin(om_2), 0), (sympy.cos(om_2), 1), (sympy.sin(
+fi_2), 0), (sympy.cos(fi_2), 1), (sympy.sin(ka_2), 0), (sympy.cos(ka_2), 1)]
+
+delta_jacobian2 = sympy.simplify(delta_jacobian.subs(substitutions2))
+delta_jacobian2_variables, delta_jacobian2_simple = sympy.cse(
+        delta_jacobian2, order='none')
+delta_jacobian2_simple = delta_jacobian2_simple[0]
+
 with open("relative_pose_tait_bryan_wc_jacobian.h",'w') as f_cpp:  
+    f_cpp.write("#ifndef _RELATIVE_POSE_TAIT_BRYAN_WC_JACOBIAN_H_\n")
+    f_cpp.write("#define _RELATIVE_POSE_TAIT_BRYAN_WC_JACOBIAN_H_\n")
     f_cpp.write("inline void relative_pose_obs_eq_tait_bryan_wc_case1(Eigen::Matrix<double, 6, 1> &delta, double tx_1, double ty_1, double tz_1, double om_1, double fi_1, double ka_1, double tx_2, double ty_2, double tz_2, double om_2, double fi_2, double ka_2, double tx_m, double ty_m, double tz_m, double om_m, double fi_m, double ka_m)\n")
     f_cpp.write("{")
     for i in range (6):
@@ -92,4 +137,78 @@ with open("relative_pose_tait_bryan_wc_jacobian.h",'w') as f_cpp:
         for j in range (6):
             f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(d2sum_dbetadx[i,j])))
     f_cpp.write("}")
+    f_cpp.write("\n")
+    ########################################### _simplified_1 #######################################
+    f_cpp.write("inline void relative_pose_obs_eq_tait_bryan_wc_case1_simplified_1(Eigen::Matrix<double, 6, 1> &delta, double tx_1, double ty_1, double tz_1, double om_1, double fi_1, double ka_1, double tx_2, double ty_2, double tz_2, double om_2, double fi_2, double ka_2, double tx_m, double ty_m, double tz_m, double om_m, double fi_m, double ka_m)\n")
+    f_cpp.write("{\n")
+    f_cpp.write("double sin_om_1 = sin(om_1);\n")
+    f_cpp.write("double cos_om_1 = cos(om_1);\n")
+    f_cpp.write("double sin_fi_1 = sin(fi_1);\n")
+    f_cpp.write("double cos_fi_1 = cos(fi_1);\n")
+    f_cpp.write("double sin_ka_1 = sin(ka_1);\n")
+    f_cpp.write("double cos_ka_1 = cos(ka_1);\n")
+    f_cpp.write("double sin_om_2 = sin(om_2);\n")
+    f_cpp.write("double cos_om_2 = cos(om_2);\n")
+    f_cpp.write("double sin_fi_2 = sin(fi_2);\n")
+    f_cpp.write("double cos_fi_2 = cos(fi_2);\n")
+    f_cpp.write("double sin_ka_2 = sin(ka_2);\n")
+    f_cpp.write("double cos_ka_2 = cos(ka_2);\n")
+    for name, value_expr in delta1_variables:
+        f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
+    for i in range (6):
+        f_cpp.write("delta.coeffRef(%d,%d) = %s;\n"%(i, 0, ccode(delta1_simple[i])))
+    f_cpp.write("}")
+    f_cpp.write("\n")
+    f_cpp.write("inline void relative_pose_obs_eq_tait_bryan_wc_case1_jacobian_simplified_1(Eigen::Matrix<double, 6, 12, Eigen::RowMajor> &j, double tx_1, double ty_1, double tz_1, double om_1, double fi_1, double ka_1, double tx_2, double ty_2, double tz_2, double om_2, double fi_2, double ka_2)\n")
+    f_cpp.write("{\n")
+    f_cpp.write("double sin_om_1 = sin(om_1);\n")
+    f_cpp.write("double cos_om_1 = cos(om_1);\n")
+    f_cpp.write("double sin_fi_1 = sin(fi_1);\n")
+    f_cpp.write("double cos_fi_1 = cos(fi_1);\n")
+    f_cpp.write("double sin_ka_1 = sin(ka_1);\n")
+    f_cpp.write("double cos_ka_1 = cos(ka_1);\n")
+    f_cpp.write("double sin_om_2 = sin(om_2);\n")
+    f_cpp.write("double cos_om_2 = cos(om_2);\n")
+    f_cpp.write("double sin_fi_2 = sin(fi_2);\n")
+    f_cpp.write("double cos_fi_2 = cos(fi_2);\n")
+    f_cpp.write("double sin_ka_2 = sin(ka_2);\n")
+    f_cpp.write("double cos_ka_2 = cos(ka_2);\n")
+    for name, value_expr in delta_jacobian1_variables:
+        f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
+    for i in range (6):
+        for j in range (12):
+            f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_jacobian1_simple[i,j])))
+    f_cpp.write("}")
+    f_cpp.write("\n")
+    f_cpp.write("inline void relative_pose_tait_bryan_wc_case1_simplified_1(Eigen::Matrix<double, 6, 1> &relative_pose, double tx_1, double ty_1, double tz_1, double om_1, double fi_1, double ka_1, double tx_2, double ty_2, double tz_2, double om_2, double fi_2, double ka_2)\n")
+    f_cpp.write("{")
+    f_cpp.write("double sin_om_1 = sin(om_1);\n")
+    f_cpp.write("double cos_om_1 = cos(om_1);\n")
+    f_cpp.write("double sin_fi_1 = sin(fi_1);\n")
+    f_cpp.write("double cos_fi_1 = cos(fi_1);\n")
+    f_cpp.write("double sin_ka_1 = sin(ka_1);\n")
+    f_cpp.write("double cos_ka_1 = cos(ka_1);\n")
+    f_cpp.write("double sin_om_2 = sin(om_2);\n")
+    f_cpp.write("double cos_om_2 = cos(om_2);\n")
+    f_cpp.write("double sin_fi_2 = sin(fi_2);\n")
+    f_cpp.write("double cos_fi_2 = cos(fi_2);\n")
+    f_cpp.write("double sin_ka_2 = sin(ka_2);\n")
+    f_cpp.write("double cos_ka_2 = cos(ka_2);\n")
+    for name, value_expr in model_function1_variables:
+        f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
+    for i in range (6):
+        f_cpp.write("relative_pose.coeffRef(%d,%d) = %s;\n"%(i, 0, ccode(model_function1_simple[i])))
+    f_cpp.write("}")
+    f_cpp.write("\n")
+    ########################################### _simplified_2 #######################################
+    f_cpp.write("inline void relative_pose_obs_eq_tait_bryan_wc_case1_jacobian_simplified_2(Eigen::Matrix<double, 6, 12, Eigen::RowMajor> &j, double tx_1, double ty_1, double tz_1, double om_1, double fi_1, double ka_1, double tx_2, double ty_2, double tz_2, double om_2, double fi_2, double ka_2)\n")
+    f_cpp.write("{\n")
+    for name, value_expr in delta_jacobian2_variables:
+        f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
+    for i in range (6):
+        for j in range (12):
+            f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_jacobian2_simple[i,j])))
+    f_cpp.write("}")
+    f_cpp.write("\n")
+    f_cpp.write("#endif\n")
 

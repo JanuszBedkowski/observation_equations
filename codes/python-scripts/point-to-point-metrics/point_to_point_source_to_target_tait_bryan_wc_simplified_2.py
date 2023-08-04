@@ -34,11 +34,10 @@ delta_jacobian=delta.jacobian(all_symbols)
 
 P=Matrix([[p11, p12, p13],[p21, p22, p23],[p31, p32, p33]])
 AtPA = delta_jacobian.transpose() * P * delta_jacobian
-
 AtPB = delta_jacobian.transpose() * P * delta
 
-print(delta)
-print(delta_jacobian)
+#print(delta)
+#print(delta_jacobian)
 #print(ATPA)
 
 #sin_om, cos_om = symbols('sin_om cos_om')
@@ -52,22 +51,33 @@ substitutions = [(sympy.sin(om), 0), (sympy.cos(om), 1), (sympy.sin(
 fi), 0), (sympy.cos(fi), 1), (sympy.sin(ka), 0), (sympy.cos(ka), 1)]
 
 delta = sympy.simplify(delta.subs(substitutions))
-delta_jacobian = sympy.simplify(delta_jacobian.subs(substitutions))
-AtPA = sympy.simplify(AtPA.subs(substitutions))
-AtPB = sympy.simplify(AtPB.subs(substitutions))
+delta_variables, delta_simple = sympy.cse(
+        delta, order='none')
+delta_simple = delta_simple[0]
 
+delta_jacobian = sympy.simplify(delta_jacobian.subs(substitutions))
 delta_jacobian_variables, delta_jacobian_simple = sympy.cse(
         delta_jacobian, order='none')
-
 delta_jacobian_simple = delta_jacobian_simple[0]
 
+AtPA = sympy.simplify(AtPA.subs(substitutions))
+AtPA_variables, AtPA_simple = sympy.cse(
+        AtPA, order='none')
+AtPA_simple = AtPA_simple[0]
 
-print("-----------")
-print(delta)
-print(delta_jacobian_simple)
-print(AtPA)
-print("AtPB")
-print(AtPB)
+
+AtPB = sympy.simplify(AtPB.subs(substitutions))
+AtPB_variables, AtPB_simple = sympy.cse(
+        AtPB, order='none')
+AtPB_simple = AtPB_simple[0]
+
+
+#print("-----------")
+#print(delta)
+#print(delta_jacobian_simple)
+#print(AtPA)
+#print("AtPB")
+#print(AtPB)
 
 
 with open("point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified_2.h",'w') as f_cpp:  
@@ -75,11 +85,11 @@ with open("point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified_2.h
     f_cpp.write("#define _point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified_2_h_\n")
     f_cpp.write("inline void point_to_point_source_to_target_tait_bryan_wc_simplified_2(double &delta_x, double &delta_y, double &delta_z, double tx, double ty, double tz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_t, double y_t, double z_t)\n")
     f_cpp.write("{\n")
-    for name, value_expr in delta_jacobian_variables:
+    for name, value_expr in delta_variables:
         f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
-    f_cpp.write("delta_x = %s;\n"%(ccode(delta[0,0])))
-    f_cpp.write("delta_y = %s;\n"%(ccode(delta[1,0])))
-    f_cpp.write("delta_z = %s;\n"%(ccode(delta[2,0])))
+    f_cpp.write("delta_x = %s;\n"%(ccode(delta_simple[0,0])))
+    f_cpp.write("delta_y = %s;\n"%(ccode(delta_simple[1,0])))
+    f_cpp.write("delta_z = %s;\n"%(ccode(delta_simple[2,0])))
     f_cpp.write("}")
     f_cpp.write("\n")
     f_cpp.write("inline void point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified_2(Eigen::Matrix<double, 3, 6, Eigen::RowMajor> &j, double tx, double ty, double tz, double om, double fi, double ka, double x_s, double y_s, double z_s)\n")
@@ -88,22 +98,22 @@ with open("point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified_2.h
         f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
     for i in range (3):
         for j in range (6):
-            f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_jacobian[i,j])))
+            f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_jacobian_simple[i,j])))
     f_cpp.write("}\n")
     f_cpp.write("inline void point_to_point_source_to_target_tait_bryan_wc_AtPA_simplified_2(Eigen::Matrix<double, 6, 6, Eigen::RowMajor> &AtPA, double tx, double ty, double tz, double om, double fi, double ka, double x_s, double y_s, double z_s, double p11, double p12, double p13, double p21, double p22, double p23, double p31, double p32, double p33)\n")
     f_cpp.write("{\n")
-    for name, value_expr in delta_jacobian_variables:
+    for name, value_expr in AtPA_variables:
         f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
     for i in range (6):
         for j in range (6):
-            f_cpp.write("AtPA.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(AtPA[i,j])))
+            f_cpp.write("AtPA.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(AtPA_simple[i,j])))
     f_cpp.write("}\n")
     f_cpp.write("inline void point_to_point_source_to_target_tait_bryan_wc_AtPB_simplified_2(Eigen::Matrix<double, 6, 1> &AtPB, double tx, double ty, double tz, double om, double fi, double ka, double x_s, double y_s, double z_s, double p11, double p12, double p13, double p21, double p22, double p23, double p31, double p32, double p33, double x_t, double y_t, double z_t)\n")
     f_cpp.write("{\n")
-    for name, value_expr in delta_jacobian_variables:
+    for name, value_expr in AtPB_variables:
         f_cpp.write("double %s = %s;\n"%(name,ccode(value_expr)))
     for i in range (6):
-        f_cpp.write("AtPB.coeffRef(%d) = %s;\n"%(i, ccode(AtPB[i])))
+        f_cpp.write("AtPB.coeffRef(%d) = %s;\n"%(i, ccode(AtPB_simple[i])))
     f_cpp.write("}\n")
     f_cpp.write("#endif\n")
 #    f_cpp.write("inline void point_to_point_source_to_target_tait_bryan_wc_d2sum_dbeta2(Eigen::Matrix<double, 6, 6, Eigen::RowMajor> &j, double tx, double ty, double tz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_t, double y_t, double z_t)\n")
