@@ -1,3 +1,4 @@
+import sympy
 from sympy import *
 import sys
 sys.path.insert(1, '..')
@@ -37,5 +38,21 @@ with open("point_to_point_source_to_target_rodrigues_wc_jacobian.h",'w') as f_cp
             f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_jacobian[i,j])))
     f_cpp.write("}")
 
+print("---------------------------------------------")
+substitutions = [(sx, 0.000000000001), (sy, 0.0), (sz, 0.0)]
 
+delta = sympy.simplify(delta.subs(substitutions))
+delta_variables, delta_simple = sympy.cse(
+        delta, order='none')
+delta_simple = delta_simple[0]
 
+delta_jacobian = sympy.simplify(delta_jacobian.subs(substitutions))
+delta_jacobian_variables, delta_jacobian_simple = sympy.cse(
+        delta_jacobian, order='none')
+delta_jacobian_simple = delta_jacobian_simple[0]
+
+print("---------------------------------------------")
+for name, value_expr in delta_jacobian_variables:
+        print("%s,%s;\n"%(name,value_expr))
+
+print(delta_jacobian_simple)
