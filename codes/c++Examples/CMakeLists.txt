@@ -500,6 +500,21 @@ target_link_libraries(sheaf_of_planes
 )
 endif()
 
+add_executable(planes_intersection
+	src/planes_intersection.cpp
+)
+if (WIN32)
+target_link_libraries(planes_intersection
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(planes_intersection
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
+
 add_executable(view_nns
 	src/view_nns.cpp
 )
