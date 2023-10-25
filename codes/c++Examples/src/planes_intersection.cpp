@@ -270,6 +270,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
 	}
 	case 't':
 	{
+		intersection.x() += ((rand() % 1000000000000 / 1000000000000.0) - 0.5) * 0.000000000001;
+		intersection.y() += ((rand() % 1000000000000 / 1000000000000.0) - 0.5) * 0.000000000001;
+		intersection.z() += ((rand() % 1000000000000 / 1000000000000.0) - 0.5) * 0.000000000001;
+
 		std::vector<Eigen::Triplet<double>> tripletListA;
 		std::vector<Eigen::Triplet<double>> tripletListP;
 		std::vector<Eigen::Triplet<double>> tripletListB;
@@ -378,6 +382,29 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
 
 				std::cout << "distance: " << delta << std::endl;
 			}
+
+			// orthogonalize_rotation(Eigen::Affine3d & m)
+
+			Eigen::Affine3d m = Eigen::Affine3d::Identity();
+			m.translation() = intersection;
+			m(0, 0) = sheaf_of_planes[0](0, 2);
+			m(1, 0) = sheaf_of_planes[0](1, 2);
+			m(1, 0) = sheaf_of_planes[0](2, 2);
+
+			m(0, 1) = sheaf_of_planes[1](0, 2);
+			m(1, 1) = sheaf_of_planes[1](1, 2);
+			m(1, 1) = sheaf_of_planes[1](2, 2);
+
+			m(0, 2) = sheaf_of_planes[2](0, 2);
+			m(1, 2) = sheaf_of_planes[2](1, 2);
+			m(1, 2) = sheaf_of_planes[2](2, 2);
+
+			std::cout << "m before" << std::endl;
+			std::cout << m.matrix() << std::endl;
+
+			orthogonalize_rotation(m);
+			std::cout << "m after" << std::endl;
+			std::cout << m.matrix() << std::endl;
 		}
 		else
 		{
