@@ -25,6 +25,9 @@ float translate_z = -20.0;
 float translate_x, translate_y = 0.0;
 
 std::vector<Eigen::Affine3d> sheaf_of_planes;
+
+Eigen::Affine3d m_imu = Eigen::Affine3d::Identity();
+
 // std::pair<Eigen::Vector3d, Eigen::Vector3d> line;
 
 Eigen::Vector3d intersection(0, 0, 0);
@@ -174,7 +177,7 @@ bool initGL(int *argc, char **argv)
 	glutInit(argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(window_width, window_height);
-	glutCreateWindow("sheaf_of_planes");
+	glutCreateWindow("planes_intersection");
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutMotionFunc(motion);
@@ -255,6 +258,23 @@ void display()
 	glVertex3f(intersection.x(), intersection.y(), intersection.z());
 	glEnd();
 	glPointSize(1);
+
+	//m_imu
+	glLineWidth(3);
+	glBegin(GL_LINES);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex3f(m_imu(0, 3), m_imu(1, 3), m_imu(2, 3));
+		glVertex3f(m_imu(0, 3) + m_imu(0, 0), m_imu(1, 3) + m_imu(1, 0), m_imu(2, 3) + m_imu(2, 0));
+
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(m_imu(0, 3), m_imu(1, 3), m_imu(2, 3));
+		glVertex3f(m_imu(0, 3) + m_imu(0, 1), m_imu(1, 3) + m_imu(1, 1), m_imu(2, 3) + m_imu(2, 1));
+
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex3f(m_imu(0, 3), m_imu(1, 3), m_imu(2, 3));
+		glVertex3f(m_imu(0, 3) + m_imu(0, 2), m_imu(1, 3) + m_imu(1, 2), m_imu(2, 3) + m_imu(2, 2));
+	glEnd();
+	glLineWidth(1);
 
 	glutSwapBuffers();
 }
@@ -389,22 +409,37 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
 			m.translation() = intersection;
 			m(0, 0) = sheaf_of_planes[0](0, 2);
 			m(1, 0) = sheaf_of_planes[0](1, 2);
-			m(1, 0) = sheaf_of_planes[0](2, 2);
+			m(2, 0) = sheaf_of_planes[0](2, 2);
 
 			m(0, 1) = sheaf_of_planes[1](0, 2);
 			m(1, 1) = sheaf_of_planes[1](1, 2);
-			m(1, 1) = sheaf_of_planes[1](2, 2);
+			m(2, 1) = sheaf_of_planes[1](2, 2);
 
-			m(0, 2) = sheaf_of_planes[2](0, 2);
-			m(1, 2) = sheaf_of_planes[2](1, 2);
-			m(1, 2) = sheaf_of_planes[2](2, 2);
+			m(0, 2) = -sheaf_of_planes[2](0, 2);
+			m(1, 2) = -sheaf_of_planes[2](1, 2);
+			m(2, 2) = -sheaf_of_planes[2](2, 2);
 
 			std::cout << "m before" << std::endl;
 			std::cout << m.matrix() << std::endl;
 
 			orthogonalize_rotation(m);
+
+			m(0, 0) *= 1.0;
+			m(1, 0) *= 1.0;
+			m(2, 0) *= 1.0;
+
+			m(0, 1) *= -1.0;
+			m(1, 1) *= -1.0;
+			m(2, 1) *= -1.0;
+
+			m(0, 2) *= -1.0;
+			m(1, 2) *= -1.0;
+			m(2, 2) *= -1.0;
+
 			std::cout << "m after" << std::endl;
 			std::cout << m.matrix() << std::endl;
+
+			m_imu = m;
 		}
 		else
 		{
