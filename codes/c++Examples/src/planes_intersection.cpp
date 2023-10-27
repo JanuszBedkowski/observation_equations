@@ -27,6 +27,7 @@ float translate_x, translate_y = 0.0;
 std::vector<Eigen::Affine3d> sheaf_of_planes;
 
 Eigen::Affine3d m_imu = Eigen::Affine3d::Identity();
+Eigen::Affine3d m_imu_volf = Eigen::Affine3d::Identity();
 
 // std::pair<Eigen::Vector3d, Eigen::Vector3d> line;
 
@@ -43,6 +44,10 @@ Eigen::Vector3d intersection(0, 0, 0);
 // IMU1  0.8569 -0.0264 -0.9612
 // IMU2  0.8589  0.0499 -0.9614
 // IMU10 0.9875  0.0503 -0.9608
+
+//IMU20 0.9824 -0.0408 -0.9661 
+//IMU21 0.8464 -0.0417 -0.9683 
+//IMU22 0.9022 -0.0401 -1.0360 
 
 bool initGL(int *argc, char **argv);
 void display();
@@ -99,9 +104,12 @@ int main(int argc, char *argv[])
 	sheaf_of_planes.push_back(pose1);
 
 	////////////////////////////////////////////////////////////////////
-	Eigen::Vector3d v100(0.8563, -0.0382, -0.9612);
-	Eigen::Vector3d v101(0.9838, -0.0404, -0.9605);
-	Eigen::Vector3d v102(0.8438, -0.0373, -0.9710);
+	// Eigen::Vector3d v100(0.8563, -0.0382, -0.9612);
+	// Eigen::Vector3d v101(0.9838, -0.0404, -0.9605);
+	// Eigen::Vector3d v102(0.8438, -0.0373, -0.9710);
+	Eigen::Vector3d v100(0.9824, -0.0408, -0.9661);
+	Eigen::Vector3d v101(0.8464, -0.0417, -0.9683);
+	Eigen::Vector3d v102(0.9022, -0.0401, -1.0360);
 
 	a1 = v100 - v101;
 	a2 = v100 - v102;
@@ -276,6 +284,25 @@ void display()
 	glEnd();
 	glLineWidth(1);
 
+
+	//volfram
+	glLineWidth(3);
+	glBegin(GL_LINES);
+		glColor3f(1.0f, 0.5f, 0.5f);
+		glVertex3f(m_imu_volf(0, 3), m_imu_volf(1, 3), m_imu_volf(2, 3));
+		glVertex3f(m_imu_volf(0, 3) + m_imu_volf(0, 0), m_imu_volf(1, 3) + m_imu_volf(1, 0), m_imu_volf(2, 3) + m_imu_volf(2, 0));
+
+		glColor3f(5.0f, 1.0f, 0.5f);
+		glVertex3f(m_imu_volf(0, 3), m_imu_volf(1, 3), m_imu_volf(2, 3));
+		glVertex3f(m_imu_volf(0, 3) + m_imu_volf(0, 1), m_imu_volf(1, 3) + m_imu_volf(1, 1), m_imu_volf(2, 3) + m_imu_volf(2, 1));
+
+		glColor3f(0.5f, 0.5f, 1.0f);
+		glVertex3f(m_imu_volf(0, 3), m_imu_volf(1, 3), m_imu_volf(2, 3));
+		glVertex3f(m_imu_volf(0, 3) + m_imu_volf(0, 2), m_imu_volf(1, 3) + m_imu_volf(1, 2), m_imu_volf(2, 3) + m_imu_volf(2, 2));
+	glEnd();
+	glLineWidth(1);
+	
+
 	glutSwapBuffers();
 }
 
@@ -422,24 +449,87 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
 			std::cout << "m before" << std::endl;
 			std::cout << m.matrix() << std::endl;
 
+			{
+			m_imu = m;
+
+			// check angles between vetors
+			Eigen::Vector3d vx(m_imu(0, 0), m_imu(1, 0), m_imu(2, 0));
+			Eigen::Vector3d vy(m_imu(0, 1), m_imu(1, 1), m_imu(2, 1));
+			Eigen::Vector3d vz(m_imu(0, 2), m_imu(1, 2), m_imu(2, 2));
+
+			std::cout << "lengths vx: " << vx.norm() << " vy: " << vy.norm() << " vz: " << vz.norm() << std::endl;
+			double a1 = acos(vx.dot(vy) / (vx.norm() * vy.norm()));
+			std::cout << "angle_deg xy: " << a1 * 180.0 / M_PI << std::endl;
+			double a2 = acos(vy.dot(vz) / (vy.norm() * vz.norm()));
+			std::cout << "angle_deg yz: " << a2 * 180.0 / M_PI << std::endl;
+			double a3 = acos(vx.dot(vz) / (vx.norm() * vz.norm()));
+			std::cout << "angle_deg xz: " << a3 * 180.0 / M_PI << std::endl;
+			}
+
+
 			orthogonalize_rotation(m);
 
-			m(0, 0) *= 1.0;
-			m(1, 0) *= 1.0;
-			m(2, 0) *= 1.0;
+			m(0, 0) *= -1.0;
+			m(1, 0) *= -1.0;
+			m(2, 0) *= -1.0;
 
 			m(0, 1) *= -1.0;
 			m(1, 1) *= -1.0;
 			m(2, 1) *= -1.0;
 
-			m(0, 2) *= -1.0;
-			m(1, 2) *= -1.0;
-			m(2, 2) *= -1.0;
+			//m(0, 2) *= -1.0;
+			//m(1, 2) *= -1.0;
+			//m(2, 2) *= -1.0;
 
 			std::cout << "m after" << std::endl;
 			std::cout << m.matrix() << std::endl;
 
 			m_imu = m;
+
+			//check angles between vetors
+			Eigen::Vector3d vx(m_imu(0, 0), m_imu(1, 0), m_imu(2, 0));
+			Eigen::Vector3d vy(m_imu(0, 1), m_imu(1, 1), m_imu(2, 1));
+			Eigen::Vector3d vz(m_imu(0, 2), m_imu(1, 2), m_imu(2, 2));
+
+			std::cout << "lengths vx: " << vx.norm() << " vy: " << vy.norm() << " vz: " << vz.norm() << std::endl;
+			double a1 = acos(vx.dot(vy) / (vx.norm() * vy.norm()));
+			std::cout << "angle_deg xy: " << a1*180.0/M_PI << std::endl;
+			double a2 = acos(vy.dot(vz) / (vy.norm() * vz.norm()));
+			std::cout << "angle_deg yz: " << a2 * 180.0 / M_PI << std::endl;
+			double a3 = acos(vx.dot(vz) / (vx.norm() * vz.norm()));
+			std::cout << "angle_deg xz: " << a3 * 180.0 / M_PI << std::endl;
+
+			//(0.999965 | 0.00690769 | -0.00467485 0.00692001 | -0.999973 | 0.00262451 0.00465659 | 0.00265677 | 0.999986)
+
+			{
+			m_imu = m;
+
+			// check angles between vetors
+			Eigen::Vector3d vx(0.999965, 0.00690769, -0.00467485);
+			Eigen::Vector3d vy(0.00692001, -0.999973, 0.00262451);
+			Eigen::Vector3d vz(0.00465659, 0.00265677, 0.999986);
+
+			std::cout << "lengths vx: " << vx.norm() << " vy: " << vy.norm() << " vz: " << vz.norm() << std::endl;
+			double a1 = acos(vx.dot(vy) / (vx.norm() * vy.norm()));
+			std::cout << "angle_deg xy: " << a1 * 180.0 / M_PI << std::endl;
+			double a2 = acos(vy.dot(vz) / (vy.norm() * vz.norm()));
+			std::cout << "angle_deg yz: " << a2 * 180.0 / M_PI << std::endl;
+			double a3 = acos(vx.dot(vz) / (vx.norm() * vz.norm()));
+			std::cout << "angle_deg xz: " << a3 * 180.0 / M_PI << std::endl;
+
+			m_imu_volf = m;
+			m_imu_volf(0, 0) = vx.x();
+			m_imu_volf(1, 0) = vx.y();
+			m_imu_volf(2, 0) = vx.z();
+
+			m_imu_volf(0, 1) = vy.x();
+			m_imu_volf(1, 1) = vy.y();
+			m_imu_volf(2, 1) = vy.z();
+
+			m_imu_volf(0, 2) = vz.x();
+			m_imu_volf(1, 2) = vz.y();
+			m_imu_volf(2, 2) = vz.z();
+			}
 		}
 		else
 		{

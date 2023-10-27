@@ -530,6 +530,21 @@ target_link_libraries(view_nns
 )
 endif()
 
+add_executable(show_axes
+	src/show_axes.cpp
+)
+if (WIN32)
+target_link_libraries(show_axes
+  	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(show_axes
+  	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
+
 add_executable(distance_point_to_plane
 	src/distance_point_to_plane.cpp
 )
