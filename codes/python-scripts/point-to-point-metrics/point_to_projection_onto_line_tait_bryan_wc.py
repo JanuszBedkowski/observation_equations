@@ -53,4 +53,11 @@ with open("point_to_projection_onto_line_tait_bryan_wc_jacobian.h",'w') as f_cpp
         for j in range (6):
             f_cpp.write("j.coeffRef(%d,%d) = %s;\n"%(i,j, ccode(delta_jacobian[i,j])))
     f_cpp.write("}")
+    f_cpp.write("\n")
+    f_cpp.write("inline void get_point_to_projection_onto_line_tait_bryan_wc(Eigen::Vector3d &projection, double tx, double ty, double tz, double om, double fi, double ka, double x_src_l, double y_src_l, double z_src_l, double x_trg_g, double y_trg_g, double z_trg_g, double x_trg_ln, double y_trg_ln, double z_trg_ln)\n")
+    f_cpp.write("{")
+    f_cpp.write("projection.x() = %s;\n"%(ccode(p_proj[0])))
+    f_cpp.write("projection.y() = %s;\n"%(ccode(p_proj[1])))
+    f_cpp.write("projection.z() = %s;\n"%(ccode(p_proj[2])))
+    f_cpp.write("}")
 
