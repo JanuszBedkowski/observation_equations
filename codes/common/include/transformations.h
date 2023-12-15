@@ -10,8 +10,8 @@
 
 #include <random>
  
-std::random_device rd;
-std::mt19937 gen(rd());
+static std::random_device rd;
+static std::mt19937 gen(rd());
 
 inline double random(double low, double high)
 {
