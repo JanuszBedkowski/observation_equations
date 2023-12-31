@@ -709,3 +709,7 @@ target_link_libraries(elementary_error_theory_for_terrestrial_laser_scanner
 	${GLUT_glut_LIBRARY}
 )
 endif()
+
+add_executable(uncertainty_calculator_example
+	src/uncertainty_calculator_example.cpp
+)
