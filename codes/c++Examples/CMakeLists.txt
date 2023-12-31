@@ -713,3 +713,19 @@ endif()
 add_executable(uncertainty_calculator_example
 	src/uncertainty_calculator_example.cpp
 )
+
+add_executable(uncertainty_calculator_demo
+	src/uncertainty_calculator_demo.cpp
+	${IMGUI_SRCS}
+)
+if (WIN32)
+target_link_libraries(uncertainty_calculator_demo
+   	${OPENGL_LIBRARIES}
+	freeglut_static
+)
+else()
+target_link_libraries(uncertainty_calculator_demo
+   	${OPENGL_LIBRARIES}
+	${GLUT_glut_LIBRARY}
+)
+endif()
