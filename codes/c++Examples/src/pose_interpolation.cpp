@@ -57,11 +57,14 @@ public:
 	Eigen::Affine3d pose_interpolation(double t, double t1, double t2,
 		Eigen::Affine3d const& aff1, Eigen::Affine3d const& aff2);
 
+	Eigen::Affine3d pose_interpolation_Eigen(double t, double t1, double t2,
+		Eigen::Affine3d const& aff1, Eigen::Affine3d const& aff2);
+
 	float time_stamp_1;
 	float time_stamp_2;
 	float time_stamp_middle;
-	Eigen::Affine3d m1;
-	Eigen::Affine3d m2;
+	Eigen::Affine3d m1 = Eigen::Affine3d::Identity();
+	Eigen::Affine3d m2 = Eigen::Affine3d::Identity();
 };
 
 Eigen::Affine3d PoseInterpolation::pose_interpolation(double t, double t1, double t2,
@@ -124,6 +127,27 @@ Eigen::Affine3d PoseInterpolation::pose_interpolation(double t, double t1, doubl
     result = affine_matrix_from_pose_quaternion(pq);
 
     return result;
+}
+
+Eigen::Affine3d PoseInterpolation::pose_interpolation_Eigen(double query_time, double t1, double t2,
+    Eigen::Affine3d const& aff1, Eigen::Affine3d const& aff2) {
+	
+	Eigen::Affine3d m_interpolated;
+	m_interpolated = Eigen::Matrix4d::Identity();
+    double res = (query_time - t1) / (t2 - t1);
+
+	Eigen::Vector3d diff_translation = aff2.translation() - aff1.translation();
+        
+	m_interpolated.translation() = aff2.translation() + diff_translation * res;
+
+	Eigen::Matrix3d r1 = aff1.linear();
+	Eigen::Matrix3d r2 = aff2.linear();
+	Eigen::Quaterniond q1(r1);
+	Eigen::Quaterniond q2(r2);
+	Eigen::Quaterniond qt = q1.slerp(res, q2);
+	
+	m_interpolated.matrix().topLeftCorner(3, 3) = qt.toRotationMatrix();
+	return m_interpolated;
 }
 
 PoseInterpolation pi;
@@ -195,7 +219,9 @@ void display() {
 	draw_axes(pi.m1);
 	draw_axes(pi.m2);
 
-	Eigen::Affine3d m3 = pi.pose_interpolation(pi.time_stamp_middle, pi.time_stamp_1, pi.time_stamp_2, pi.m1, pi.m2);
+	//Eigen::Affine3d m3 = pi.pose_interpolation(pi.time_stamp_middle, pi.time_stamp_1, pi.time_stamp_2, pi.m1, pi.m2);
+	Eigen::Affine3d m3 = pi.pose_interpolation_Eigen(pi.time_stamp_middle, pi.time_stamp_1, pi.time_stamp_2, pi.m1, pi.m2);
+	
 	draw_axes(m3);
 
 	glutSwapBuffers();
