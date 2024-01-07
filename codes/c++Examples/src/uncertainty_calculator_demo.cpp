@@ -80,6 +80,8 @@ main(int argc, char *argv[])
         indexes_to_ground_truth.push_back(i);
     }
 
+    m_poses_ref[indexes_to_ground_truth[10]](2,3) += 5;
+
     for (int i = 0; i < m_poses.size(); i++)
     {
         TaitBryanPose tb_pose;

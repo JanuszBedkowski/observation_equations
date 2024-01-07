@@ -136,12 +136,14 @@ Eigen::Affine3d PoseInterpolation::pose_interpolation_Eigen(double query_time, d
 	m_interpolated = Eigen::Matrix4d::Identity();
     double res = (query_time - t1) / (t2 - t1);
 
-	Eigen::Vector3d diff_translation = aff2.translation() - aff1.translation();
+	const Eigen::Vector3d diff_translation = aff2.translation() - aff1.translation();
         
 	m_interpolated.translation() = aff2.translation() + diff_translation * res;
 
-	Eigen::Matrix3d r1 = aff1.linear();
-	Eigen::Matrix3d r2 = aff2.linear();
+	// Eigen::Matrix3d r1 = aff1.linear();
+	// Eigen::Matrix3d r2 = aff2.linear();
+	Eigen::Matrix3d r1 = aff1.rotation();
+	Eigen::Matrix3d r2 = aff2.rotation();
 	Eigen::Quaterniond q1(r1);
 	Eigen::Quaterniond q2(r2);
 	Eigen::Quaterniond qt = q1.slerp(res, q2);
