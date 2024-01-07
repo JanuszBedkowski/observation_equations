@@ -6,7 +6,7 @@
 #include <slerp_point_to_point_source_to_target_quaternion_wc_jacobian.h>
 #include <structures.h>
 #include <transformations.h>
-
+#include <assert.h>
 const unsigned int window_width = 1920;
 const unsigned int window_height = 1080;
 int mouse_old_x, mouse_old_y;
@@ -28,7 +28,7 @@ public:
 	PoseInterpolation() {
 		time_stamp_1 = 1000000;
 		time_stamp_2 = 2000000;
-		time_stamp_middle = 1200000;
+		time_stamp_middle = time_stamp_1 + (time_stamp_2-time_stamp_1)/2;
 
 		Eigen::AngleAxisd xAngle1(0.1, Eigen::Vector3d::UnitX());
 		Eigen::AngleAxisd yAngle1(0.2, Eigen::Vector3d::UnitY());
@@ -52,7 +52,7 @@ public:
 		m2.translation() = Eigen::Vector3d(10, -1, 5);
 	
 	};
-	~PoseInterpolation() { ; };
+	~PoseInterpolation() = default;
 
 	Eigen::Affine3d pose_interpolation(double t, double t1, double t2,
 		Eigen::Affine3d const& aff1, Eigen::Affine3d const& aff2);
@@ -130,15 +130,17 @@ Eigen::Affine3d PoseInterpolation::pose_interpolation(double t, double t1, doubl
 }
 
 Eigen::Affine3d PoseInterpolation::pose_interpolation_Eigen(double query_time, double t1, double t2,
-    Eigen::Affine3d const& aff1, Eigen::Affine3d const& aff2) {
-	
+    Eigen::Affine3d const& aff1, Eigen::Affine3d const& aff2) 
+{
+	assert(t2 > t1);
+	assert(t2 >= query_time);
+	assert(t1 <= query_time);
 	Eigen::Affine3d m_interpolated;
 	m_interpolated = Eigen::Matrix4d::Identity();
-    double res = (query_time - t1) / (t2 - t1);
-
+    const double res = (query_time - t1) / (t2 - t1);
 	const Eigen::Vector3d diff_translation = aff2.translation() - aff1.translation();
         
-	m_interpolated.translation() = aff2.translation() + diff_translation * res;
+	m_interpolated.translation() = aff1.translation() + diff_translation * res;
 
 	// Eigen::Matrix3d r1 = aff1.linear();
 	// Eigen::Matrix3d r2 = aff2.linear();
@@ -193,7 +195,7 @@ bool initGL(int *argc, char **argv) {
 	return true;
 }
 
-void draw_axes(Eigen::Affine3d m){
+void draw_axes(const Eigen::Affine3d& m){
 	glBegin(GL_LINES);
 		glColor3f(1.0f, 0.0f, 0.0f);
 		glVertex3f(m(0,3), m(1,3), m(2,3));
@@ -238,10 +240,13 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/) {
 		}
 		case '-':{
 			pi.time_stamp_middle -= 10000;
+			std::cout << pi.time_stamp_middle << std::endl;
 			break;
 		}
 		case '=':{
 			pi.time_stamp_middle += 10000;
+
+			std::cout << pi.time_stamp_middle << std::endl;
 			break;
 		}
 	}
