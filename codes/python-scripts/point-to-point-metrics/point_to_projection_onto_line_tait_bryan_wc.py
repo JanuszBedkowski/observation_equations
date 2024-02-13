@@ -39,7 +39,9 @@ delta_jacobian=delta.jacobian(all_symbols)
 print(delta)
 print(delta_jacobian)
 
-with open("point_to_projection_onto_line_tait_bryan_wc_jacobian.h",'w') as f_cpp:  
+with open("point_to_projection_onto_line_tait_bryan_wc_jacobian.h",'w') as f_cpp: 
+    f_cpp.write("#ifndef _POINT_TO_PROJECTION_ONTO_LINE_TAIT_BRYAN_WC_JACOBIAN_H_\n")
+    f_cpp.write("#define _POINT_TO_PROJECTION_ONTO_LINE_TAIT_BRYAN_WC_JACOBIAN_H_\n") 
     f_cpp.write("inline void point_to_projection_onto_line_tait_bryan_wc(Eigen::Matrix<double, 3, 1> &delta, double tx, double ty, double tz, double om, double fi, double ka, double x_src_l, double y_src_l, double z_src_l, double x_trg_g, double y_trg_g, double z_trg_g, double x_trg_ln, double y_trg_ln, double z_trg_ln)\n")
     f_cpp.write("{")
     f_cpp.write("delta.coeffRef(0,0) = %s;\n"%(ccode(delta[0,0])))
@@ -60,4 +62,5 @@ with open("point_to_projection_onto_line_tait_bryan_wc_jacobian.h",'w') as f_cpp
     f_cpp.write("projection.y() = %s;\n"%(ccode(p_proj[1])))
     f_cpp.write("projection.z() = %s;\n"%(ccode(p_proj[2])))
     f_cpp.write("}")
+    f_cpp.write("#endif\n") 
 
