@@ -598,7 +598,7 @@ j.coeffRef(5,9) = 0;
 j.coeffRef(5,10) = 0;
 j.coeffRef(5,11) = -1;
 }
-inline void relative_pose_obs_eq_tait_bryan_wc_case1_AtPA_simplified(Eigen::Matrix<double, 12, 12> &AtPA, double tx_1, double ty_1, double tz_1, double om_1, double fi_1, double ka_1, double tx_2, double ty_2, double tz_2, double om_2, double fi_2, double ka_2, double p_x, double p_y, double p_z, double p_om, double p_fi, double p_ka)
+inline void relative_pose_obs_eq_tait_bryan_wc_case1_AtPA_simplified(Eigen::Matrix<double, 12, 12> &AtPA, const double &tx_1, const double &ty_1, const double &tz_1, const double &om_1, const double &fi_1, const double &ka_1, const double &tx_2, const double &ty_2, const double &tz_2, const double &om_2, const double &fi_2, const double &ka_2, const double &p_x, const double &p_y, const double &p_z, const double &p_om, const double &p_fi, const double &p_ka)
 {
 double sin_om_1 = sin(om_1);
 double cos_om_1 = cos(om_1);
@@ -803,7 +803,7 @@ AtPA.coeffRef(11,9) = p_ka*x44*x45;
 AtPA.coeffRef(11,10) = -p_ka*x26*x44*(cos_ka_2*x40 - sin_ka_2*x43);
 AtPA.coeffRef(11,11) = p_ka;
 }
-inline void relative_pose_obs_eq_tait_bryan_wc_case1_AtPB_simplified(Eigen::Matrix<double, 12, 1> &AtPB, double tx_1, double ty_1, double tz_1, double om_1, double fi_1, double ka_1, double tx_2, double ty_2, double tz_2, double om_2, double fi_2, double ka_2, double tx_m, double ty_m, double tz_m, double om_m, double fi_m, double ka_m, double p_x, double p_y, double p_z, double p_om, double p_fi, double p_ka)
+inline void relative_pose_obs_eq_tait_bryan_wc_case1_AtPB_simplified(Eigen::Matrix<double, 12, 1> &AtPB, const double &tx_1, const double &ty_1, const double &tz_1, const double &om_1, const double &fi_1, const double &ka_1, const double &tx_2, const double &ty_2, const double &tz_2, const double &om_2, const double &fi_2, const double &ka_2, const double &tx_m, const double &ty_m, const double &tz_m, const double &om_m, const double &fi_m, const double &ka_m, const double &p_x, const double &p_y, const double &p_z, const double &p_om, const double &p_fi, const double &p_ka)
 {
 double sin_om_1 = sin(om_1);
 double cos_om_1 = cos(om_1);
