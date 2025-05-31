@@ -1,0 +1,159 @@
+#ifndef _point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified_4_h_
+#define _point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified_4_h_
+inline void point_to_point_source_to_target_tait_bryan_wc_simplified(double &delta_x, double &delta_y, double &delta_z, double tx, double ty, double tz, double om, double fi, double ka, double x_s, double y_s, double z_s, double x_t, double y_t, double z_t)
+{
+double sin_om = sin(om);
+double cos_om = cos(om);
+double sin_fi = sin(fi);
+double cos_fi = cos(fi);
+double sin_ka = sin(ka);
+double cos_ka = cos(ka);
+double x0 = cos_om*sin_ka;
+double x1 = cos_ka*sin_om;
+double x2 = cos_ka*cos_om;
+double x3 = sin_ka*sin_om;
+delta_x = -cos_fi*cos_ka*x_s + cos_fi*sin_ka*y_s - sin_fi*z_s - tx + x_t;
+delta_y = cos_fi*sin_om*z_s - ty - x_s*(sin_fi*x1 + x0) - y_s*(-sin_fi*x3 + x2) + y_t;
+delta_z = -cos_fi*cos_om*z_s - tz + x_s*(sin_fi*x2 - x3) - y_s*(sin_fi*x0 + x1) + z_t;
+}
+inline void point_to_point_source_to_target_tait_bryan_wc_jacobian_simplified_4(Eigen::Matrix<double, 3, 6, Eigen::RowMajor> &j, double tx, double ty, double tz, double om, double fi, double ka, double x_s, double y_s, double z_s)
+{
+double sin_om = sin(om);
+double cos_om = cos(om);
+double sin_fi = sin(fi);
+double cos_fi = cos(fi);
+double sin_ka = sin(ka);
+double cos_ka = cos(ka);
+double x0 = cos_fi*z_s;
+double x1 = cos_ka*sin_om;
+double x2 = cos_om*sin_ka;
+double x3 = sin_fi*x2 + x1;
+double x4 = sin_ka*sin_om;
+double x5 = cos_ka*cos_om;
+double x6 = sin_fi*x5 - x4;
+double x7 = cos_fi*cos_ka*x_s - cos_fi*sin_ka*y_s + sin_fi*z_s;
+double x8 = -sin_fi*x4 + x5;
+double x9 = sin_fi*x1 + x2;
+j.coeffRef(0,0) = -1;
+j.coeffRef(0,1) = 0;
+j.coeffRef(0,2) = 0;
+j.coeffRef(0,3) = 0;
+j.coeffRef(0,4) = cos_ka*sin_fi*x_s - sin_fi*sin_ka*y_s - x0;
+j.coeffRef(0,5) = cos_fi*(cos_ka*y_s + sin_ka*x_s);
+j.coeffRef(1,0) = 0;
+j.coeffRef(1,1) = -1;
+j.coeffRef(1,2) = 0;
+j.coeffRef(1,3) = cos_om*x0 + x3*y_s - x6*x_s;
+j.coeffRef(1,4) = -sin_om*x7;
+j.coeffRef(1,5) = -x8*x_s + x9*y_s;
+j.coeffRef(2,0) = 0;
+j.coeffRef(2,1) = 0;
+j.coeffRef(2,2) = -1;
+j.coeffRef(2,3) = cos_fi*sin_om*z_s - x8*y_s - x9*x_s;
+j.coeffRef(2,4) = cos_om*x7;
+j.coeffRef(2,5) = -x3*x_s - x6*y_s;
+}
+inline void point_to_point_source_to_target_tait_bryan_wc_AtPA_simplified_4(Eigen::Matrix<double, 6, 6, Eigen::RowMajor> &AtPA, const double &tx, const double &ty, const double &tz, const double &om, const double &fi, const double &ka, const double &x_s, const double &y_s, const double &z_s)
+{
+double sin_om = sin(om);
+double cos_om = cos(om);
+double sin_fi = sin(fi);
+double cos_fi = cos(fi);
+double sin_ka = sin(ka);
+double cos_ka = cos(ka);
+double x0 = cos_fi*z_s;
+double x1 = sin_ka*y_s;
+double x2 = cos_ka*x_s;
+double x3 = sin_fi*x1 - sin_fi*x2 + x0;
+double x4 = cos_ka*y_s + sin_ka*x_s;
+double x5 = -cos_fi*x4;
+double x6 = cos_ka*sin_om;
+double x7 = cos_om*sin_ka;
+double x8 = sin_fi*x7 + x6;
+double x9 = sin_ka*sin_om;
+double x10 = cos_ka*cos_om;
+double x11 = sin_fi*x10 - x9;
+double x12 = cos_om*x0 - x11*x_s + x8*y_s;
+double x13 = -x12;
+double x14 = -cos_fi*x1 + cos_fi*x2 + sin_fi*z_s;
+double x15 = sin_om*x14;
+double x16 = -sin_fi*x9 + x10;
+double x17 = sin_fi*x6 + x7;
+double x18 = x16*x_s - x17*y_s;
+double x19 = -sin_om*x0 + x16*y_s + x17*x_s;
+double x20 = -cos_om*x14;
+double x21 = x11*y_s + x8*x_s;
+double x22 = x14*(-cos_om*x19 - sin_om*x12);
+double x23 = -x12*x18 + x19*x21;
+double x24 = pow(x14, 2);
+double x25 = -cos_fi*x3*x4 - cos_om*x14*x21 + sin_om*x14*x18;
+AtPA.coeffRef(0,0) = 1;
+AtPA.coeffRef(0,1) = 0;
+AtPA.coeffRef(0,2) = 0;
+AtPA.coeffRef(0,3) = 0;
+AtPA.coeffRef(0,4) = x3;
+AtPA.coeffRef(0,5) = x5;
+AtPA.coeffRef(1,0) = 0;
+AtPA.coeffRef(1,1) = 1;
+AtPA.coeffRef(1,2) = 0;
+AtPA.coeffRef(1,3) = x13;
+AtPA.coeffRef(1,4) = x15;
+AtPA.coeffRef(1,5) = x18;
+AtPA.coeffRef(2,0) = 0;
+AtPA.coeffRef(2,1) = 0;
+AtPA.coeffRef(2,2) = 1;
+AtPA.coeffRef(2,3) = x19;
+AtPA.coeffRef(2,4) = x20;
+AtPA.coeffRef(2,5) = x21;
+AtPA.coeffRef(3,0) = 0;
+AtPA.coeffRef(3,1) = x13;
+AtPA.coeffRef(3,2) = x19;
+AtPA.coeffRef(3,3) = pow(x12, 2) + pow(x19, 2);
+AtPA.coeffRef(3,4) = x22;
+AtPA.coeffRef(3,5) = x23;
+AtPA.coeffRef(4,0) = x3;
+AtPA.coeffRef(4,1) = x15;
+AtPA.coeffRef(4,2) = x20;
+AtPA.coeffRef(4,3) = x22;
+AtPA.coeffRef(4,4) = pow(cos_om, 2)*x24 + pow(sin_om, 2)*x24 + pow(x3, 2);
+AtPA.coeffRef(4,5) = x25;
+AtPA.coeffRef(5,0) = x5;
+AtPA.coeffRef(5,1) = x18;
+AtPA.coeffRef(5,2) = x21;
+AtPA.coeffRef(5,3) = x23;
+AtPA.coeffRef(5,4) = x25;
+AtPA.coeffRef(5,5) = pow(cos_fi, 2)*pow(x4, 2) + pow(x18, 2) + pow(x21, 2);
+}
+inline void point_to_point_source_to_target_tait_bryan_wc_AtPB_simplified_4(Eigen::Matrix<double, 6, 1> &AtPB, const double &tx, const double &ty, const double &tz, const double &om, const double &fi, const double &ka, const double &x_s, const double &y_s, const double &z_s, const double &x_t, const double &y_t, const double &z_t)
+{
+double sin_om = sin(om);
+double cos_om = cos(om);
+double sin_fi = sin(fi);
+double cos_fi = cos(fi);
+double sin_ka = sin(ka);
+double cos_ka = cos(ka);
+double x0 = cos_ka*x_s;
+double x1 = sin_ka*y_s;
+double x2 = cos_fi*x0 - cos_fi*x1 + sin_fi*z_s;
+double x3 = tx + x2 - x_t;
+double x4 = cos_om*sin_ka;
+double x5 = cos_ka*sin_om;
+double x6 = sin_fi*x5 + x4;
+double x7 = cos_ka*cos_om;
+double x8 = sin_ka*sin_om;
+double x9 = -sin_fi*x8 + x7;
+double x10 = cos_fi*z_s;
+double x11 = -sin_om*x10 + x6*x_s + x9*y_s;
+double x12 = ty + x11 - y_t;
+double x13 = sin_fi*x4 + x5;
+double x14 = sin_fi*x7 - x8;
+double x15 = cos_om*x10 + x13*y_s - x14*x_s;
+double x16 = tz + x15 - z_t;
+AtPB.coeffRef(0) = x3;
+AtPB.coeffRef(1) = x12;
+AtPB.coeffRef(2) = x16;
+AtPB.coeffRef(3) = x11*x16 - x12*x15;
+AtPB.coeffRef(4) = -cos_om*x16*x2 + sin_om*x12*x2 + x3*(-sin_fi*x0 + sin_fi*x1 + x10);
+AtPB.coeffRef(5) = -cos_fi*x3*(cos_ka*y_s + sin_ka*x_s) + x12*(-x6*y_s + x9*x_s) + x16*(x13*x_s + x14*y_s);
+}
+#endif
