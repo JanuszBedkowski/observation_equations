@@ -88,7 +88,7 @@ with open("relative_pose_quaternion_wc_jacobian.h",'w') as f_cpp:
     f_cpp.write("{")
     for i in range (7):
         f_cpp.write("relative_pose.coeffRef(%d,%d) = %s;\n"%(i, 0, ccode(observation[i])))
-    f_cpp.write("}")
+    f_cpp.write("}\n")
 ########################################### _simplified_3 #######################################
     #f_cpp.write("inline void relative_pose_obs_eq_quaternion_wc_case1_AtPA_simplified(Eigen::Matrix<double, 14, 14> &AtPA, const double &tx_1, const double &ty_1, const double &tz_1, const double &q0_1, const double &q1_1, const double &q2_1, const double &q3_1, const double &tx_2, const double &ty_2, const double &tz_2, const double &q0_2, const double &q1_2, const double &q2_2, const double &q3_2, const double &p_x, const double &p_y, const double &p_z, const double &p_q0, const double &p_q1, const double &p_q2, const double &p_q3)\n")
     #f_cpp.write("{\n")

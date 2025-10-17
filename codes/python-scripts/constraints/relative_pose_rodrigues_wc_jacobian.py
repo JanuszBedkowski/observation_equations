@@ -112,4 +112,5 @@ with open("relative_pose_rodrigues_wc_jacobian.h",'w') as f_cpp:
     #f_cpp.write("}\n")
     #f_cpp.write("#endif\n")
     f_cpp.write("\n")
+    f_cpp.write("#endif")
 
