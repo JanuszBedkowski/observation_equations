@@ -23,7 +23,7 @@ inline double huber_loss_more_1_first_derivative(double s)
 {return pow(s, -1.0/2.0);
 }
 inline double huber_loss_more_1_second_derivative(double s)
-{return -1.0/2.0/pow(s, 3.0/2.0);
+{return -(1.0/2.0)/pow(s, 3.0/2.0);
 }
 inline double soft_lone_loss(double s)
 {return 2*sqrt(s + 1) - 2;
@@ -32,7 +32,7 @@ inline double soft_lone_loss_first_derivative(double s)
 {return pow(s + 1, -1.0/2.0);
 }
 inline double soft_lone_loss_second_derivative(double s)
-{return -1.0/2.0/pow(s + 1, 3.0/2.0);
+{return -(1.0/2.0)/pow(s + 1, 3.0/2.0);
 }
 inline double cauchy_loss(double s)
 {return log(s + 1);
